@@ -5,10 +5,10 @@ export function PhaseProgressPanel() {
     <Card>
       <h2>Phase Progress</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px" }}>
-        <MetricTile label="Backend" value="Certified" />
-        <MetricTile label="Frontend" value="Skeleton" />
-        <MetricTile label="Tests" value="85 Passing" />
-        <MetricTile label="Trading" value="Locked" />
+        <MetricTile label="Backend Topology" value="Certified" />
+        <MetricTile label="Frontend Shell" value="Certified" />
+        <MetricTile label="Visual Polish" value="Active" />
+        <MetricTile label="API Wiring" value="Forbidden" />
       </div>
     </Card>
   );

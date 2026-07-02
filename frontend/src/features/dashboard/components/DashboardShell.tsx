@@ -1,15 +1,14 @@
-import { PageHeader } from "../../../components/ui";
+import { CommandGridPanel } from "./CommandGridPanel";
+import { DashboardHeroPanel } from "./DashboardHeroPanel";
 import { PhaseProgressPanel } from "./PhaseProgressPanel";
 import { StackOverviewPanel } from "./StackOverviewPanel";
 import { SystemLockPanel } from "./SystemLockPanel";
 
 export function DashboardShell() {
   return (
-    <div style={{ display: "grid", gap: "18px" }}>
-      <PageHeader
-        title="NeuroVest Dashboard"
-        subtitle="Static dashboard skeleton. All execution paths remain locked."
-      />
+    <div className="nv-grid">
+      <DashboardHeroPanel />
+      <CommandGridPanel />
       <PhaseProgressPanel />
       <SystemLockPanel />
       <StackOverviewPanel />
