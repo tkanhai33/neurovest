@@ -22,3 +22,5 @@ export { AdminDashboardCompositionPanel } from "./AdminDashboardCompositionPanel
 export { UserDashboardCompositionPanel } from "./UserDashboardCompositionPanel";
 
 export { BrainVisualizationLayoutPanel } from "./BrainVisualizationLayoutPanel";
+
+export { BrainNodeRelationshipMatrixPanel } from "./BrainNodeRelationshipMatrixPanel";
