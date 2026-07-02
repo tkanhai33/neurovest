@@ -3,7 +3,9 @@ import {
   backendStatusDisplayModel,
   backendStatusViewModelState,
   backendStatusRefreshLabel,
-  backendStatusRefreshState
+  backendStatusRefreshState,
+  backendStatusRefreshButtonLabel,
+  backendStatusRefreshButtonState
 } from "../view_model";
 
 export function BackendStatusPreviewPanel() {
@@ -34,6 +36,10 @@ export function BackendStatusPreviewPanel() {
         <StatusPill label={`Backend calls: ${backendStatusViewModelState.backendCallsEnabled ? "Enabled" : "Locked"}`} />
         <StatusPill label={backendStatusRefreshLabel} />
         <StatusPill label={`Manual only: ${backendStatusRefreshState.manualOnly ? "True" : "False"}`} />
+        <button type="button" className="nv-button" disabled>
+          {backendStatusRefreshButtonLabel}
+        </button>
+        <StatusPill label={`Button shell only: ${backendStatusRefreshButtonState.buttonShellOnly ? "True" : "False"}`} />
       </div>
     </Card>
   );
