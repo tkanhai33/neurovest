@@ -1,7 +1,9 @@
 import { Card, MetricTile, StatusPill } from "../../../components/ui";
 import {
   backendStatusDisplayModel,
-  backendStatusViewModelState
+  backendStatusViewModelState,
+  backendStatusRefreshLabel,
+  backendStatusRefreshState
 } from "../view_model";
 
 export function BackendStatusPreviewPanel() {
@@ -30,6 +32,8 @@ export function BackendStatusPreviewPanel() {
         <StatusPill label={`View model only: ${backendStatusViewModelState.viewModelOnly ? "True" : "False"}`} />
         <StatusPill label={`Read only: ${backendStatusViewModelState.readOnly ? "True" : "False"}`} />
         <StatusPill label={`Backend calls: ${backendStatusViewModelState.backendCallsEnabled ? "Enabled" : "Locked"}`} />
+        <StatusPill label={backendStatusRefreshLabel} />
+        <StatusPill label={`Manual only: ${backendStatusRefreshState.manualOnly ? "True" : "False"}`} />
       </div>
     </Card>
   );
