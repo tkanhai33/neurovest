@@ -6,3 +6,5 @@ export { StackOverviewPanel } from "./StackOverviewPanel";
 export { SystemLockPanel } from "./SystemLockPanel";
 
 export { SystemFlowMapPanel } from "./SystemFlowMapPanel";
+
+export { RoleVisibilityPreviewPanel } from "./RoleVisibilityPreviewPanel";

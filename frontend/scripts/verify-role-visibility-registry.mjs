@@ -30,4 +30,12 @@ for (const file of required) {
   }
 }
 
+const dashboardRequired = [
+  "src/features/dashboard/components/RoleVisibilityPreviewPanel.tsx"
+];
+
+for (const file of dashboardRequired) {
+  if (!existsSync(file)) throw new Error(`Missing role visibility dashboard file: ${file}`);
+}
+
 console.log("PASS: Role visibility registry verified.");

@@ -4,6 +4,7 @@ import { PhaseProgressPanel } from "./PhaseProgressPanel";
 import { StackOverviewPanel } from "./StackOverviewPanel";
 import { SystemLockPanel } from "./SystemLockPanel";
 import { SystemFlowMapPanel } from "./SystemFlowMapPanel";
+import { RoleVisibilityPreviewPanel } from "./RoleVisibilityPreviewPanel";
 
 export function DashboardShell() {
   return (
@@ -11,6 +12,7 @@ export function DashboardShell() {
       <DashboardHeroPanel />
       <CommandGridPanel />
       <SystemFlowMapPanel />
+      <RoleVisibilityPreviewPanel />
       <PhaseProgressPanel />
       <SystemLockPanel />
       <StackOverviewPanel />
