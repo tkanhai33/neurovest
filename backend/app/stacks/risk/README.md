@@ -1,15 +1,20 @@
 # risk
 
-Phase 1 skeleton only.
+Phase 8 — Risk Skeleton.
 
-Allowed:
-- contracts
-- placeholders
-- tests
-- documentation
+Owns:
+- position sizing contracts
+- exposure limit contracts
+- drawdown limit contracts
+- daily trade limit contracts
+- approval/rejection contracts
+- future risk service boundary
 
-Forbidden in Phase 1:
-- business logic
-- trading logic
-- broker execution
-- autonomous runtime loops
+Forbidden in Phase 8:
+- real risk approval
+- position sizing math
+- exposure calculations
+- drawdown calculations
+- paper trading
+- broker interaction
+- execution
