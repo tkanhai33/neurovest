@@ -12,3 +12,5 @@ export { backendStatusRefreshButtonLabel, backendStatusRefreshButtonState } from
 export { backendStatusRequestState, backendStatusRequestStateLabels } from "./backendStatusRequestState";
 
 export { backendStatusRefreshControllerState, getBackendStatusRefreshControllerPreview } from "./backendStatusRefreshController";
+
+export { backendStatusButtonClickHandlerState, getBackendStatusButtonClickPreview } from "./backendStatusButtonClickHandler";
