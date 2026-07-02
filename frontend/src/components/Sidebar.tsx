@@ -1,4 +1,5 @@
 import { frontendRoutes } from "../lib/routes/routeRegistry";
+import { currentRolePreviewState, getVisibleFrontendRoutesForRole } from "../lib/auth";
 
 export function Sidebar() {
   return (
@@ -6,7 +7,7 @@ export function Sidebar() {
       <h1 className="nv-brand">NeuroVest</h1>
       <p className="nv-subtitle">Certified skeleton UI</p>
       <nav className="nv-nav nv-nav-section" aria-label="Primary navigation">
-        {frontendRoutes.map((route) => (
+        {getVisibleFrontendRoutesForRole(currentRolePreviewState.currentRole, frontendRoutes).map((route) => (
           <div key={route.key} className="nv-nav-item">
             {route.label} {route.locked ? "🔒" : ""}
           </div>

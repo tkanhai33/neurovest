@@ -29,3 +29,10 @@ export function getVisibleRoutesForRole(role: UserRole) {
     .filter(([, roles]) => roles.includes(role))
     .map(([key]) => key as FrontendRouteKey);
 }
+
+export function getVisibleFrontendRoutesForRole<T extends { key: FrontendRouteKey }>(
+  role: UserRole,
+  routes: readonly T[]
+): T[] {
+  return routes.filter((route) => dashboardPermissions[route.key].includes(role));
+}

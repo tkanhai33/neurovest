@@ -3,5 +3,8 @@ export { roleRegistryState, userRoles } from "./roleRegistry";
 export {
   dashboardPermissionState,
   dashboardPermissions,
-  getVisibleRoutesForRole
+  getVisibleRoutesForRole,
+  getVisibleFrontendRoutesForRole
 } from "./dashboardPermissions";
+
+export { currentRolePreviewState } from "./currentRolePreview";

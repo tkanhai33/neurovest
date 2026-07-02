@@ -7,3 +7,12 @@ export const navigationState = {
   tradingEnabled: false,
   aiCallsEnabled: false
 } as const;
+
+export const roleAwareNavigationState = {
+  phase: "phase_35a_role_aware_navigation_shell",
+  previewOnly: true,
+  roleFilteringPreviewEnabled: true,
+  routeHidingEnabled: false,
+  backendAuthEnabled: false,
+  enforcementEnabled: false
+} as const;
