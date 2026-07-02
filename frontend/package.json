@@ -1,0 +1,10 @@
+{
+  "name": "neurovest-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test:skeleton": "node scripts/verify-frontend-skeleton.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
