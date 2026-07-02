@@ -9,6 +9,7 @@ const required = [
   "src/features/dashboard/components/DashboardNavigationMatrixPanel.tsx",
   "src/features/dashboard/components/DeveloperDashboardCompositionPanel.tsx",
   "src/features/dashboard/components/AdminDashboardCompositionPanel.tsx",
+  "src/features/dashboard/components/UserDashboardCompositionPanel.tsx",
   "src/features/dashboard/components/SystemLockPanel.tsx",
   "src/features/dashboard/components/StackOverviewPanel.tsx",
   "src/features/dashboard/components/PhaseProgressPanel.tsx",
@@ -37,6 +38,7 @@ const requiredPanels = [
   "DashboardNavigationMatrixPanel",
   "DeveloperDashboardCompositionPanel",
   "AdminDashboardCompositionPanel",
+  "UserDashboardCompositionPanel",
   "PhaseProgressPanel",
   "SystemLockPanel",
   "StackOverviewPanel"

@@ -10,6 +10,7 @@ import { RoleDashboardPreviewPanel } from "./RoleDashboardPreviewPanel";
 import { DashboardNavigationMatrixPanel } from "./DashboardNavigationMatrixPanel";
 import { DeveloperDashboardCompositionPanel } from "./DeveloperDashboardCompositionPanel";
 import { AdminDashboardCompositionPanel } from "./AdminDashboardCompositionPanel";
+import { UserDashboardCompositionPanel } from "./UserDashboardCompositionPanel";
 
 export function DashboardShell() {
   return (
@@ -23,6 +24,7 @@ export function DashboardShell() {
       <DashboardNavigationMatrixPanel />
       <DeveloperDashboardCompositionPanel />
       <AdminDashboardCompositionPanel />
+      <UserDashboardCompositionPanel />
       <PhaseProgressPanel />
       <SystemLockPanel />
       <StackOverviewPanel />
