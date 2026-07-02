@@ -1,0 +1,16 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+.next/
+dist/
+build/
+coverage/
+.pytest_cache/
+data/cache/
+data/market_data/
+data/paper_trading/
+data/research/
+data/local_memory/
+*.log
