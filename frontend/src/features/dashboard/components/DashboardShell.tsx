@@ -13,6 +13,7 @@ import { AdminDashboardCompositionPanel } from "./AdminDashboardCompositionPanel
 import { UserDashboardCompositionPanel } from "./UserDashboardCompositionPanel";
 import { BrainVisualizationLayoutPanel } from "./BrainVisualizationLayoutPanel";
 import { BrainNodeRelationshipMatrixPanel } from "./BrainNodeRelationshipMatrixPanel";
+import { BrainLockStateOverlayPanel } from "./BrainLockStateOverlayPanel";
 
 export function DashboardShell() {
   return (
@@ -22,6 +23,7 @@ export function DashboardShell() {
       <SystemFlowMapPanel />
       <BrainVisualizationLayoutPanel />
       <BrainNodeRelationshipMatrixPanel />
+      <BrainLockStateOverlayPanel />
       <RoleVisibilityPreviewPanel />
       <RoleSurfaceSummaryPanel />
       <RoleDashboardPreviewPanel />

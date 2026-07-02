@@ -24,3 +24,5 @@ export { UserDashboardCompositionPanel } from "./UserDashboardCompositionPanel";
 export { BrainVisualizationLayoutPanel } from "./BrainVisualizationLayoutPanel";
 
 export { BrainNodeRelationshipMatrixPanel } from "./BrainNodeRelationshipMatrixPanel";
+
+export { BrainLockStateOverlayPanel } from "./BrainLockStateOverlayPanel";
