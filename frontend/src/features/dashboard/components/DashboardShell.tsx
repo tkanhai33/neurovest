@@ -7,6 +7,7 @@ import { SystemFlowMapPanel } from "./SystemFlowMapPanel";
 import { RoleVisibilityPreviewPanel } from "./RoleVisibilityPreviewPanel";
 import { RoleSurfaceSummaryPanel } from "./RoleSurfaceSummaryPanel";
 import { RoleDashboardPreviewPanel } from "./RoleDashboardPreviewPanel";
+import { DashboardNavigationMatrixPanel } from "./DashboardNavigationMatrixPanel";
 
 export function DashboardShell() {
   return (
@@ -17,6 +18,7 @@ export function DashboardShell() {
       <RoleVisibilityPreviewPanel />
       <RoleSurfaceSummaryPanel />
       <RoleDashboardPreviewPanel />
+      <DashboardNavigationMatrixPanel />
       <PhaseProgressPanel />
       <SystemLockPanel />
       <StackOverviewPanel />
