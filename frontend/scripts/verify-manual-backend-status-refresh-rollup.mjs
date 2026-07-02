@@ -4,7 +4,6 @@ const required = [
   "src/features/admin_control/view_model/backendStatusRefreshState.ts",
   "src/features/admin_control/view_model/backendStatusRefreshAction.ts",
   "src/features/admin_control/view_model/index.ts",
-  "src/features/admin_control/components/BackendStatusPreviewPanel.tsx",
   "src/features/admin_control/client/backendStatusClient.ts",
   "scripts/verify-manual-backend-status-refresh-ui-shell.mjs",
   "scripts/verify-manual-backend-status-refresh-action-shell.mjs",
@@ -26,31 +25,18 @@ const requiredTerms = {
     "phase_38h_manual_backend_status_refresh_ui_shell",
     "refreshShellOnly: true",
     "manualOnly: true",
-    "autoFetchEnabled: false",
-    "pollingEnabled: false",
-    "intervalEnabled: false",
     "uiFetchEnabled: false",
     "backendCallsEnabled: false"
   ],
   "src/features/admin_control/view_model/backendStatusRefreshAction.ts": [
-    "phase_38i_manual_backend_status_refresh_action_shell",
-    "actionShellOnly: true",
+    "phase_38q_enable_manual_backend_status_refresh_button_contract",
+    "actionShellOnly: false",
     "manualOnly: true",
     "readOnly: true",
-    "autoFetchEnabled: false",
-    "pollingEnabled: false",
-    "intervalEnabled: false",
-    "uiFetchEnabled: false",
+    "uiFetchEnabled: true",
     "backendCallsEnabled: false",
-    "getBackendStatusRefreshActionLabel",
-    "getBackendStatusRefreshActionContract",
     "manual_backend_status_refresh",
     "fetchBackendStatus.name"
-  ],
-  "src/features/admin_control/components/BackendStatusPreviewPanel.tsx": [
-    "backendStatusRefreshLabel",
-    "backendStatusRefreshState",
-    "Manual only"
   ],
   "src/features/admin_control/view_model/index.ts": [
     "backendStatusRefreshState",

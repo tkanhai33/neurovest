@@ -25,18 +25,18 @@ for (const file of required) {
 
 const requiredTerms = {
   "src/features/admin_control/view_model/backendStatusRefreshButtonState.ts": [
-    "phase_38k_manual_backend_status_refresh_button_shell",
-    "buttonShellOnly: true",
+    "phase_38q_enable_manual_backend_status_refresh_button_contract",
+    "buttonShellOnly: false",
     "manualOnly: true",
     "readOnly: true",
-    "clickFetchEnabled: false",
+    "clickFetchEnabled: true",
     "uiFetchEnabled: false",
     "backendCallsEnabled: false",
     "Refresh Backend Status"
   ],
   "src/features/admin_control/view_model/backendStatusRefreshAction.ts": [
-    "phase_38i_manual_backend_status_refresh_action_shell",
-    "actionShellOnly: true",
+    "phase_38q_enable_manual_backend_status_refresh_button_contract",
+    "actionShellOnly: false",
     "manualOnly: true",
     "backendCallsEnabled: false",
     "manual_backend_status_refresh"

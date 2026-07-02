@@ -2,14 +2,14 @@ import { fetchBackendStatus } from "../client";
 import { backendStatusRefreshState } from "./backendStatusRefreshState";
 
 export const backendStatusRefreshActionState = {
-  phase: "phase_38i_manual_backend_status_refresh_action_shell",
-  actionShellOnly: true,
+  phase: "phase_38q_enable_manual_backend_status_refresh_button_contract",
+  actionShellOnly: false,
   manualOnly: true,
   readOnly: true,
   autoFetchEnabled: false,
   pollingEnabled: false,
   intervalEnabled: false,
-  uiFetchEnabled: false,
+  uiFetchEnabled: true,
   backendCallsEnabled: false,
   runtimeEnabled: false,
   brokerCallsEnabled: false,

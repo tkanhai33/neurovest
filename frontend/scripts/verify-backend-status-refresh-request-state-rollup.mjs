@@ -42,14 +42,14 @@ const requiredTerms = {
     "Error"
   ],
   "src/features/admin_control/view_model/backendStatusRefreshButtonState.ts": [
-    "phase_38k_manual_backend_status_refresh_button_shell",
-    "buttonShellOnly: true",
-    "clickFetchEnabled: false",
+    "phase_38q_enable_manual_backend_status_refresh_button_contract",
+    "buttonShellOnly: false",
+    "clickFetchEnabled: true",
     "backendCallsEnabled: false"
   ],
   "src/features/admin_control/view_model/backendStatusRefreshAction.ts": [
-    "phase_38i_manual_backend_status_refresh_action_shell",
-    "actionShellOnly: true",
+    "phase_38q_enable_manual_backend_status_refresh_button_contract",
+    "actionShellOnly: false",
     "manual_backend_status_refresh",
     "backendCallsEnabled: false"
   ],
