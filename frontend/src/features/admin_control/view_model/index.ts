@@ -14,3 +14,5 @@ export { backendStatusRequestState, backendStatusRequestStateLabels } from "./ba
 export { backendStatusRefreshControllerState, getBackendStatusRefreshControllerPreview } from "./backendStatusRefreshController";
 
 export { backendStatusButtonClickHandlerState, getBackendStatusButtonClickPreview } from "./backendStatusButtonClickHandler";
+
+export { backendStatusClickControllerBridgeState, getBackendStatusClickControllerFlowPreview } from "./backendStatusClickControllerBridge";
