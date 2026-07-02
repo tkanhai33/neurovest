@@ -14,3 +14,5 @@ export { RoleSurfaceSummaryPanel } from "./RoleSurfaceSummaryPanel";
 export { RoleDashboardPreviewPanel } from "./RoleDashboardPreviewPanel";
 
 export { DashboardNavigationMatrixPanel } from "./DashboardNavigationMatrixPanel";
+
+export { DeveloperDashboardCompositionPanel } from "./DeveloperDashboardCompositionPanel";

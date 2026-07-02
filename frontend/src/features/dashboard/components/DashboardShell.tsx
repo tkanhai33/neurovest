@@ -8,6 +8,7 @@ import { RoleVisibilityPreviewPanel } from "./RoleVisibilityPreviewPanel";
 import { RoleSurfaceSummaryPanel } from "./RoleSurfaceSummaryPanel";
 import { RoleDashboardPreviewPanel } from "./RoleDashboardPreviewPanel";
 import { DashboardNavigationMatrixPanel } from "./DashboardNavigationMatrixPanel";
+import { DeveloperDashboardCompositionPanel } from "./DeveloperDashboardCompositionPanel";
 
 export function DashboardShell() {
   return (
@@ -19,6 +20,7 @@ export function DashboardShell() {
       <RoleSurfaceSummaryPanel />
       <RoleDashboardPreviewPanel />
       <DashboardNavigationMatrixPanel />
+      <DeveloperDashboardCompositionPanel />
       <PhaseProgressPanel />
       <SystemLockPanel />
       <StackOverviewPanel />
