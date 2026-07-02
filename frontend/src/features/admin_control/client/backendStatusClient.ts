@@ -4,12 +4,14 @@ import {
 } from "../contracts/backendStatusFetchContract";
 
 export const backendStatusClientState = {
-  phase: "phase_38b_controlled_backend_status_client_shell",
-  clientShellOnly: true,
+  phase: "phase_38f_read_only_backend_status_fetch_implementation",
+  clientShellOnly: false,
   readOnly: true,
-  fetchImplementationEnabled: false,
+  fetchImplementationEnabled: true,
+  manualFetchOnly: true,
   uiFetchEnabled: false,
-  backendCallsEnabled: false,
+  pollingEnabled: false,
+  backendCallsEnabled: true,
   runtimeEnabled: false,
   brokerCallsEnabled: false,
   tradingEnabled: false,
@@ -20,6 +22,18 @@ export const backendStatusClientState = {
 
 export function getBackendStatusClientContract() {
   return backendStatusFetchContract;
+}
+
+export async function fetchBackendStatus(): Promise<ControlledBackendStatusFetchResponse> {
+  const response = await fetch(backendStatusFetchContract.endpointPath, {
+    method: backendStatusFetchContract.method
+  });
+
+  if (!response.ok) {
+    throw new Error("Backend status request failed");
+  }
+
+  return response.json() as Promise<ControlledBackendStatusFetchResponse>;
 }
 
 export type BackendStatusClientResponse = ControlledBackendStatusFetchResponse;

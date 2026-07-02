@@ -13,7 +13,7 @@ const required = [
   "scripts/verify-backend-status-panel-view-model.mjs"
 ];
 
-const sourceFiles = required.filter((file) => !file.startsWith("scripts/"));
+const sourceFiles = required.filter((file) => !file.startsWith("scripts/") && file !== "src/features/admin_control/client/backendStatusClient.ts");
 
 for (const file of required) {
   if (!existsSync(file)) throw new Error(`Missing controlled backend status view model rollup file: ${file}`);
@@ -26,9 +26,9 @@ const requiredTerms = {
     "uiFetchEnabled: false"
   ],
   "src/features/admin_control/client/backendStatusClient.ts": [
-    "phase_38b_controlled_backend_status_client_shell",
-    "clientShellOnly: true",
-    "fetchImplementationEnabled: false"
+    "phase_38f_read_only_backend_status_fetch_implementation",
+    "clientShellOnly: false",
+    "fetchImplementationEnabled: true"
   ],
   "src/features/admin_control/view_model/backendStatusViewModel.ts": [
     "phase_38c_controlled_backend_status_view_model_shell",

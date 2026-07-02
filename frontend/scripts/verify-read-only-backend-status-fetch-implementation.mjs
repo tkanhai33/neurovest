@@ -2,22 +2,21 @@ import { existsSync, readFileSync } from "node:fs";
 
 const required = [
   "src/features/admin_control/client/backendStatusClient.ts",
-  "src/features/admin_control/client/index.ts",
   "src/features/admin_control/contracts/backendStatusFetchContract.ts",
   "src/features/admin_control/contracts/backendStatusBridgeContract.ts"
 ];
 
 for (const file of required) {
-  if (!existsSync(file)) throw new Error(`Missing backend status client shell file: ${file}`);
+  if (!existsSync(file)) throw new Error(`Missing backend status fetch implementation file: ${file}`);
 }
 
 const requiredTerms = {
   "src/features/admin_control/client/backendStatusClient.ts": [
     "phase_38f_read_only_backend_status_fetch_implementation",
-    "clientShellOnly: false",
-    "readOnly: true",
     "fetchImplementationEnabled: true",
+    "manualFetchOnly: true",
     "uiFetchEnabled: false",
+    "pollingEnabled: false",
     "backendCallsEnabled: true",
     "runtimeEnabled: false",
     "brokerCallsEnabled: false",
@@ -25,11 +24,9 @@ const requiredTerms = {
     "mutationEnabled: false",
     "providerCallsEnabled: false",
     "aiCallsEnabled: false",
-    "getBackendStatusClientContract",
-    "manualFetchOnly: true",
-    "pollingEnabled: false",
     "fetchBackendStatus",
-    "BackendStatusClientResponse"
+    "await fetch(",
+    "method: backendStatusFetchContract.method"
   ]
 };
 
@@ -41,7 +38,6 @@ for (const [file, terms] of Object.entries(requiredTerms)) {
 }
 
 const forbidden = [
-  "fetch(",
   "axios",
   "localStorage",
   "sessionStorage",
@@ -52,16 +48,18 @@ const forbidden = [
   "broker_client",
   "useEffect(",
   "setInterval(",
-  "setTimeout("
+  "setTimeout(",
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE"
 ];
 
-const sourceFiles = required.filter((file) => file !== "src/features/admin_control/client/backendStatusClient.ts");
-
-for (const file of sourceFiles) {
+for (const file of required) {
   const text = readFileSync(file, "utf8");
   for (const term of forbidden) {
     if (text.includes(term)) throw new Error(`Forbidden term ${term} found in ${file}`);
   }
 }
 
-console.log("PASS: Controlled backend status client shell verified.");
+console.log("PASS: Read-only backend status fetch implementation verified.");
