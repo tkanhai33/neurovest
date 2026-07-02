@@ -18,8 +18,8 @@ def test_phase_1_contains_no_execution_terms() -> None:
         if ".venv" in path.parts:
             continue
 
-        # Skip this test file itself.
-        if path.name == Path(__file__).name:
+        # Architecture tests may contain forbidden words inside their own guard lists.
+        if "tests" in path.parts and "architecture" in path.parts:
             continue
 
         text = path.read_text(errors="ignore")
