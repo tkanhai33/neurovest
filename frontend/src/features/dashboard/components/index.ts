@@ -20,3 +20,5 @@ export { DeveloperDashboardCompositionPanel } from "./DeveloperDashboardComposit
 export { AdminDashboardCompositionPanel } from "./AdminDashboardCompositionPanel";
 
 export { UserDashboardCompositionPanel } from "./UserDashboardCompositionPanel";
+
+export { BrainVisualizationLayoutPanel } from "./BrainVisualizationLayoutPanel";

@@ -10,6 +10,7 @@ const required = [
   "src/features/dashboard/components/DeveloperDashboardCompositionPanel.tsx",
   "src/features/dashboard/components/AdminDashboardCompositionPanel.tsx",
   "src/features/dashboard/components/UserDashboardCompositionPanel.tsx",
+  "src/features/dashboard/components/BrainVisualizationLayoutPanel.tsx",
   "src/features/dashboard/components/SystemLockPanel.tsx",
   "src/features/dashboard/components/StackOverviewPanel.tsx",
   "src/features/dashboard/components/PhaseProgressPanel.tsx",
@@ -34,6 +35,7 @@ const shell = readFileSync("src/features/dashboard/components/DashboardShell.tsx
 
 const requiredPanels = [
   "SystemFlowMapPanel",
+  "BrainVisualizationLayoutPanel",
   "RoleVisibilityPreviewPanel",
   "RoleSurfaceSummaryPanel",
   "RoleDashboardPreviewPanel",

@@ -11,6 +11,7 @@ import { DashboardNavigationMatrixPanel } from "./DashboardNavigationMatrixPanel
 import { DeveloperDashboardCompositionPanel } from "./DeveloperDashboardCompositionPanel";
 import { AdminDashboardCompositionPanel } from "./AdminDashboardCompositionPanel";
 import { UserDashboardCompositionPanel } from "./UserDashboardCompositionPanel";
+import { BrainVisualizationLayoutPanel } from "./BrainVisualizationLayoutPanel";
 
 export function DashboardShell() {
   return (
@@ -18,6 +19,7 @@ export function DashboardShell() {
       <DashboardHeroPanel />
       <CommandGridPanel />
       <SystemFlowMapPanel />
+      <BrainVisualizationLayoutPanel />
       <RoleVisibilityPreviewPanel />
       <RoleSurfaceSummaryPanel />
       <RoleDashboardPreviewPanel />
