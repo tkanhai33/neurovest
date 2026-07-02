@@ -1,15 +1,16 @@
 # portfolio
 
-Phase 1 skeleton only.
+Phase 5 — Portfolio Skeleton.
 
-Allowed:
-- contracts
-- placeholders
-- tests
-- documentation
+Owns:
+- holdings contracts
+- balance contracts
+- snapshot contracts
+- future portfolio read boundary
 
-Forbidden in Phase 1:
-- business logic
+Forbidden in Phase 5:
+- broker account reads
+- portfolio mutation
+- transaction logic
+- performance calculations
 - trading logic
-- broker execution
-- autonomous runtime loops
