@@ -32,7 +32,8 @@ for (const file of required) {
 
 const dashboardRequired = [
   "src/features/dashboard/components/RoleVisibilityPreviewPanel.tsx",
-  "src/features/dashboard/components/RoleSurfaceSummaryPanel.tsx"
+  "src/features/dashboard/components/RoleSurfaceSummaryPanel.tsx",
+  "src/features/dashboard/components/RoleDashboardPreviewPanel.tsx"
 ];
 
 for (const file of dashboardRequired) {

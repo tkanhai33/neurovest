@@ -10,3 +10,5 @@ export { SystemFlowMapPanel } from "./SystemFlowMapPanel";
 export { RoleVisibilityPreviewPanel } from "./RoleVisibilityPreviewPanel";
 
 export { RoleSurfaceSummaryPanel } from "./RoleSurfaceSummaryPanel";
+
+export { RoleDashboardPreviewPanel } from "./RoleDashboardPreviewPanel";
