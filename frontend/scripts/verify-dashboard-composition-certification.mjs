@@ -8,6 +8,7 @@ const required = [
   "src/features/dashboard/components/RoleDashboardPreviewPanel.tsx",
   "src/features/dashboard/components/DashboardNavigationMatrixPanel.tsx",
   "src/features/dashboard/components/DeveloperDashboardCompositionPanel.tsx",
+  "src/features/dashboard/components/AdminDashboardCompositionPanel.tsx",
   "src/features/dashboard/components/SystemLockPanel.tsx",
   "src/features/dashboard/components/StackOverviewPanel.tsx",
   "src/features/dashboard/components/PhaseProgressPanel.tsx",
@@ -35,6 +36,7 @@ const requiredPanels = [
   "RoleDashboardPreviewPanel",
   "DashboardNavigationMatrixPanel",
   "DeveloperDashboardCompositionPanel",
+  "AdminDashboardCompositionPanel",
   "PhaseProgressPanel",
   "SystemLockPanel",
   "StackOverviewPanel"

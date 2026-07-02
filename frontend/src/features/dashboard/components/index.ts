@@ -16,3 +16,5 @@ export { RoleDashboardPreviewPanel } from "./RoleDashboardPreviewPanel";
 export { DashboardNavigationMatrixPanel } from "./DashboardNavigationMatrixPanel";
 
 export { DeveloperDashboardCompositionPanel } from "./DeveloperDashboardCompositionPanel";
+
+export { AdminDashboardCompositionPanel } from "./AdminDashboardCompositionPanel";
