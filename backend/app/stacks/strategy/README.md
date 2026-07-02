@@ -1,15 +1,18 @@
 # strategy
 
-Phase 1 skeleton only.
+Phase 7 — Strategy Skeleton.
 
-Allowed:
-- contracts
-- placeholders
-- tests
-- documentation
+Owns:
+- strategy signal contracts
+- strategy candidate contracts
+- strategy version contracts
+- future strategy service boundary
 
-Forbidden in Phase 1:
-- business logic
-- trading logic
-- broker execution
-- autonomous runtime loops
+Forbidden in Phase 7:
+- real signal generation
+- candidate scoring
+- optimization
+- risk approval
+- paper trading
+- broker interaction
+- execution
