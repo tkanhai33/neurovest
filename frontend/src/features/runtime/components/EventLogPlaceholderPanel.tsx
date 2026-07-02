@@ -1,11 +1,23 @@
-import { Card } from "../../../components/ui";
+import { Badge, Card } from "../../../components/ui";
+import { runtimeEventPreviewState } from "../contracts/runtimeUiState";
 
 export function EventLogPlaceholderPanel() {
   return (
     <Card>
-      <h2>Event Log Placeholder</h2>
-      <div style={{ height: "140px", border: "1px dashed var(--panel-soft)", borderRadius: "14px", display: "grid", placeItems: "center", color: "var(--muted)" }}>
-        Runtime events unavailable until implementation phase
+      <h2>Runtime Event Log Preview</h2>
+      <p className="nv-muted">
+        Event log is static and reflects UI composition checkpoints only.
+      </p>
+
+      <div style={{ display: "grid", gap: "10px", marginTop: "14px" }}>
+        {runtimeEventPreviewState.map((item) => (
+          <div key={item.event} className="nv-panel">
+            <strong>{item.event}</strong>
+            <div style={{ marginTop: "8px" }}>
+              <Badge label={item.status} />
+            </div>
+          </div>
+        ))}
       </div>
     </Card>
   );
