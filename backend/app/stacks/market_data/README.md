@@ -1,15 +1,19 @@
 # market_data
 
-Phase 1 skeleton only.
+Phase 4 — Market Data Skeleton.
 
-Allowed:
-- contracts
-- placeholders
-- tests
-- documentation
+Owns:
+- symbol contracts
+- quote contracts
+- candle contracts
+- provider identity
+- exchange status contracts
+- future yfinance/Finnhub adapter boundaries
 
-Forbidden in Phase 1:
-- business logic
-- trading logic
-- broker execution
-- autonomous runtime loops
+Forbidden in Phase 4:
+- real market data provider calls
+- network requests
+- strategy logic
+- risk logic
+- broker access
+- portfolio mutation
