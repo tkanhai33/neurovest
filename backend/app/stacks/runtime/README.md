@@ -1,15 +1,18 @@
 # runtime
 
-Phase 1 skeleton only.
+Phase 11 — Runtime Skeleton.
 
-Allowed:
-- contracts
-- placeholders
-- tests
-- documentation
+Owns:
+- workflow contracts
+- schedule contracts
+- runtime event contracts
+- future orchestration boundary
 
-Forbidden in Phase 1:
-- business logic
-- trading logic
-- broker execution
-- autonomous runtime loops
+Forbidden in Phase 11:
+- background loops
+- scheduler implementation
+- autonomous execution
+- broker calls
+- strategy execution
+- paper trading execution
+- mutation logic
