@@ -16,7 +16,11 @@ if [ "$BRANCH" != "frontend-skeleton" ]; then
   exit 1
 fi
 
-pytest
+if [ -x "$ROOT/backend/.venv/bin/pytest" ]; then
+  "$ROOT/backend/.venv/bin/pytest"
+else
+  pytest
+fi
 
 cat > "$FRONTEND/src/features/dashboard/components/DashboardHeroPanel.tsx" <<'EOF'
 import { Card, StatusPill } from "../../../components/ui";
