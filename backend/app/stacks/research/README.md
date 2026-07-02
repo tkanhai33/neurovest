@@ -1,15 +1,19 @@
 # research
 
-Phase 1 skeleton only.
+Phase 6 — Research Skeleton.
 
-Allowed:
-- contracts
-- placeholders
-- tests
-- documentation
+Owns:
+- indicator contracts
+- screener contracts
+- backtest contracts
+- news/research output contracts
+- future research service boundary
 
-Forbidden in Phase 1:
-- business logic
+Forbidden in Phase 6:
+- indicator calculations
+- backtest execution
+- market data calls
+- news calls
+- strategy generation
 - trading logic
-- broker execution
-- autonomous runtime loops
+- broker access
