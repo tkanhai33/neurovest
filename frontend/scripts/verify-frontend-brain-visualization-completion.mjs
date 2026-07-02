@@ -25,7 +25,8 @@ const required = [
   "src/lib/routes/navigationState.ts",
   "src/lib/routes/routeRegistry.ts",
   "src/lib/integration/featureIntegrationRegistry.ts",
-  "src/components/Sidebar.tsx"
+  "src/components/Sidebar.tsx",
+  "src/features/admin_control/components/BackendStatusPreviewPanel.tsx"
 ];
 
 for (const file of required) {
@@ -43,6 +44,7 @@ const requiredPanels = [
   "BrainVisualizationLayoutPanel",
   "BrainNodeRelationshipMatrixPanel",
   "BrainLockStateOverlayPanel",
+  "BackendStatusPreviewPanel",
   "RoleVisibilityPreviewPanel",
   "RoleSurfaceSummaryPanel",
   "RoleDashboardPreviewPanel",

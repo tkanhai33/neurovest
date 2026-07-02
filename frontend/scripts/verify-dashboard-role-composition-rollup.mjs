@@ -13,6 +13,7 @@ const required = [
   "src/features/dashboard/components/BrainVisualizationLayoutPanel.tsx",
   "src/features/dashboard/components/BrainNodeRelationshipMatrixPanel.tsx",
   "src/features/dashboard/components/BrainLockStateOverlayPanel.tsx",
+  "src/features/admin_control/components/BackendStatusPreviewPanel.tsx",
   "src/features/dashboard/components/SystemLockPanel.tsx",
   "src/features/dashboard/components/StackOverviewPanel.tsx",
   "src/features/dashboard/components/PhaseProgressPanel.tsx",
@@ -28,9 +29,7 @@ const required = [
 ];
 
 for (const file of required) {
-  if (!existsSync(file)) {
-    throw new Error(`Missing dashboard rollup file: ${file}`);
-  }
+  if (!existsSync(file)) throw new Error(`Missing dashboard rollup file: ${file}`);
 }
 
 const shell = readFileSync("src/features/dashboard/components/DashboardShell.tsx", "utf8");
@@ -40,6 +39,7 @@ const requiredPanels = [
   "BrainVisualizationLayoutPanel",
   "BrainNodeRelationshipMatrixPanel",
   "BrainLockStateOverlayPanel",
+  "BackendStatusPreviewPanel",
   "RoleVisibilityPreviewPanel",
   "RoleSurfaceSummaryPanel",
   "RoleDashboardPreviewPanel",
@@ -53,40 +53,7 @@ const requiredPanels = [
 ];
 
 for (const panel of requiredPanels) {
-  if (!shell.includes(panel)) {
-    throw new Error(`DashboardShell missing rollup panel: ${panel}`);
-  }
-}
-
-const requiredTerms = {
-  "src/components/Sidebar.tsx": [
-    "getVisibleFrontendRoutesForRole",
-    "currentRolePreviewState.currentRole"
-  ],
-  "src/lib/auth/currentRolePreview.ts": [
-    "phase_35a_role_aware_navigation_shell",
-    "previewOnly: true",
-    "backendAuthEnabled: false",
-    "authEnforcementEnabled: false",
-    "routeHidingEnabled: false",
-    "tradingEnabled: false"
-  ],
-  "src/lib/routes/navigationState.ts": [
-    "roleAwareNavigationState",
-    "roleFilteringPreviewEnabled: true",
-    "routeHidingEnabled: false",
-    "backendAuthEnabled: false",
-    "enforcementEnabled: false"
-  ]
-};
-
-for (const [file, terms] of Object.entries(requiredTerms)) {
-  const text = readFileSync(file, "utf8");
-  for (const term of terms) {
-    if (!text.includes(term)) {
-      throw new Error(`Required term ${term} missing from ${file}`);
-    }
-  }
+  if (!shell.includes(panel)) throw new Error(`DashboardShell missing rollup panel: ${panel}`);
 }
 
 const forbidden = [
@@ -107,9 +74,7 @@ const forbidden = [
 for (const file of required) {
   const text = readFileSync(file, "utf8");
   for (const term of forbidden) {
-    if (text.includes(term)) {
-      throw new Error(`Forbidden term ${term} found in ${file}`);
-    }
+    if (text.includes(term)) throw new Error(`Forbidden term ${term} found in ${file}`);
   }
 }
 

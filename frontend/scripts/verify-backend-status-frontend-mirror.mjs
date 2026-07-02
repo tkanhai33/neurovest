@@ -1,7 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 
 const required = [
-  "src/features/admin_control/contracts/backendStatusUiState.ts"
+  "src/features/admin_control/contracts/backendStatusUiState.ts",
+  "src/features/admin_control/components/BackendStatusPreviewPanel.tsx",
+  "src/features/admin_control/components/index.ts"
 ];
 
 for (const file of required) {
@@ -23,6 +25,18 @@ const requiredTerms = {
     "providerCallsEnabled: false",
     "aiCallsEnabled: false",
     "phase_37a_read_only_backend_status_contract"
+  ],
+  "src/features/admin_control/components/BackendStatusPreviewPanel.tsx": [
+    "Read-Only Backend Status",
+    "Static frontend mirror",
+    "No fetch",
+    "backend call",
+    "runtime execution",
+    "broker call",
+    "AI call",
+    "provider call",
+    "mutation",
+    "trading path"
   ]
 };
 

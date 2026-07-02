@@ -38,6 +38,7 @@ const requiredPanels = [
   "BrainVisualizationLayoutPanel",
   "BrainNodeRelationshipMatrixPanel",
   "BrainLockStateOverlayPanel",
+  "BackendStatusPreviewPanel",
   "RoleVisibilityPreviewPanel",
   "RoleSurfaceSummaryPanel",
   "RoleDashboardPreviewPanel",
