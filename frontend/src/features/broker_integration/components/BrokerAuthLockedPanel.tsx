@@ -1,14 +1,19 @@
-import { Card, StatusPill } from "../../../components/ui";
+import { Badge, Card } from "../../../components/ui";
+import { brokerAuthLockState } from "../contracts/brokerIntegrationUiState";
 
 export function BrokerAuthLockedPanel() {
   return (
     <Card>
       <h2>Authentication Locked</h2>
-      <StatusPill label="Auth Flow Disabled" />
-      <StatusPill label="Token Storage Disabled" />
-      <p style={{ color: "var(--muted)" }}>
-        Broker authentication and token storage are not implemented during the skeleton phase.
+      <p className="nv-muted">
+        Broker authentication and token storage remain disabled until contracts certify read-only integration.
       </p>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "14px" }}>
+        {brokerAuthLockState.map((item) => (
+          <Badge key={item} label={item} />
+        ))}
+      </div>
     </Card>
   );
 }
