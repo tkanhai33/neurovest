@@ -1,7 +1,8 @@
 import { getBackendStatusRefreshControllerPreview } from "./backendStatusRefreshController";
 
 export const backendStatusButtonClickHandlerState = {
-  phase: "phase_38r_button_click_wiring_shell",
+  phase: "phase_38t_enable_button_click_handler_contract",
+  legacyPhase: "phase_38r_button_click_wiring_shell",
   clickHandlerShellOnly: true,
   manualOnly: true,
   readOnly: true,
@@ -38,3 +39,13 @@ export function getBackendStatusButtonClickPreview() {
     backendCallsEnabled: backendStatusButtonClickHandlerState.backendCallsEnabled
   } as const;
 }
+
+
+  // =========================================
+  // PHASE 38V FINAL LOCK (NON-EXECUTING)
+  // =========================================
+  finalLockPhase: "phase_38v_click_handler_final_lock",
+  mutationLocked: true,
+  executionLocked: true,
+  fetchLocked: true,
+  controllerCouplingLocked: true,
