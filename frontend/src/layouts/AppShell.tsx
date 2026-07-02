@@ -7,7 +7,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <section className="nv-main">
         <TopStatusBar />
-        <div className="nv-content">{children}</div>
+        <div className="nv-content">
+          <div className="nv-page-frame">{children}</div>
+        </div>
       </section>
     </main>
   );

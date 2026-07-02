@@ -5,7 +5,7 @@ export function Sidebar() {
     <aside className="nv-sidebar">
       <h1 className="nv-brand">NeuroVest</h1>
       <p className="nv-subtitle">Certified skeleton UI</p>
-      <nav className="nv-nav">
+      <nav className="nv-nav nv-nav-section" aria-label="Primary navigation">
         {frontendRoutes.map((route) => (
           <div key={route.key} className="nv-nav-item">
             {route.label} {route.locked ? "🔒" : ""}
