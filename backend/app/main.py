@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
-from stacks.journal_ledger.ledger import init_db
-from stacks.strategy.engine import generate_strategy_decision
-from stacks.execution.paper_broker import process_portfolio_output
+from fastapi import FastAPI, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from stacks.journal_ledger.ledger import init_db, get_async_session, OrderHistory
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,3 +24,10 @@ async def summary():
         return {"status": "processed", "execution": "sent_to_broker", "decision": decision}
         
     return {"status": "no_action", "decision": decision}
+
+@app.get("/api/v1/orders")
+async def get_orders(session: AsyncSession = Depends(get_async_session)):
+    query = select(OrderHistory).order_by(OrderHistory.timestamp.desc())
+    result = await session.execute(query)
+    orders = [dict(row._asdict()) for row in result.scalars()]
+    return {"orders": orders}
