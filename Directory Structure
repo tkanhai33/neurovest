@@ -1,0 +1,87 @@
+backend/
+├── app/
+│   ├── config.py
+│   ├── main.py
+│   ├── schemas/
+│   │   └── dashboard.py
+│   ├── services/
+│   │   └── dashboard_service.py
+│   ├── stacks/
+│   │   ├── auth_identity/
+│   │   │   ├── base.py
+│   │   │   └── gate.py
+│   │   ├── chat_public/
+│   │   │   ├── base.py
+│   │   │   ├── chat_memory.py
+│   │   │   ├── chat_runtime.py
+│   │   │   ├── chat_service.py
+│   │   │   └── conversation_store.py
+│   │   ├── db_model/
+│   │   │   ├── base.py
+│   │   │   └── ledger.py
+│   │   ├── execution/
+│   │   │   ├── base.py
+│   │   │   ├── broker.py
+│   │   │   ├── commission_engine.py
+│   │   │   ├── executor.py
+│   │   │   ├── fill_engine.py
+│   │   │   ├── paper_broker.py
+│   │   │   ├── pnl_engine.py
+│   │   │   ├── regime_modes.py
+│   │   │   ├── regime_simulator.py
+│   │   │   ├── sandbox.py
+│   │   │   ├── sandbox_runtime.py
+│   │   │   ├── trade_ledger.py
+│   │   ├── journal_ledger/
+│   │   │   ├── base.py
+│   │   │   └── ledger.py
+│   │   ├── learning_research/
+│   │   │   ├── __init__.py
+│   │   │   ├── backtest_engine.py
+│   │   │   ├── base.py
+│   │   │   ├── monte_carlo.py
+│   │   │   ├── monte_carlo_mix.py
+│   │   │   ├── probability_engine.py
+│   │   │   ├── research_runtime.py
+│   │   │   └── strategy_evaluator.py
+│   │   ├── market_data/
+│   │   │   ├── bars.py
+│   │   │   ├── base.py
+│   │   │   ├── feed.py
+│   │   │   ├── market_data_service.py
+│   │   │   ├── market_session.py
+│   │   │   └── price.py
+│   │   ├── notification/
+│   │   │   ├── base.py
+│   │   ├── portfolio/
+│   │   │   ├── allocator.py
+│   │   │   ├── base.py
+│   │   │   └── rebalance.py
+│   │   ├── registry.json
+│   │   ├── risk/
+│   │   │   ├── base.py
+│   │   │   ├── drawdown_guard.py
+│   │   │   ├── exposure.py
+│   │   │   ├── kill_switch.py
+│   │   │   └── limits.py
+│   │   ├── snaptrade/
+│   │   │   ├── adapter.py
+│   │   │   ├── base.py
+│   │   │   └── broker.py
+│   │   ├── strategy/
+│   │   │   ├── base.py
+│   │   │   ├── candidate_registry.py
+│   │   │   ├── engine.py
+│   │   │   ├── evolution_engine.py
+│   │   │   ├── llm_strategy_engine.py
+│   │   │   └── selector.py
+│   │   ├── wolfden_ai/
+│   │   │   ├── agent_router.py
+│   │   │   ├── base.py
+│   │   │   ├── memory.py
+│   │   │   ├── orchestrator.py
+│   │   │   └── routing.py
+│   │   └── runtime.py
+├── config/
+│   └── settings.py
+└── main.py
