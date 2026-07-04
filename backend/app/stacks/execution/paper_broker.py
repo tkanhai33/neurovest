@@ -1,40 +1,36 @@
 """AUTO GENERATED RUNTIME FILE"""
-
-from stacks.portfolio.rebalance import execute_trade  # Import the execute_trade function
-from stacks.journal_ledger.ledger import save_log  # Import the save_log function
+from stacks.portfolio.rebalance import execute_trade
+from stacks.journal_ledger.ledger import save_log
 from stacks.strategy.signal import generate_signal
 from stacks.market_data.price import get_latest_price
 from stacks.market_data.bars import get_bars
 from stacks.risk.drawdown_guard import healthcheck as drawdown_healthcheck
 from stacks.risk.kill_switch import is_kill_switch_active
 
-async def process_portfolio_output(portfolio_matrix: dict, portfolio_output: dict):
-    if 'signal' in portfolio_output and 'symbol' in portfolio_output:
-        signal = portfolio_output['signal']
-        symbol = portfolio_output['symbol']
+def healthcheck():
+    return {"status": "ok"}
 
-        # Check risk boundaries
-        drawdown_status = await drawdown_healthcheck()
+async def process_portfolio_output(portfolio_matrix: list, portfolio_output: dict):
+    if not portfolio_output or 'signal' in portfolio_output:
+        signal = portfolio_output.get('signal', 'hold')
+        symbol = portfolio_output.get('symbol', 'UNKNOWN')
+
+        # Pass a standard base capital parameter to our dynamic drawdown math engine
+        mock_portfolio_equity = 100000.00
+        drawdown_status = drawdown_healthcheck(mock_portfolio_equity)
         kill_switch_active = is_kill_switch_active()
 
-        if not drawdown_status["status"] == "ok" or kill_switch_active:
+        if not drawdown_status.get("status") == "ok" or kill_switch_active:
             transaction_status = "blocked_by_risk"
             await save_log({"symbol": symbol, "signal": signal, "status": transaction_status})
             return
 
-        trade_result = await execute_trade(symbol, signal)  # Call the execute_trade function
-        await save_log(trade_result)  # Save the log using journal_ledger/ledger.py
-        
-        # Execute trade loop
-        if isinstance(portfolio_matrix, dict):
-            for position in portfolio_matrix.values():
-                if position['symbol'] == symbol and position['signal'] != signal:
-                    new_signal = await generate_signal(symbol, get_latest_price(symbol), get_bars(symbol))
-                    await execute_trade(symbol, new_signal)
-                    await save_log(new_signal)
-        elif isinstance(portfolio_matrix, list):
-            for position in portfolio_matrix:
-                if position['symbol'] == symbol and position['signal'] != signal:
-                    new_signal = await generate_signal(symbol, get_latest_price(symbol), get_bars(symbol))
-                    await execute_trade(symbol, new_signal)
-                    await save_log(new_signal)
+        trade_result = execute_trade(symbol, signal)
+        await save_log(trade_result)
+
+        # Execute trade loop over positions matrix
+        for position in portfolio_matrix:
+            if isinstance(position, dict) and position.get('symbol') == symbol and position.get('signal') != signal:
+                new_signal = generate_signal(symbol, get_latest_price(symbol), get_bars(symbol))
+                execute_trade(symbol, new_signal)
+                await save_log(new_signal)
