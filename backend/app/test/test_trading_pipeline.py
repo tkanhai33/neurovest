@@ -27,7 +27,7 @@ def test_trading_pipeline():
                 with patch('stacks.journal_ledger.ledger.save_log') as mock_save_log:
 
                     # Call the function under test
-                    process_portfolio_output({'AAPL': {'signal': 'sell'}}, {'signal': 'buy', 'symbol': 'AAPL'})
+                    process_portfolio_output([{'symbol': 'AAPL', 'signal': 'sell'}], {'signal': 'buy', 'symbol': 'AAPL'})
 
                     # Assert that the trade ledger entry is written to journal_ledger/ledger.py
                     mock_save_log.assert_called_once_with({"symbol": "AAPL", "signal": "buy", "status": "blocked_by_risk"})
