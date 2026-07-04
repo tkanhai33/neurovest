@@ -10,8 +10,9 @@ def generate_strategy_decision(symbol: str) -> dict:
     bars = get_bars(symbol, limit=5)
     signal = generate_signal(symbol, price, bars)
     
-    if signal['status'] == 'ok':
+    status = signal.get('status', 'not_ok')
+    if status == 'ok':
         portfolio_output = rebalance_portfolio(signal)  # Call the rebalance function
         return portfolio_output
     
-    return {"symbol": symbol, "signal": signal, "status": "not_ok"}
+    return {"symbol": symbol, "signal": signal, "status": status}
