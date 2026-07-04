@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from stacks.market_data.price import get_latest_price
-from stacks.strategy.engine import get_strategy_output
+from stacks.strategy.engine import get_strategy_output  # Import the function to get strategy output
 from stacks.risk.drawdown_guard import healthcheck as drawdown_healthcheck
 from stacks.risk.kill_switch import is_kill_switch_active
 from stacks.journal_ledger.ledger import save_log
