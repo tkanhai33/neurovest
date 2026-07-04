@@ -14,6 +14,8 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/api/v1/dashboard/summary")
 async def summary():
     symbol = "AAPL"
+    
+    # Assuming generate_strategy_decision and process_portfolio_output are defined elsewhere
     decision = generate_strategy_decision(symbol)
     
     # If the portfolio manager has successfully rebalanced the assets,
