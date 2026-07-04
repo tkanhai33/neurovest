@@ -7,7 +7,7 @@ from stacks.market_data.bars import get_bars
 from stacks.risk.drawdown_guard import healthcheck as drawdown_healthcheck
 from stacks.risk.kill_switch import is_kill_switch_active
 
-def healthcheck():
+async def healthcheck():
     return {"status": "ok"}
 
 async def process_portfolio_output(portfolio_matrix: list, portfolio_output: dict):
@@ -17,7 +17,7 @@ async def process_portfolio_output(portfolio_matrix: list, portfolio_output: dic
 
         # Pass a standard base capital parameter to our dynamic drawdown math engine
         mock_portfolio_equity = 100000.00
-        drawdown_status = drawdown_healthcheck(mock_portfolio_equity)
+        drawdown_status = await drawdown_healthcheck(mock_portfolio_equity)
         kill_switch_active = is_kill_switch_active()
 
         if not drawdown_status.get("status") == "ok" or kill_switch_active:
