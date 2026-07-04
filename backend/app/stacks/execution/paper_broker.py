@@ -2,6 +2,9 @@
 
 from stacks.portfolio.rebalance import execute_trade  # Import the execute_trade function
 from stacks.journal_ledger.ledger import save_log  # Import the save_log function
+from stacks.strategy.signal import generate_signal
+from stacks.market_data.price import get_latest_price
+from stacks.market_data.bars import get_bars
 
 def healthcheck():
     return {"status": "ok"}
