@@ -1,28 +1,26 @@
-from fastapi import FastAPI, Depends
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from stacks.journal_ledger.ledger import init_db
 from stacks.strategy.engine import generate_strategy_decision
 from stacks.execution.paper_broker import process_portfolio_output
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
 
-async def init_strategy_engine():
-    # Initialize strategy engine logic here
-    pass
-
-async def init_paper_broker():
-    # Initialize paper broker logic here
-    pass
-
-@app.on_event("startup")
-async def startup_event():
-    await init_strategy_engine()
-    await init_paper_broker()
+app = FastAPI(lifespan=lifespan)
 
 @app.get("/api/v1/dashboard/summary")
-def summary(strategy_engine=Depends(init_strategy_engine), paper_broker=Depends(init_paper_broker)):
-    symbol = "AAPL"  # Example symbol
+async def summary():
+    symbol = "AAPL"
     decision = generate_strategy_decision(symbol)
     
-    if 'signal' in decision and 'symbol' in decision:
-        process_portfolio_output(decision)  # Process the portfolio output
-    
-    return {"decision": decision}
+    # If the portfolio manager has successfully rebalanced the assets,
+    # cascade that matrix down to the paper broker to execute the simulated fill and save the logs
+    if decision and decision.get("status") == "rebalanced":
+        mock_matrix = [{'symbol': symbol, 'signal': 'buy'}]
+        await process_portfolio_output(mock_matrix, decision)
+        return {"status": "processed", "execution": "sent_to_broker", "decision": decision}
+        
+    return {"status": "no_action", "decision": decision}
