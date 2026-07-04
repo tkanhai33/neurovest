@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from sqlalchemy import select
 from stacks.journal_ledger.ledger import init_db, async_session, OrderHistory
 from stacks.strategy.engine import generate_strategy_decision
@@ -62,3 +62,21 @@ async def get_analytics():
             "risk_blocked_percentage": (blocked / total_trades * 100) if total_trades > 0 else 0.0,
             "execution_success_percentage": (executed / total_trades * 100) if total_trades > 0 else 0.0
         }
+
+@app.websocket("/api/v1/stream/orders")
+async def stream_orders(websocket: WebSocket):
+    await websocket.accept()
+    
+    async with async_session() as session:
+        query = select(OrderHistory).order_by(OrderHistory.id.desc())
+        result = await session.execute(query)
+        orders = result.scalars().all()
+        
+        for order in orders:
+            await websocket.send_json({
+                "id": order.id,
+                "symbol": order.symbol,
+                "signal": order.signal,
+                "status": order.status,
+                "timestamp": order.timestamp.isoformat() if order.timestamp else None
+            })
