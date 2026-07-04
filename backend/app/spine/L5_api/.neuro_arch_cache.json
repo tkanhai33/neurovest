@@ -1,0 +1,17 @@
+import json
+from pathlib import Path
+
+CACHE_FILE = Path("spine/L5_api/.neuro_arch_cache.json")
+
+
+def load_cache():
+    if CACHE_FILE.exists():
+        return json.loads(CACHE_FILE.read_text())
+    return {
+        "snapshot": {},
+        "history": []
+    }
+
+
+def save_cache(cache):
+    CACHE_FILE.write_text(json.dumps(cache, indent=2))

@@ -1,0 +1,73 @@
+backend/app
+├── spine
+│   ├── ARCHITECTURE.md
+│   ├── L0_adapters
+│   │   ├── broker_adapter.py
+│   │   └── __init__.py
+│   ├── L1_security
+│   │   ├── gate.py
+│   │   └── __init__.py
+│   ├── L2_domain
+│   │   ├── contracts.py
+│   │   └── __init__.py
+│   ├── L3_facade
+│   │   ├── __init__.py
+│   │   └── service_facade.py
+│   ├── L4_runtime
+│   │   ├── execution_sandbox.py
+│   │   └── __init__.py
+│   ├── L5_api
+│   │   ├── api.py
+│   │   ├── __init__.py
+│   │   ├── ollama_bridge.py
+│   │   └── routes.py
+│   ├── L6_frontend
+│   │   ├── hooks.py
+│   │   └── __init__.py
+│   └── L7_tests
+│       ├── __init__.py
+│       ├── test_structure.py
+│       └── test_stub.py
+└── stacks
+    ├── auth_identity
+    │   ├── base.py
+    │   └── __init__.py
+    ├── chat_public
+    │   ├── base.py
+    │   └── __init__.py
+    ├── db_model
+    │   ├── base.py
+    │   └── __init__.py
+    ├── execution
+    │   ├── base.py
+    │   └── __init__.py
+    ├── journal_ledger
+    │   ├── base.py
+    │   └── __init__.py
+    ├── learning_research
+    │   ├── base.py
+    │   └── __init__.py
+    ├── market_data
+    │   ├── base.py
+    │   └── __init__.py
+    ├── notification
+    │   ├── base.py
+    │   └── __init__.py
+    ├── portfolio
+    │   ├── base.py
+    │   └── __init__.py
+    ├── risk
+    │   ├── base.py
+    │   └── __init__.py
+    ├── snaptrade
+    │   ├── base.py
+    │   └── __init__.py
+    ├── strategy
+    │   ├── base.py
+    │   ├── __init__.py
+    │   └── llm_strategy_engine.py
+    └── wolfden_ai
+        ├── base.py
+        └── __init__.py
+
+24 directories, 47 files
