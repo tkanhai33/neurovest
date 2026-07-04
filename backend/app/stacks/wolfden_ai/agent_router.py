@@ -1,6 +1,6 @@
 """DOMAIN_LOGIC_V1 fallback for wolfden_ai."""
 
-from stacks.strategy.engine import get_strategy_output  # Import the function to get strategy output
+from stacks.strategy.engine import generate_strategy_decision  # Import the function to get strategy output
 from stacks.risk.drawdown_guard import healthcheck as drawdown_healthcheck
 from stacks.risk.kill_switch import set_kill_switch, is_kill_switch_active
 from stacks.journal_ledger.ledger import save_log  # Import the save_log function
@@ -11,6 +11,7 @@ from collections import defaultdict
 # Initialize metrics tracking
 signal_frequency = defaultdict(int)
 last_signal_time = {}
+rolling_window = []
 
 def healthcheck() -> dict:
     return {"status": "ok"}
@@ -19,7 +20,7 @@ def monitor_and_process_signals():
     while True:
         # Get strategy output
         start_time = time.time()
-        strategy_output = get_strategy_output()
+        strategy_output = generate_strategy_decision()
 
         # Check risk boundaries
         drawdown_status = drawdown_healthcheck()
@@ -40,6 +41,10 @@ def monitor_and_process_signals():
         current_time = time.time()
         elapsed_time = current_time - last_signal_time[symbol]
 
+        rolling_window.append(signal)
+        if len(rolling_window) > 60:  # Adjust window size as needed
+            rolling_window.pop(0)
+
         if signal == 'buy':
             signal_frequency[symbol] += 1
             if signal_frequency[symbol] > 10 and elapsed_time < 60:
@@ -56,8 +61,9 @@ def monitor_and_process_signals():
             signal_frequency[symbol] = 0
 
 def is_anomaly(signal: dict) -> bool:
-    # Implement your anomaly detection logic here
-    return False  # Placeholder for actual logic
+    # Implement your anomaly detection logic here using rolling window tracking
+    buy_signals = sum(1 for s in rolling_window if s == 'buy')
+    return buy_signals > 10 and len(rolling_window) >= 60
 
 def modify_anomaly(signal: dict) -> dict:
     # Implement your logic to modify anomalies here
