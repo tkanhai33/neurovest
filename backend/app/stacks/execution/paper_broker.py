@@ -6,10 +6,17 @@ from stacks.journal_ledger.ledger import save_log  # Import the save_log functio
 def healthcheck():
     return {"status": "ok"}
 
-def process_portfolio_output(portfolio_output: dict):
+def process_portfolio_output(portfolio_matrix: dict, portfolio_output: dict):
     if 'signal' in portfolio_output and 'symbol' in portfolio_output:
         signal = portfolio_output['signal']
         symbol = portfolio_output['symbol']
         
         trade_result = execute_trade(symbol, signal)  # Call the execute_trade function
         save_log(trade_result)  # Save the log using journal_ledger/ledger.py
+        
+        # Execute trade loop
+        for position in portfolio_matrix:
+            if position['symbol'] == symbol and position['signal'] != signal:
+                new_signal = generate_signal(symbol, get_latest_price(symbol), get_bars(symbol))
+                execute_trade(symbol, new_signal)
+                save_log(new_signal)
