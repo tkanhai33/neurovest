@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from stacks.market_data.price import get_latest_price
-from stacks.strategy.engine import get_strategy_output  # Import the function to get strategy output
+from stacks.strategy.engine import generate_strategy_decision  # Import the correct function
 from stacks.risk.drawdown_guard import healthcheck as drawdown_healthcheck
 from stacks.risk.kill_switch import is_kill_switch_active
 from stacks.journal_ledger.ledger import save_log
@@ -13,9 +13,9 @@ def test_trading_pipeline():
     with patch('stacks.market_data.price.get_latest_price') as mock_get_latest_price:
         mock_get_latest_price.return_value = {'symbol': 'AAPL', 'price': 150.0}
 
-        # Mock the strategy engine to return a dummy signal
-        with patch('stacks.strategy.engine.get_strategy_output') as mock_get_strategy_output:
-            mock_get_strategy_output.return_value = {'signal': 'buy', 'symbol': 'AAPL'}
+        # Mock the strategy engine to return a dummy decision
+        with patch('stacks.strategy.engine.generate_strategy_decision') as mock_generate_strategy_decision:
+            mock_generate_strategy_decision.return_value = {'signal': 'buy', 'symbol': 'AAPL'}
 
             # Mock the risk guards
             with patch('stacks.risk.drawdown_guard.healthcheck') as mock_drawdown_healthcheck, \
