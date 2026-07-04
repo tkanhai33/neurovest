@@ -3,6 +3,7 @@
 from stacks.strategy.engine import get_strategy_output  # Import the function to get strategy output
 from stacks.risk.drawdown_guard import healthcheck as drawdown_healthcheck
 from stacks.risk.kill_switch import is_kill_switch_active
+from stacks.journal_ledger.ledger import save_log  # Import the save_log function
 
 def healthcheck() -> dict:
     return {"status": "ok"}
