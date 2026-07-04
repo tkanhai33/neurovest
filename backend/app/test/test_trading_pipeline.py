@@ -6,6 +6,7 @@ from stacks.strategy.engine import get_strategy_output
 from stacks.risk.drawdown_guard import healthcheck as drawdown_healthcheck
 from stacks.risk.kill_switch import is_kill_switch_active
 from stacks.journal_ledger.ledger import save_log
+from stacks.market_data.bars import get_bars  # Import the get_bars function
 
 def test_trading_pipeline():
     # Mock the market data service to return a dummy tick
