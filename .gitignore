@@ -14,3 +14,4 @@ data/paper_trading/
 data/research/
 data/local_memory/
 *.log
+cursor.AppImage
