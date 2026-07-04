@@ -29,8 +29,15 @@ def process_portfolio_output(portfolio_matrix: dict, portfolio_output: dict):
         save_log(trade_result)  # Save the log using journal_ledger/ledger.py
         
         # Execute trade loop
-        for position in portfolio_matrix:
-            if position['symbol'] == symbol and position['signal'] != signal:
-                new_signal = generate_signal(symbol, get_latest_price(symbol), get_bars(symbol))
-                execute_trade(symbol, new_signal)
-                save_log(new_signal)
+        if isinstance(portfolio_matrix, dict):
+            for position in portfolio_matrix.values():
+                if position['symbol'] == symbol and position['signal'] != signal:
+                    new_signal = generate_signal(symbol, get_latest_price(symbol), get_bars(symbol))
+                    execute_trade(symbol, new_signal)
+                    save_log(new_signal)
+        elif isinstance(portfolio_matrix, list):
+            for position in portfolio_matrix:
+                if position['symbol'] == symbol and position['signal'] != signal:
+                    new_signal = generate_signal(symbol, get_latest_price(symbol), get_bars(symbol))
+                    execute_trade(symbol, new_signal)
+                    save_log(new_signal)
