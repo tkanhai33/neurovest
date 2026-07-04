@@ -18,13 +18,13 @@ def test_trading_pipeline_success():
             mock_generate_strategy_decision.return_value = {'signal': 'buy', 'symbol': 'AAPL'}
 
             # Mock the risk guards
-            with patch('stacks.execution.paper_broker.drawdown_healthcheck') as mock_drawdown_healthcheck, \
-                 patch('stacks.execution.paper_broker.is_kill_switch_active') as mock_is_kill_switch_active:
+            with patch('backend.app.stacks.execution.paper_broker.drawdown_healthcheck') as mock_drawdown_healthcheck, \
+                 patch('backend.app.stacks.execution.paper_broker.is_kill_switch_active') as mock_is_kill_switch_active:
                 mock_drawdown_healthcheck.return_value = {'status': 'ok'}
                 mock_is_kill_switch_active.return_value = False
 
                 # Mock the journal ledger to save logs
-                with patch('stacks.execution.paper_broker.save_log') as mock_save_log:
+                with patch('backend.app.stacks.execution.paper_broker.save_log') as mock_save_log:
 
                     # Call the function under test
                     process_portfolio_output([{'symbol': 'AAPL', 'signal': 'sell'}], {'signal': 'buy', 'symbol': 'AAPL'})
@@ -42,13 +42,13 @@ def test_trading_pipeline_blocked():
             mock_generate_strategy_decision.return_value = {'signal': 'buy', 'symbol': 'AAPL'}
 
             # Mock the risk guards
-            with patch('stacks.execution.paper_broker.drawdown_healthcheck') as mock_drawdown_healthcheck, \
-                 patch('stacks.execution.paper_broker.is_kill_switch_active') as mock_is_kill_switch_active:
+            with patch('backend.app.stacks.execution.paper_broker.drawdown_healthcheck') as mock_drawdown_healthcheck, \
+                 patch('backend.app.stacks.execution.paper_broker.is_kill_switch_active') as mock_is_kill_switch_active:
                 mock_drawdown_healthcheck.return_value = {'status': 'ok'}
                 mock_is_kill_switch_active.return_value = True
 
                 # Mock the journal ledger to save logs
-                with patch('stacks.execution.paper_broker.save_log') as mock_save_log:
+                with patch('backend.app.stacks.execution.paper_broker.save_log') as mock_save_log:
 
                     # Call the function under test
                     process_portfolio_output([{'symbol': 'AAPL', 'signal': 'sell'}], {'signal': 'buy', 'symbol': 'AAPL'})
