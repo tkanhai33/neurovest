@@ -7,7 +7,6 @@ from stacks.execution.paper_broker import process_portfolio_output
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initializes tables in your running PostgreSQL container on startup
     await init_db()
     yield
 
@@ -27,13 +26,10 @@ async def summary():
 
 @app.get("/api/v1/orders")
 async def get_orders():
-    """Queries and returns all historical transactions straight from the database."""
     async with async_session() as session:
-        # Use modern SQLAlchemy 2.0 select syntax
         result = await session.execute(select(OrderHistory).order_by(OrderHistory.id.desc()))
         orders = result.scalars().all()
         
-        # Format database objects into a clean JSON list layout
         order_list = [
             {
                 "id": order.id,
@@ -47,27 +43,22 @@ async def get_orders():
         return {"total_records": len(order_list), "orders": order_list}
 
 @app.get("/api/v1/analytics")
-async def analytics():
-    """Calculates basic processing statistics from the OrderHistory table."""
+async def get_analytics():
+    """Queries order logs asynchronously and computes core portfolio performance matrices."""
     async with async_session() as session:
-        # Use modern SQLAlchemy 2.0 select syntax
         result = await session.execute(select(OrderHistory))
-        orders = result.scalars().all()
-
-        total_trades = len(orders)
-        buy_count = sum(1 for order in orders if order.signal == "buy")
-        sell_count = sum(1 for order in orders if order.signal == "sell")
-
-        blocked_trades = sum(1 for order in orders if order.status != "executed")
-        executed_trades = total_trades - blocked_trades
-
-        blocked_percentage = (blocked_trades / total_trades) * 100 if total_trades > 0 else 0
-        executed_percentage = (executed_trades / total_trades) * 100 if total_trades > 0 else 0
-
+        all_records = result.scalars().all()
+        
+        total_trades = len(all_records)
+        buys = sum(1 for o in all_records if str(o.signal).lower() == 'buy' or str(o.signal).lower() == 'long')
+        sells = sum(1 for o in all_records if str(o.signal).lower() == 'sell' or str(o.signal).lower() == 'short')
+        blocked = sum(1 for o in all_records if o.status == 'blocked_by_risk')
+        executed = sum(1 for o in all_records if o.status == 'executed')
+        
         return {
-            "total_trades": total_trades,
-            "buy_count": buy_count,
-            "sell_count": sell_count,
-            "blocked_percentage": blocked_percentage,
-            "executed_percentage": executed_percentage
+            "total_trades_logged": total_trades,
+            "buy_signals_count": buys,
+            "sell_signals_count": sells,
+            "risk_blocked_percentage": (blocked / total_trades * 100) if total_trades > 0 else 0.0,
+            "execution_success_percentage": (executed / total_trades * 100) if total_trades > 0 else 0.0
         }
