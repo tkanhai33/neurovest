@@ -45,3 +45,29 @@ async def get_orders():
             for order in orders
         ]
         return {"total_records": len(order_list), "orders": order_list}
+
+@app.get("/api/v1/analytics")
+async def analytics():
+    """Calculates basic processing statistics from the OrderHistory table."""
+    async with async_session() as session:
+        # Use modern SQLAlchemy 2.0 select syntax
+        result = await session.execute(select(OrderHistory))
+        orders = result.scalars().all()
+
+        total_trades = len(orders)
+        buy_count = sum(1 for order in orders if order.signal == "buy")
+        sell_count = sum(1 for order in orders if order.signal == "sell")
+
+        blocked_trades = sum(1 for order in orders if order.status != "executed")
+        executed_trades = total_trades - blocked_trades
+
+        blocked_percentage = (blocked_trades / total_trades) * 100 if total_trades > 0 else 0
+        executed_percentage = (executed_trades / total_trades) * 100 if total_trades > 0 else 0
+
+        return {
+            "total_trades": total_trades,
+            "buy_count": buy_count,
+            "sell_count": sell_count,
+            "blocked_percentage": blocked_percentage,
+            "executed_percentage": executed_percentage
+        }
