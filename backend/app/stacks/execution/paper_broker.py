@@ -27,7 +27,7 @@ async def process_portfolio_output(portfolio_matrix: list, portfolio_output: dic
             return
 
         # Calculate position size
-        position_size_payload = calculate_position_size(symbol)
+        position_size_payload = calculate_position_size(symbol, signal)
         
         trade_result = execute_trade(symbol, signal, **position_size_payload)
         await save_log(trade_result)
@@ -39,7 +39,7 @@ async def process_portfolio_output(portfolio_matrix: list, portfolio_output: dic
                 execute_trade(symbol, new_signal)
                 await save_log(new_signal)
 
-async def calculate_position_size(symbol: str, total_capital: float = 100000.0) -> dict:
+async def calculate_position_size(symbol: str, signal: dict, total_capital: float = 100000.0) -> dict:
     side = signal.get("side", "HOLD")
     if side == "BUY":
         # Get the last 5 bars for the symbol
