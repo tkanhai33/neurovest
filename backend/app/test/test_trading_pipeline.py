@@ -1,8 +1,9 @@
-from unittest.mock import patch, MagicMock
+import asyncio
+from unittest.mock import patch, MagicMock, AsyncMock
 from stacks.execution.paper_broker import process_portfolio_output
 from stacks.wolfden_ai.agent_router import monitor_and_process_signals
 
-def test_trading_pipeline_success():
+async def test_trading_pipeline_success():
     with patch('stacks.market_data.price.get_latest_price') as mock_get_latest_price:
         mock_get_latest_price.return_value = {'symbol': 'AAPL', 'price': 150.0}
 
@@ -20,11 +21,11 @@ def test_trading_pipeline_success():
                     
                     mock_execute_trade.return_value = {'symbol': 'AAPL', 'signal': 'buy', 'status': 'executed'}
 
-                    process_portfolio_output([{'symbol': 'AAPL', 'signal': 'sell'}], {'signal': 'buy', 'symbol': 'AAPL'})
+                    await process_portfolio_output([{'symbol': 'AAPL', 'signal': 'sell'}], {'signal': 'buy', 'symbol': 'AAPL'})
                     
                     mock_save_log.assert_any_call({'symbol': 'AAPL', 'signal': 'buy', 'status': 'executed'})
 
-def test_trading_pipeline_blocked():
+async def test_trading_pipeline_blocked():
     with patch('stacks.market_data.price.get_latest_price') as mock_get_latest_price:
         mock_get_latest_price.return_value = {'symbol': 'AAPL', 'price': 150.0}
 
@@ -39,11 +40,11 @@ def test_trading_pipeline_blocked():
 
             with patch('stacks.execution.paper_broker.save_log') as mock_save_log:
 
-                process_portfolio_output([{'symbol': 'AAPL', 'signal': 'sell'}], {'signal': 'buy', 'symbol': 'AAPL'})
+                await process_portfolio_output([{'symbol': 'AAPL', 'signal': 'sell'}], {'signal': 'buy', 'symbol': 'AAPL'})
                 
                 mock_save_log.assert_called_once_with({"symbol": "AAPL", "signal": "buy", "status": "blocked_by_risk"})
 
-def test_agent_router_trips_kill_switch():
+async def test_agent_router_trips_kill_switch():
     # Target the inner strategy layer components to avoid KeyError conflicts
     with patch('stacks.strategy.engine.get_latest_price'), \
          patch('stacks.strategy.engine.get_bars'), \
@@ -63,7 +64,7 @@ def test_agent_router_trips_kill_switch():
                  patch('stacks.wolfden_ai.agent_router.time.sleep'): # Avoid slowing down the test run
                 
                 try:
-                    monitor_and_process_signals()
+                    await monitor_and_process_signals()
                 except StopIteration:
                     pass
                 
