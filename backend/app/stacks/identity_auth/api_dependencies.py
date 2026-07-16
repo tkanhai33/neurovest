@@ -244,3 +244,7 @@ async def get_required_password_change_service() -> AsyncIterator[
             rollback=session.rollback,
         )
 
+# New dependency for session repository
+async def get_session_repository() -> AsyncIterator[IdentityUserRepository]:
+    async with async_session() as session:
+        yield IdentityUserRepository(session)

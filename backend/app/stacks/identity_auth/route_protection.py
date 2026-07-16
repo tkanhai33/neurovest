@@ -157,6 +157,12 @@ ROUTE_POLICIES: tuple[RoutePolicy, ...] = (
         path_template='/auth/register',
         policy='PUBLIC',
     ),
+    # New route policy for introspection
+    RoutePolicy(
+        method='GET',
+        path_template='/auth/introspection',
+        policy='AUTHENTICATED',
+    ),
 )
 
 

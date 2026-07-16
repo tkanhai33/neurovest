@@ -477,3 +477,15 @@ async def logout_all_sessions(
     return LogoutAllApiResponse(
         revoked_sessions=revoked
     )
+
+# New endpoint for introspection
+@router.get(
+    "/introspection",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
+async def session_introspection(
+    principal=Depends(require_authenticated_principal),
+    session_repo: IdentityUserRepository = Depends(get_session_repository),
+):
+    return await get_session_introspection(principal.subject, session_repo)
