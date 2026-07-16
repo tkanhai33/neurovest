@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-
-from typing import Protocol
+from typing import Any, Protocol
 
 from fastapi import (
     APIRouter,
@@ -19,7 +18,6 @@ from backend.app.stacks.identity_auth.api_dependencies import (
     require_authenticated_principal,
     optional_logout_access_principal,
 )
-
 from backend.app.stacks.identity_auth.api_models import (
     ChangeRequiredPasswordApiRequest,
     ChangeRequiredPasswordApiResponse,
@@ -50,6 +48,7 @@ from backend.app.stacks.identity_auth.password_change_service import (
     PasswordChangeRejectedError,
     RequiredPasswordChangeService,
 )
+from backend.app.stacks.identity_auth.repositories import IdentityUserRepository
 
 
 class RegistrationApiService(
