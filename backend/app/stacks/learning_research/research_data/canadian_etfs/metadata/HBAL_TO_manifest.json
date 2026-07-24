@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_CANADIAN_ETFS_HBAL_TO",
+  "provider": "YFINANCE",
+  "asset_group": "canadian_etfs",
+  "symbol": "HBAL.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/canadian_etfs/raw/HBAL_TO.csv",
+  "checksum_sha256": "f91a40baaf49f754d7a1bc1efe8569e1c6ce094bf544198dccc9ed188dfd014a",
+  "rows": 1990,
+  "first_date": "2018-08-02",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:28:22.490435+00:00",
+  "updated_at": "2026-07-08T19:28:22.490444+00:00"
+}

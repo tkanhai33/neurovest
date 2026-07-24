@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_CANADA_CNQ_TO",
+  "provider": "YFINANCE",
+  "asset_group": "equities_canada",
+  "symbol": "CNQ.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_canada/raw/CNQ_TO.csv",
+  "checksum_sha256": "22415df0a00998c0ff91e857b1d89d43be4c6ce69905ea27b6070a6d39d3bb94",
+  "rows": 7913,
+  "first_date": "1995-01-12",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:22:40.834922+00:00",
+  "updated_at": "2026-07-08T19:22:40.834929+00:00"
+}

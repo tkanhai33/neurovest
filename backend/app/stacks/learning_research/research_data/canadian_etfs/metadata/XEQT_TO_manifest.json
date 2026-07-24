@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_CANADIAN_ETFS_XEQT_TO",
+  "provider": "YFINANCE",
+  "asset_group": "canadian_etfs",
+  "symbol": "XEQT.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/canadian_etfs/raw/XEQT_TO.csv",
+  "checksum_sha256": "9dd51409fe6e0e8ee886b7b9ae100ba4679e7222ef67b26a0f67165e52d7c092",
+  "rows": 1732,
+  "first_date": "2019-08-14",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:28:42.715929+00:00",
+  "updated_at": "2026-07-08T19:28:42.715937+00:00"
+}

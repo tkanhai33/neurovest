@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_CANADA_RY_TO",
+  "provider": "YFINANCE",
+  "asset_group": "equities_canada",
+  "symbol": "RY.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_canada/raw/RY_TO.csv",
+  "checksum_sha256": "b04bb689316522c63e42ea4e63096b36df25a217cc261fae2da4c35397c4169e",
+  "rows": 7913,
+  "first_date": "1995-01-12",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:24:02.447280+00:00",
+  "updated_at": "2026-07-08T19:24:02.447287+00:00"
+}

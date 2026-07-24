@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_CANADIAN_ETFS_XAW_TO",
+  "provider": "YFINANCE",
+  "asset_group": "canadian_etfs",
+  "symbol": "XAW.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/canadian_etfs/raw/XAW_TO.csv",
+  "checksum_sha256": "870caca701987d8934a5ae390a768b0ee48903f05f234e5a249a6192bdcab543",
+  "rows": 2856,
+  "first_date": "2015-02-20",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:28:41.649599+00:00",
+  "updated_at": "2026-07-08T19:28:41.649610+00:00"
+}

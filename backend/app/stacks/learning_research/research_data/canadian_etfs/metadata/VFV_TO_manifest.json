@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_CANADIAN_ETFS_VFV_TO",
+  "provider": "YFINANCE",
+  "asset_group": "canadian_etfs",
+  "symbol": "VFV.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/canadian_etfs/raw/VFV_TO.csv",
+  "checksum_sha256": "ee9757141b873180148bc25c418f9129b229196e10927ec9db9ccb8821077059",
+  "rows": 3428,
+  "first_date": "2012-11-08",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:28:36.893915+00:00",
+  "updated_at": "2026-07-08T19:28:36.893923+00:00"
+}

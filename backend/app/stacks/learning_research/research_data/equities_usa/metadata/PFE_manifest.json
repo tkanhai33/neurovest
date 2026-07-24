@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_PFE",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "PFE",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/PFE.csv",
+  "checksum_sha256": "f9ac033edd5c75b982a9f5e0c0b29f5e711c9339c53e88d9adf2b12703853122",
+  "rows": 13637,
+  "first_date": "1972-06-01",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:27:34.008662+00:00",
+  "updated_at": "2026-07-08T19:27:34.008669+00:00"
+}

@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_COST",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "COST",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/COST.csv",
+  "checksum_sha256": "a7ae3179a3d1a4a8fb734ea38558dc8288400ec2762e0dc7ea613b9036aca2df",
+  "rows": 10076,
+  "first_date": "1986-07-09",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:25:14.645547+00:00",
+  "updated_at": "2026-07-08T19:25:14.645554+00:00"
+}

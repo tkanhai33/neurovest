@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_CANADA_NTR_TO",
+  "provider": "YFINANCE",
+  "asset_group": "equities_canada",
+  "symbol": "NTR.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_canada/raw/NTR_TO.csv",
+  "checksum_sha256": "1c73f2c1979e676d00e2e005362a2e6094043427efef8d882f5dd15c3748cf47",
+  "rows": 2138,
+  "first_date": "2018-01-02",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:23:50.727018+00:00",
+  "updated_at": "2026-07-08T19:23:50.727025+00:00"
+}

@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_US_ETFS_VOO",
+  "provider": "YFINANCE",
+  "asset_group": "us_etfs",
+  "symbol": "VOO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/us_etfs/raw/VOO.csv",
+  "checksum_sha256": "59b466fbb6a4eef495831160154fb6ec265fb05fd87b44cd24e9ca64be6586fa",
+  "rows": 3980,
+  "first_date": "2010-09-09",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:29:27.263258+00:00",
+  "updated_at": "2026-07-08T19:29:27.263266+00:00"
+}

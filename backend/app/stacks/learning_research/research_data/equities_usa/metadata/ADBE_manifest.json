@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_ADBE",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "ADBE",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/ADBE.csv",
+  "checksum_sha256": "c3fa520a7549d48e2da61ccdcb052254040809a230f02f770a171d5d935e8d9f",
+  "rows": 10051,
+  "first_date": "1986-08-13",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:24:49.790709+00:00",
+  "updated_at": "2026-07-08T19:24:49.790716+00:00"
+}

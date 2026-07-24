@@ -1,0 +1,258 @@
+from __future__ import annotations
+
+import ast
+import asyncio
+import inspect
+from pathlib import Path
+
+import pytest
+from fastapi import HTTPException
+
+from backend.app.stacks.chat_public.public_controls import (
+    AnonymousSlidingWindowLimiter,
+    enforce_public_chat_controls,
+    enforce_public_chat_safety,
+    validate_public_chat_text,
+)
+
+
+ROOT = Path(".").resolve()
+
+ROUTE_FILE = (
+    ROOT
+    / 'backend/app/stacks/chat_public/chat_api.py'
+)
+
+ROUTE_FUNCTION = 'chat_endpoint'
+
+
+def test_public_chat_contract_accepts_valid_text() -> None:
+    validate_public_chat_text(
+        ["Explain portfolio diversification."]
+    )
+
+
+def test_public_chat_contract_rejects_empty_text() -> None:
+    with pytest.raises(
+        Exception,
+        match="cannot be empty",
+    ):
+        validate_public_chat_text(
+            ["   "]
+        )
+
+
+def test_public_chat_contract_rejects_oversized_text() -> None:
+    with pytest.raises(
+        Exception,
+        match="maximum",
+    ):
+        validate_public_chat_text(
+            ["12345"],
+            max_text_length=4,
+        )
+
+
+def test_public_chat_safety_denies_restricted_action() -> None:
+    with pytest.raises(
+        Exception,
+        match="restricted",
+    ):
+        enforce_public_chat_safety(
+            ["Please execute a trade for me."]
+        )
+
+
+def test_public_chat_safety_allows_general_discussion() -> None:
+    enforce_public_chat_safety(
+        [
+            "Explain how a trade order works "
+            "without performing one."
+        ]
+    )
+
+
+@pytest.mark.asyncio
+async def test_public_chat_timeout_maps_to_504() -> None:
+    async def slow_handler(
+        message: str,
+    ) -> dict[str, str]:
+        await asyncio.sleep(
+            0.05
+        )
+
+        return {
+            "message": message,
+        }
+
+    wrapped = enforce_public_chat_controls(
+        slow_handler,
+        timeout_seconds=0.001,
+        limiter=AnonymousSlidingWindowLimiter(
+            limit=10,
+            window_seconds=60.0,
+        ),
+    )
+
+    with pytest.raises(
+        HTTPException,
+    ) as exc_info:
+        await wrapped(
+            "hello"
+        )
+
+    assert exc_info.value.status_code == 504
+
+
+@pytest.mark.asyncio
+async def test_public_chat_dependency_failure_maps_to_503() -> None:
+    async def unavailable_handler(
+        message: str,
+    ) -> None:
+        raise RuntimeError(
+            "dependency unavailable"
+        )
+
+    wrapped = enforce_public_chat_controls(
+        unavailable_handler,
+        limiter=AnonymousSlidingWindowLimiter(
+            limit=10,
+            window_seconds=60.0,
+        ),
+    )
+
+    with pytest.raises(
+        HTTPException,
+    ) as exc_info:
+        await wrapped(
+            "hello"
+        )
+
+    assert exc_info.value.status_code == 503
+
+
+@pytest.mark.asyncio
+async def test_public_chat_rate_limit_maps_to_429() -> None:
+    async def handler(
+        message: str,
+    ) -> str:
+        return message
+
+    limiter = AnonymousSlidingWindowLimiter(
+        limit=1,
+        window_seconds=60.0,
+    )
+
+    wrapped = enforce_public_chat_controls(
+        handler,
+        limiter=limiter,
+    )
+
+    assert await wrapped(
+        "first message"
+    ) == "first message"
+
+    with pytest.raises(
+        HTTPException,
+    ) as exc_info:
+        await wrapped(
+            "second message"
+        )
+
+    assert exc_info.value.status_code == 429
+
+
+@pytest.mark.asyncio
+async def test_public_chat_safety_denial_maps_to_403() -> None:
+    async def handler(
+        message: str,
+    ) -> str:
+        return message
+
+    wrapped = enforce_public_chat_controls(
+        handler,
+        limiter=AnonymousSlidingWindowLimiter(
+            limit=10,
+            window_seconds=60.0,
+        ),
+    )
+
+    with pytest.raises(
+        HTTPException,
+    ) as exc_info:
+        await wrapped(
+            "Enable live trading."
+        )
+
+    assert exc_info.value.status_code == 403
+
+
+def test_route_is_decorated_with_public_controls() -> None:
+    source = ROUTE_FILE.read_text(
+        encoding="utf-8"
+    )
+
+    tree = ast.parse(
+        source,
+        filename=str(
+            ROUTE_FILE
+        ),
+    )
+
+    matches = [
+        node
+        for node in ast.walk(
+            tree
+        )
+        if isinstance(
+            node,
+            (
+                ast.FunctionDef,
+                ast.AsyncFunctionDef,
+            ),
+        )
+        and node.name == ROUTE_FUNCTION
+    ]
+
+    assert len(matches) == 1
+
+    decorators = [
+        ast.unparse(
+            decorator
+        )
+        for decorator
+        in matches[0].decorator_list
+    ]
+
+    assert any(
+        decorator.split(
+            "(",
+            1,
+        )[0].split(
+            "."
+        )[-1]
+        == "enforce_public_chat_controls"
+        for decorator in decorators
+    )
+
+
+def test_public_control_wrapper_preserves_signature() -> None:
+    async def original(
+        message: str,
+        optional: int = 1,
+    ) -> str:
+        return message * optional
+
+    wrapped = enforce_public_chat_controls(
+        original,
+        limiter=AnonymousSlidingWindowLimiter(
+            limit=10,
+            window_seconds=60.0,
+        ),
+    )
+
+    assert inspect.signature(
+        wrapped
+    ) == inspect.signature(
+        original
+    )

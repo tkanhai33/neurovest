@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_US_ETFS_IVV",
+  "provider": "YFINANCE",
+  "asset_group": "us_etfs",
+  "symbol": "IVV",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/us_etfs/raw/IVV.csv",
+  "checksum_sha256": "99f6d594ea6bcf1509e938943afd4c2446ff4970ea4384d736991f6a8d1d01fe",
+  "rows": 6571,
+  "first_date": "2000-05-19",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:29:09.377586+00:00",
+  "updated_at": "2026-07-08T19:29:09.377595+00:00"
+}

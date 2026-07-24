@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_INTC",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "INTC",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/INTC.csv",
+  "checksum_sha256": "2751cf9c5f841cc75975199b140a93bee2bbe52e491f249f1ef03f61698b9159",
+  "rows": 11671,
+  "first_date": "1980-03-17",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:25:53.397010+00:00",
+  "updated_at": "2026-07-08T19:25:53.397017+00:00"
+}

@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_NFLX",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "NFLX",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/NFLX.csv",
+  "checksum_sha256": "1c2e66f7ad8af8b3fcb91e8ddde56a73d1e37999cee9d9862e5d2487327aa2be",
+  "rows": 6069,
+  "first_date": "2002-05-23",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:27:01.824688+00:00",
+  "updated_at": "2026-07-08T19:27:01.824697+00:00"
+}

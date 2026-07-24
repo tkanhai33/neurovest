@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_FX_EURUSD_X",
+  "provider": "YFINANCE",
+  "asset_group": "fx",
+  "symbol": "EURUSD=X",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/fx/raw/EURUSD_X.csv",
+  "checksum_sha256": "371a22aea95607e115cd697e7bfafc0fd681bf98947aca5a00d25fb6c71fcdc2",
+  "rows": 5864,
+  "first_date": "2003-12-01",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:31:18.268541+00:00",
+  "updated_at": "2026-07-08T19:31:18.268548+00:00"
+}

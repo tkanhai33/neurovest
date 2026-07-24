@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_CANADIAN_ETFS_VCN_TO",
+  "provider": "YFINANCE",
+  "asset_group": "canadian_etfs",
+  "symbol": "VCN.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/canadian_etfs/raw/VCN_TO.csv",
+  "checksum_sha256": "ea60435292fa0d297c845a685cba4c72287fbad0dff7eab12123510ab589122c",
+  "rows": 3238,
+  "first_date": "2013-08-13",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:28:33.815762+00:00",
+  "updated_at": "2026-07-08T19:28:33.815772+00:00"
+}

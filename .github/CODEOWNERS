@@ -1,0 +1,44 @@
+# NeuroVest repository ownership contract
+#
+# GitHub uses the last matching pattern.
+# Specific safety-critical rules appear after the repository default.
+
+* @tkanhai33
+
+# Repository governance and release automation
+/.github/ @tkanhai33
+/scripts/ @tkanhai33
+/docker-compose.yml @tkanhai33
+/alembic.ini @tkanhai33
+/alembic/ @tkanhai33
+
+# Application composition and architecture enforcement
+/backend/app/main.py @tkanhai33
+/backend/app/core/ @tkanhai33
+/backend/app/spine/ @tkanhai33
+
+# Identity, authorization, and administration
+/backend/app/stacks/identity_auth/ @tkanhai33
+
+# Public AI and chat boundaries
+/backend/app/stacks/chat_public/ @tkanhai33
+/backend/app/stacks/wolfden_ai/ @tkanhai33
+
+# Financial decision and execution boundaries
+/backend/app/stacks/risk/ @tkanhai33
+/backend/app/stacks/execution/ @tkanhai33
+/backend/app/stacks/paper_trading/ @tkanhai33
+/backend/app/stacks/broker_integration/ @tkanhai33
+/backend/app/stacks/snaptrade/ @tkanhai33
+/backend/app/stacks/portfolio/ @tkanhai33
+/backend/app/stacks/strategy/ @tkanhai33
+/backend/app/stacks/market_data/ @tkanhai33
+
+# Durable audit evidence
+/backend/app/stacks/journal_ledger/ @tkanhai33
+
+# Frontend security-sensitive surfaces
+/frontend/app/login/ @tkanhai33
+/frontend/app/change-password/ @tkanhai33
+/frontend/app/admin/ @tkanhai33
+/frontend/app/api/ @tkanhai33

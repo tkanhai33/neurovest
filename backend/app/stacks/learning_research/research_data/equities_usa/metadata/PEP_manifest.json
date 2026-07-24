@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_PEP",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "PEP",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/PEP.csv",
+  "checksum_sha256": "f62e3d49361198d6ae33a97f4c4d1ebac54474d9faa6efd5e4cfbf0d0f21eeb4",
+  "rows": 13637,
+  "first_date": "1972-06-01",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:27:26.512477+00:00",
+  "updated_at": "2026-07-08T19:27:26.512486+00:00"
+}

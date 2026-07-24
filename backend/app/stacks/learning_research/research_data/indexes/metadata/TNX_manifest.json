@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_INDEXES_TNX",
+  "provider": "YFINANCE",
+  "asset_group": "indexes",
+  "symbol": "^TNX",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/indexes/raw/TNX.csv",
+  "checksum_sha256": "5b35cd4612d30db0546cbd661ba47b8ef6addec0d3a823fcf6291890fe82b290",
+  "rows": 16114,
+  "first_date": "1962-01-02",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:30:52.073072+00:00",
+  "updated_at": "2026-07-08T19:30:52.073081+00:00"
+}

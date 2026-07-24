@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_JNJ",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "JNJ",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/JNJ.csv",
+  "checksum_sha256": "aee73d21d93486de50575548c4a45111ac2e0bf0b3efe99070d36c158fa3976f",
+  "rows": 16236,
+  "first_date": "1962-01-02",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:26:02.093073+00:00",
+  "updated_at": "2026-07-08T19:26:02.093081+00:00"
+}

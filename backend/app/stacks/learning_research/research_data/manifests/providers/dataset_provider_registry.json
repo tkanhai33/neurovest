@@ -1,0 +1,121 @@
+{
+  "registry_id": "DATASET_PROVIDER_REGISTRY_V1",
+  "created_at": "2026-07-08T17:26:28.860643+00:00",
+  "providers": {
+    "YFINANCE": {
+      "provider_id": "YFINANCE",
+      "name": "Yahoo Finance via yfinance",
+      "enabled": true,
+      "free_provider": true,
+      "requires_api_key": false,
+      "capabilities": [
+        "daily_ohlcv",
+        "adjusted_prices",
+        "splits",
+        "dividends",
+        "etfs",
+        "indexes"
+      ],
+      "allowed_asset_classes": [
+        "equity",
+        "etf",
+        "index"
+      ],
+      "write_policy": "FILE_REPOSITORY_ONLY",
+      "db_write_allowed": false,
+      "broker_execution_allowed": false,
+      "live_execution_allowed": false
+    },
+    "FRED_CANADA_WORKBOOK": {
+      "provider_id": "FRED_CANADA_WORKBOOK",
+      "name": "Existing FRED Canada Workbook",
+      "enabled": true,
+      "free_provider": true,
+      "requires_api_key": false,
+      "capabilities": [
+        "macro_annual",
+        "macro_quarterly",
+        "macro_monthly",
+        "macro_5_year"
+      ],
+      "allowed_asset_classes": [
+        "macro"
+      ],
+      "write_policy": "FILE_REPOSITORY_ONLY",
+      "db_write_allowed": false,
+      "broker_execution_allowed": false,
+      "live_execution_allowed": false
+    },
+    "BANK_OF_CANADA": {
+      "provider_id": "BANK_OF_CANADA",
+      "name": "Bank of Canada",
+      "enabled": false,
+      "free_provider": true,
+      "requires_api_key": false,
+      "capabilities": [
+        "interest_rates",
+        "exchange_rates",
+        "macro_series"
+      ],
+      "allowed_asset_classes": [
+        "macro"
+      ],
+      "write_policy": "REGISTERED_FOR_FUTURE_USE_ONLY",
+      "db_write_allowed": false,
+      "broker_execution_allowed": false,
+      "live_execution_allowed": false
+    },
+    "FRED_US": {
+      "provider_id": "FRED_US",
+      "name": "FRED US",
+      "enabled": false,
+      "free_provider": true,
+      "requires_api_key": false,
+      "capabilities": [
+        "macro_series",
+        "rates",
+        "inflation",
+        "employment",
+        "gdp"
+      ],
+      "allowed_asset_classes": [
+        "macro"
+      ],
+      "write_policy": "REGISTERED_FOR_FUTURE_USE_ONLY",
+      "db_write_allowed": false,
+      "broker_execution_allowed": false,
+      "live_execution_allowed": false
+    },
+    "HUGGINGFACE_REFERENCE": {
+      "provider_id": "HUGGINGFACE_REFERENCE",
+      "name": "Hugging Face Reference Datasets and Models",
+      "enabled": false,
+      "free_provider": true,
+      "requires_api_key": false,
+      "capabilities": [
+        "reference_datasets",
+        "sentiment_datasets",
+        "financial_text_datasets",
+        "external_model_reference"
+      ],
+      "allowed_asset_classes": [
+        "research",
+        "sentiment",
+        "external_model_reference"
+      ],
+      "write_policy": "REGISTERED_FOR_FUTURE_USE_ONLY",
+      "db_write_allowed": false,
+      "broker_execution_allowed": false,
+      "live_execution_allowed": false
+    }
+  },
+  "global_policy": {
+    "downloads_allowed_by_registry": false,
+    "database_writes_allowed": false,
+    "training_execution_enabled": false,
+    "strategy_db_write_allowed": false,
+    "promotion_enabled": false,
+    "broker_execution_enabled": false,
+    "live_execution_enabled": false
+  }
+}

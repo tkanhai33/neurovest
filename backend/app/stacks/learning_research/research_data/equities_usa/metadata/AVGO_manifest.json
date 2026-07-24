@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_AVGO",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "AVGO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/AVGO.csv",
+  "checksum_sha256": "b6f7dcfadce9bbb4f209f20ed46aa38d5ec0915350ba3562564a2200a4999ea7",
+  "rows": 4255,
+  "first_date": "2009-08-06",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:25:02.143308+00:00",
+  "updated_at": "2026-07-08T19:25:02.143315+00:00"
+}

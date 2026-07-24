@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_CANADA_BN_TO",
+  "provider": "YFINANCE",
+  "asset_group": "equities_canada",
+  "symbol": "BN.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_canada/raw/BN_TO.csv",
+  "checksum_sha256": "329b8116f56d3e56d066a825f9dddfa78a079be617807bd49604d86cd4b75a6e",
+  "rows": 7913,
+  "first_date": "1995-01-12",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:22:23.896864+00:00",
+  "updated_at": "2026-07-08T19:22:23.896871+00:00"
+}

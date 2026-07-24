@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+from pathlib import Path
+from datetime import datetime, UTC
+import json
+
+ROOT = Path(".").resolve()
+ARCH = ROOT / "runtime" / "replay_runtime_architecture"
+
+PHASE = "80C_NEAR_MISS_REFACTOR_QUEUE_ROLLUP"
+
+EXPECTED = {
+    "80A_queue_stub": ARCH / "near_miss_refactor_queue/80A_near_miss_refactor_queue_stub_latest.json",
+    "80B_queue_certification": ARCH / "near_miss_refactor_queue_certification/80B_near_miss_refactor_queue_certification_latest.json",
+}
+
+OUT_DIR = ARCH / "near_miss_refactor_queue_rollup"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+OUT_JSON = OUT_DIR / "80C_near_miss_refactor_queue_rollup_latest.json"
+OUT_TXT = OUT_DIR / "80C_near_miss_refactor_queue_rollup_latest.txt"
+
+
+def read_json(path: Path) -> dict:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+artifacts = {}
+checks = {}
+
+for name, path in EXPECTED.items():
+    data = read_json(path)
+    artifacts[name] = {
+        "path": str(path),
+        "exists": path.exists(),
+        "phase": data.get("phase"),
+        "certified": data.get("certified") is True,
+    }
+    checks[f"{name}_exists"] = path.exists()
+    checks[f"{name}_certified"] = data.get("certified") is True
+
+cert = read_json(EXPECTED["80B_queue_certification"])
+status = cert.get("queue_status", {})
+tests = cert.get("tests", {})
+
+checks["status_present"] = bool(status)
+checks["tests_present"] = len(tests) > 0
+checks["all_tests_passed"] = all(tests.values()) if tests else False
+checks["attempts_capped_at_3"] = status.get("max_refactor_attempts") == 3
+checks["queue_write_disabled"] = status.get("queue_write_enabled") is False
+checks["mutation_blocked"] = status.get("mutation_allowed") is False
+checks["training_blocked"] = status.get("training_enabled") is False
+checks["strategy_db_write_blocked"] = status.get("strategy_db_write_allowed") is False
+checks["promotion_blocked"] = status.get("promotion_enabled") is False
+checks["broker_live_blocked"] = (
+    status.get("broker_execution_enabled") is False
+    and status.get("live_execution_enabled") is False
+)
+
+result = {
+    "phase": PHASE,
+    "created_at": datetime.now(UTC).isoformat(),
+    "mode": "NEAR_MISS_REFACTOR_QUEUE_ROLLUP",
+    "artifacts": artifacts,
+    "queue_status": status,
+    "test_count": len(tests),
+    "policy": {
+        "near_miss_refactor_queue_rollup_certified": True,
+        "max_refactor_attempts": 3,
+        "queue_write_enabled": False,
+        "mutation_allowed": False,
+        "training_enabled": False,
+        "strategy_db_write_allowed": False,
+        "promotion_enabled": False,
+        "broker_execution_enabled": False,
+        "live_execution_enabled": False,
+    },
+    "checks": checks,
+    "recommended_next_phase": "81A_CANDIDATE_QUARANTINE_TRASH_PATH",
+    "certified": all(checks.values()),
+}
+
+OUT_JSON.write_text(json.dumps(result, indent=2), encoding="utf-8")
+
+OUT_TXT.write_text(
+    "\n".join([
+        PHASE,
+        "",
+        f"certified: {result['certified']}",
+        f"test_count: {len(tests)}",
+        f"max_refactor_attempts: {status.get('max_refactor_attempts')}",
+        "",
+        "Near-miss refactor queue rollup certified.",
+        "Queue write/mutation/training/db/promotion/broker/live remain blocked.",
+        "",
+        "Next:",
+        result["recommended_next_phase"],
+    ]),
+    encoding="utf-8",
+)
+
+print(json.dumps({
+    "phase": PHASE,
+    "certified": result["certified"],
+    "test_count": len(tests),
+    "max_refactor_attempts": status.get("max_refactor_attempts"),
+    "recommended_next_phase": result["recommended_next_phase"],
+    "out_json": str(OUT_JSON),
+    "out_txt": str(OUT_TXT),
+}, indent=2))

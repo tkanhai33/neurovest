@@ -1,0 +1,1137 @@
+{
+  "plan_id": "BULK_DOWNLOAD_EXECUTION_PLAN_V1",
+  "created_at": "2026-07-08T18:15:15.906226+00:00",
+  "source_universe": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/manifests/download_universe/download_universe_v2.json",
+  "provider": "YFINANCE",
+  "period": "max",
+  "interval": "1d",
+  "total_symbols": 144,
+  "batch_size": 12,
+  "batch_count": 12,
+  "batches": [
+    {
+      "batch_id": "BATCH_001",
+      "symbol_count": 12,
+      "symbols": [
+        {
+          "symbol": "AQN.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "ARX.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "ATZ.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "BAM.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "BMO.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "BN.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "BNS.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "CCO.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "CM.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "CNQ.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "CNR.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "CP.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        }
+      ],
+      "status": "PLANNED_ONLY",
+      "downloads_executed": false
+    },
+    {
+      "batch_id": "BATCH_002",
+      "symbol_count": 12,
+      "symbols": [
+        {
+          "symbol": "CSU.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "CVE.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "DOL.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "EMA.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "ENB.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "FFH.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "FTS.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "GIB.A.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "IFC.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "IMO.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "KEY.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "L.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        }
+      ],
+      "status": "PLANNED_ONLY",
+      "downloads_executed": false
+    },
+    {
+      "batch_id": "BATCH_003",
+      "symbol_count": 12,
+      "symbols": [
+        {
+          "symbol": "MFC.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "MG.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "NA.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "NTR.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "POW.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "PPL.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "RY.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "SAP.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "SHOP.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "SLF.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "SU.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "TD.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        }
+      ],
+      "status": "PLANNED_ONLY",
+      "downloads_executed": false
+    },
+    {
+      "batch_id": "BATCH_004",
+      "symbol_count": 12,
+      "symbols": [
+        {
+          "symbol": "TOU.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "TRI.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "TRP.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "WCN.TO",
+          "asset_group": "equities_canada",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "AAPL",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "ABNB",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "ADBE",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "AMD",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "AMZN",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "AVGO",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "BAC",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "COST",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        }
+      ],
+      "status": "PLANNED_ONLY",
+      "downloads_executed": false
+    },
+    {
+      "batch_id": "BATCH_005",
+      "symbol_count": 12,
+      "symbols": [
+        {
+          "symbol": "CRM",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "CVX",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "DIS",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "GOOGL",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "GS",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "INTC",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "JNJ",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "JPM",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "KO",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "LLY",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "MA",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "MCD",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        }
+      ],
+      "status": "PLANNED_ONLY",
+      "downloads_executed": false
+    },
+    {
+      "batch_id": "BATCH_006",
+      "symbol_count": 12,
+      "symbols": [
+        {
+          "symbol": "META",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "MS",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "MSFT",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "MU",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "NFLX",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "NKE",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "NVDA",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "ORCL",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "PANW",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "PEP",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "PFE",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "PLTR",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        }
+      ],
+      "status": "PLANNED_ONLY",
+      "downloads_executed": false
+    },
+    {
+      "batch_id": "BATCH_007",
+      "symbol_count": 12,
+      "symbols": [
+        {
+          "symbol": "QCOM",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "SNOW",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "TSLA",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "TXN",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "UBER",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "UNH",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "V",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "WMT",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XOM",
+          "asset_group": "equities_usa",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "HBAL.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "HXS.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "HXT.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        }
+      ],
+      "status": "PLANNED_ONLY",
+      "downloads_executed": false
+    },
+    {
+      "batch_id": "BATCH_008",
+      "symbol_count": 12,
+      "symbols": [
+        {
+          "symbol": "VCN.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "VEQT.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "VFV.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "VGRO.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "VUN.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XAW.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XEQT.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XGRO.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XIC.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XIU.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XQQ.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "ZSP.TO",
+          "asset_group": "canadian_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        }
+      ],
+      "status": "PLANNED_ONLY",
+      "downloads_executed": false
+    },
+    {
+      "batch_id": "BATCH_009",
+      "symbol_count": 12,
+      "symbols": [
+        {
+          "symbol": "DIA",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "IVV",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "IWM",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "QQQ",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "SMH",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "SPY",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "VOO",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "VTI",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XLE",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XLF",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XLK",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XLP",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        }
+      ],
+      "status": "PLANNED_ONLY",
+      "downloads_executed": false
+    },
+    {
+      "batch_id": "BATCH_010",
+      "symbol_count": 12,
+      "symbols": [
+        {
+          "symbol": "XLU",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XLV",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XLY",
+          "asset_group": "us_etfs",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "^DJI",
+          "asset_group": "indexes",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "^GSPC",
+          "asset_group": "indexes",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "^GSPTSE",
+          "asset_group": "indexes",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "^IXIC",
+          "asset_group": "indexes",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "^NDX",
+          "asset_group": "indexes",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "^RUT",
+          "asset_group": "indexes",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "^TNX",
+          "asset_group": "indexes",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "^TYX",
+          "asset_group": "indexes",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "^VIX",
+          "asset_group": "indexes",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        }
+      ],
+      "status": "PLANNED_ONLY",
+      "downloads_executed": false
+    },
+    {
+      "batch_id": "BATCH_011",
+      "symbol_count": 12,
+      "symbols": [
+        {
+          "symbol": "AUDUSD=X",
+          "asset_group": "fx",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "CADUSD=X",
+          "asset_group": "fx",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "EURUSD=X",
+          "asset_group": "fx",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "GBPUSD=X",
+          "asset_group": "fx",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "NZDUSD=X",
+          "asset_group": "fx",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "USDCAD=X",
+          "asset_group": "fx",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "USDCHF=X",
+          "asset_group": "fx",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "USDJPY=X",
+          "asset_group": "fx",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "CL=F",
+          "asset_group": "commodities",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "GC=F",
+          "asset_group": "commodities",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "HG=F",
+          "asset_group": "commodities",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "NG=F",
+          "asset_group": "commodities",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        }
+      ],
+      "status": "PLANNED_ONLY",
+      "downloads_executed": false
+    },
+    {
+      "batch_id": "BATCH_012",
+      "symbol_count": 12,
+      "symbols": [
+        {
+          "symbol": "SI=F",
+          "asset_group": "commodities",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "ZC=F",
+          "asset_group": "commodities",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "ZS=F",
+          "asset_group": "commodities",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "ZW=F",
+          "asset_group": "commodities",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "ADA-USD",
+          "asset_group": "crypto",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "AVAX-USD",
+          "asset_group": "crypto",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "BTC-USD",
+          "asset_group": "crypto",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "DOGE-USD",
+          "asset_group": "crypto",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "ETH-USD",
+          "asset_group": "crypto",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "LINK-USD",
+          "asset_group": "crypto",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "SOL-USD",
+          "asset_group": "crypto",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        },
+        {
+          "symbol": "XRP-USD",
+          "asset_group": "crypto",
+          "provider": "YFINANCE",
+          "period": "max",
+          "interval": "1d"
+        }
+      ],
+      "status": "PLANNED_ONLY",
+      "downloads_executed": false
+    }
+  ],
+  "execution_policy": {
+    "downloads_enabled": false,
+    "plan_only": true,
+    "resume_supported": true,
+    "retry_failed_symbols": true,
+    "max_retries_per_symbol": 3,
+    "sleep_seconds_between_batches": 5,
+    "write_mode": "FILE_REPOSITORY_ONLY",
+    "database_writes_allowed": false,
+    "training_execution_enabled": false,
+    "broker_execution_enabled": false,
+    "live_execution_enabled": false
+  },
+  "output_policy": {
+    "raw_ohlcv_csv": true,
+    "dataset_manifest_per_symbol": true,
+    "download_summary_json": true,
+    "failed_symbols_json": true,
+    "checksum_sha256_required": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_CANADA_MFC_TO",
+  "provider": "YFINANCE",
+  "asset_group": "equities_canada",
+  "symbol": "MFC.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_canada/raw/MFC_TO.csv",
+  "checksum_sha256": "38911fed3694b2908cd649e5b0064fee65a39f9138b65f7d37ce7ec216288a80",
+  "rows": 6724,
+  "first_date": "1999-09-30",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:23:42.051806+00:00",
+  "updated_at": "2026-07-08T19:23:42.051814+00:00"
+}

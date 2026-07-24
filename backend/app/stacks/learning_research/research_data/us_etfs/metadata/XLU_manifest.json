@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_US_ETFS_XLU",
+  "provider": "YFINANCE",
+  "asset_group": "us_etfs",
+  "symbol": "XLU",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/us_etfs/raw/XLU.csv",
+  "checksum_sha256": "5a00c086f5fe81e912b909e50ea8c09b44994e276afe55c6cebb90fcaa083882",
+  "rows": 6926,
+  "first_date": "1998-12-22",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:29:54.943767+00:00",
+  "updated_at": "2026-07-08T19:29:54.943774+00:00"
+}

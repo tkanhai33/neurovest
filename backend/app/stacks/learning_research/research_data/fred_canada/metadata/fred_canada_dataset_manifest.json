@@ -1,0 +1,21 @@
+{
+  "dataset_id": "FRED_CANADA_MACRO_0001",
+  "provider": "FRED",
+  "country": "Canada",
+  "source_file": "/home/tkanhai/Downloads/neurovest.xlsx",
+  "repo_raw_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/fred_canada/raw/neurovest.xlsx",
+  "checksum_sha256": "81aefe896a4f303694db1179bd34b25c6040c7452ef56ae55c9dcea2996ad520",
+  "file_size_bytes": 1140033,
+  "sheet_names": [
+    "README",
+    "5 Year",
+    "Annual",
+    "Monthly",
+    "Quarterly"
+  ],
+  "approved": true,
+  "read_only": true,
+  "storage_mode": "FILE_REPOSITORY_WITH_POSTGRES_METADATA_PREVIEW_ONLY",
+  "postgres_rows_written": false,
+  "created_at": "2026-07-08T05:06:00.125226+00:00"
+}

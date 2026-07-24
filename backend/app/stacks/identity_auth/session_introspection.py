@@ -40,11 +40,13 @@ async def get_session_introspection(
 
     return {
         "user_id": user.id,
-        "role": role.value if role else None,
-        "subscription_tier": subscription_tier.value if subscription_tier else None,
+        "role": role,
+        "subscription_tier": subscription_tier,
         "permissions": list(permissions),
         "is_administrative": is_administrative,
         "status": user.status,
         "is_active": user.is_active,
         "must_change_password": user.must_change_password,
+        "display_name": user.display_name,
+        "email": user.email_normalized,
     }

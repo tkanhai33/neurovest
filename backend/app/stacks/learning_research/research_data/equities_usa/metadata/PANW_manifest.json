@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_PANW",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "PANW",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/PANW.csv",
+  "checksum_sha256": "2059844a21bbc7f5562089562b7526af0ed9bf802b786e88e796c62054cbebc6",
+  "rows": 3510,
+  "first_date": "2012-07-20",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:27:19.135472+00:00",
+  "updated_at": "2026-07-08T19:27:19.135481+00:00"
+}

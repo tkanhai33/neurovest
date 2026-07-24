@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_INDEXES_VIX",
+  "provider": "YFINANCE",
+  "asset_group": "indexes",
+  "symbol": "^VIX",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/indexes/raw/VIX.csv",
+  "checksum_sha256": "690249da2f64e2ac809b1a666ac62baa69b98da1017f771bcb9be7ec903263d5",
+  "rows": 9196,
+  "first_date": "1990-01-02",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:31:03.841828+00:00",
+  "updated_at": "2026-07-08T19:31:03.841835+00:00"
+}

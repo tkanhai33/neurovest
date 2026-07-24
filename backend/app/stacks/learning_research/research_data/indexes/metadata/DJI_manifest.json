@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_INDEXES_DJI",
+  "provider": "YFINANCE",
+  "asset_group": "indexes",
+  "symbol": "^DJI",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/indexes/raw/DJI.csv",
+  "checksum_sha256": "853be17067b434dd389807ace7706e25fb6e5676f91ccaecfc7ea6d20f48cab0",
+  "rows": 8689,
+  "first_date": "1992-01-02",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:30:07.215411+00:00",
+  "updated_at": "2026-07-08T19:30:07.215418+00:00"
+}

@@ -1,0 +1,558 @@
+"""
+Fail-closed public controls for the pre-Auth chat boundary.
+
+This module owns only:
+- bounded execution timeout;
+- anonymous in-memory rate limiting;
+- request text validation;
+- explicit restricted-capability safety denial;
+- stable HTTP failure mapping.
+
+It does not own Auth, persistence, trading, broker access, or LLM logic.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import inspect
+import os
+import re
+import time
+from collections import defaultdict, deque
+from functools import wraps
+from threading import Lock
+from typing import Any, Awaitable, Callable, TypeVar
+
+from fastapi import HTTPException
+
+
+F = TypeVar(
+    "F",
+    bound=Callable[..., Any],
+)
+
+DEFAULT_TIMEOUT_SECONDS = float(
+    os.getenv(
+        "NEUROVEST_PUBLIC_CHAT_TIMEOUT_SECONDS",
+        "30",
+    )
+)
+
+DEFAULT_RATE_LIMIT = int(
+    os.getenv(
+        "NEUROVEST_PUBLIC_CHAT_RATE_LIMIT",
+        "30",
+    )
+)
+
+DEFAULT_RATE_WINDOW_SECONDS = float(
+    os.getenv(
+        "NEUROVEST_PUBLIC_CHAT_RATE_WINDOW_SECONDS",
+        "60",
+    )
+)
+
+DEFAULT_MAX_TEXT_LENGTH = int(
+    os.getenv(
+        "NEUROVEST_PUBLIC_CHAT_MAX_TEXT_LENGTH",
+        "8000",
+    )
+)
+
+_RESTRICTED_ACTION_PATTERNS = (
+    re.compile(
+        r"\b(?:execute|place|submit)\s+"
+        r"(?:a\s+)?(?:trade|order)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\benable\s+live\s+trading\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\bconnect\s+(?:my\s+)?"
+        r"(?:broker|snaptrade)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\badmin\s+(?:override|bypass)\b",
+        re.IGNORECASE,
+    ),
+)
+
+
+class PublicChatControlError(
+    RuntimeError
+):
+    """Base public-chat control error."""
+
+
+class PublicChatSafetyDenied(
+    PublicChatControlError
+):
+    """Raised when a restricted capability request is detected."""
+
+
+class PublicChatRateLimited(
+    PublicChatControlError
+):
+    """Raised when the anonymous request limit is exceeded."""
+
+
+class PublicChatInputRejected(
+    PublicChatControlError
+):
+    """Raised when public-chat text fails validation."""
+
+
+class AnonymousSlidingWindowLimiter:
+    """
+    Process-local pre-Auth limiter.
+
+    This is intentionally anonymous and temporary. A distributed,
+    identity-aware limiter remains an Auth/Cerberus implementation gate.
+    """
+
+    def __init__(
+        self,
+        *,
+        limit: int,
+        window_seconds: float,
+    ) -> None:
+        if limit < 1:
+            raise ValueError(
+                "limit must be at least 1"
+            )
+
+        if window_seconds <= 0:
+            raise ValueError(
+                "window_seconds must be positive"
+            )
+
+        self._limit = limit
+        self._window_seconds = (
+            window_seconds
+        )
+        self._events: dict[
+            str,
+            deque[float],
+        ] = defaultdict(
+            deque
+        )
+        self._lock = Lock()
+
+    def check(
+        self,
+        key: str,
+        *,
+        now: float | None = None,
+    ) -> None:
+        current = (
+            time.monotonic()
+            if now is None
+            else now
+        )
+
+        cutoff = (
+            current
+            - self._window_seconds
+        )
+
+        normalized_key = (
+            key.strip()
+            or "anonymous"
+        )
+
+        with self._lock:
+            events = self._events[
+                normalized_key
+            ]
+
+            while (
+                events
+                and events[0] <= cutoff
+            ):
+                events.popleft()
+
+            if len(events) >= self._limit:
+                raise PublicChatRateLimited(
+                    "Public chat request limit exceeded"
+                )
+
+            events.append(current)
+
+    def reset(self) -> None:
+        with self._lock:
+            self._events.clear()
+
+
+_DEFAULT_LIMITER = (
+    AnonymousSlidingWindowLimiter(
+        limit=DEFAULT_RATE_LIMIT,
+        window_seconds=(
+            DEFAULT_RATE_WINDOW_SECONDS
+        ),
+    )
+)
+
+
+def reset_public_chat_rate_limiter() -> None:
+    """Test and administrative reset for process-local limiter state."""
+
+    _DEFAULT_LIMITER.reset()
+
+
+def _collect_strings(
+    value: Any,
+    *,
+    seen: set[int] | None = None,
+) -> list[str]:
+    if seen is None:
+        seen = set()
+
+    if value is None:
+        return []
+
+    identity = id(value)
+
+    if identity in seen:
+        return []
+
+    seen.add(identity)
+
+    if isinstance(
+        value,
+        str,
+    ):
+        return [value]
+
+    if isinstance(
+        value,
+        bytes,
+    ):
+        return []
+
+    if isinstance(
+        value,
+        dict,
+    ):
+        values = []
+
+        for item in value.values():
+            values.extend(
+                _collect_strings(
+                    item,
+                    seen=seen,
+                )
+            )
+
+        return values
+
+    if isinstance(
+        value,
+        (
+            list,
+            tuple,
+            set,
+            frozenset,
+        ),
+    ):
+        values = []
+
+        for item in value:
+            values.extend(
+                _collect_strings(
+                    item,
+                    seen=seen,
+                )
+            )
+
+        return values
+
+    model_dump = getattr(
+        value,
+        "model_dump",
+        None,
+    )
+
+    if callable(model_dump):
+        try:
+            return _collect_strings(
+                model_dump(),
+                seen=seen,
+            )
+
+        except Exception:
+            return []
+
+    dictionary = getattr(
+        value,
+        "__dict__",
+        None,
+    )
+
+    if isinstance(
+        dictionary,
+        dict,
+    ):
+        return _collect_strings(
+            dictionary,
+            seen=seen,
+        )
+
+    return []
+
+
+def validate_public_chat_text(
+    values: list[str],
+    *,
+    max_text_length: int = (
+        DEFAULT_MAX_TEXT_LENGTH
+    ),
+) -> None:
+    if max_text_length < 1:
+        raise ValueError(
+            "max_text_length must be positive"
+        )
+
+    candidate_values = [
+        value
+        for value in values
+        if value is not None
+    ]
+
+    if not candidate_values:
+        raise PublicChatInputRejected(
+            "A chat message is required"
+        )
+
+    combined_length = sum(
+        len(value)
+        for value in candidate_values
+    )
+
+    if combined_length > max_text_length:
+        raise PublicChatInputRejected(
+            "Chat request exceeds the maximum "
+            "allowed text length"
+        )
+
+    if not any(
+        value.strip()
+        for value in candidate_values
+    ):
+        raise PublicChatInputRejected(
+            "Chat message cannot be empty"
+        )
+
+
+def enforce_public_chat_safety(
+    values: list[str],
+) -> None:
+    combined = "\n".join(
+        values
+    )
+
+    for pattern in (
+        _RESTRICTED_ACTION_PATTERNS
+    ):
+        if pattern.search(combined):
+            raise PublicChatSafetyDenied(
+                "The public chat boundary cannot "
+                "perform restricted account, broker, "
+                "execution, admin, or live-trading actions"
+            )
+
+
+def _request_key(
+    args: tuple[Any, ...],
+    kwargs: dict[str, Any],
+) -> str:
+    candidates = list(args)
+    candidates.extend(
+        kwargs.values()
+    )
+
+    for value in candidates:
+        client = getattr(
+            value,
+            "client",
+            None,
+        )
+
+        host = getattr(
+            client,
+            "host",
+            None,
+        )
+
+        if isinstance(
+            host,
+            str,
+        ) and host.strip():
+            return (
+                "client:"
+                + host.strip()
+            )
+
+    return "anonymous"
+
+
+async def _invoke(
+    function: Callable[..., Any],
+    args: tuple[Any, ...],
+    kwargs: dict[str, Any],
+) -> Any:
+    result = function(
+        *args,
+        **kwargs,
+    )
+
+    if inspect.isawaitable(
+        result
+    ):
+        return await result
+
+    return result
+
+
+def enforce_public_chat_controls(
+    function: F | None = None,
+    *,
+    timeout_seconds: float = (
+        DEFAULT_TIMEOUT_SECONDS
+    ),
+    limiter: (
+        AnonymousSlidingWindowLimiter
+        | None
+    ) = None,
+    max_text_length: int = (
+        DEFAULT_MAX_TEXT_LENGTH
+    ),
+) -> F | Callable[[F], F]:
+    """
+    Enforce the pre-Auth public-chat controls at the route boundary.
+
+    The wrapped function keeps its original FastAPI signature through
+    functools.wraps.
+    """
+
+    if timeout_seconds <= 0:
+        raise ValueError(
+            "timeout_seconds must be positive"
+        )
+
+    selected_limiter = (
+        limiter
+        if limiter is not None
+        else _DEFAULT_LIMITER
+    )
+
+    def decorate(
+        target: F,
+    ) -> F:
+        @wraps(target)
+        async def wrapped(
+            *args: Any,
+            **kwargs: Any,
+        ) -> Any:
+            strings = []
+
+            for value in args:
+                strings.extend(
+                    _collect_strings(
+                        value
+                    )
+                )
+
+            for value in kwargs.values():
+                strings.extend(
+                    _collect_strings(
+                        value
+                    )
+                )
+
+            try:
+                validate_public_chat_text(
+                    strings,
+                    max_text_length=(
+                        max_text_length
+                    ),
+                )
+
+                enforce_public_chat_safety(
+                    strings
+                )
+
+                selected_limiter.check(
+                    _request_key(
+                        args,
+                        kwargs,
+                    )
+                )
+
+                return await asyncio.wait_for(
+                    _invoke(
+                        target,
+                        args,
+                        kwargs,
+                    ),
+                    timeout=timeout_seconds,
+                )
+
+            except HTTPException:
+                raise
+
+            except PublicChatInputRejected as exc:
+                raise HTTPException(
+                    status_code=422,
+                    detail=str(exc),
+                ) from exc
+
+            except PublicChatSafetyDenied as exc:
+                raise HTTPException(
+                    status_code=403,
+                    detail=str(exc),
+                ) from exc
+
+            except PublicChatRateLimited as exc:
+                raise HTTPException(
+                    status_code=429,
+                    detail=str(exc),
+                ) from exc
+
+            except asyncio.TimeoutError as exc:
+                raise HTTPException(
+                    status_code=504,
+                    detail=(
+                        "Public chat dependency timed out"
+                    ),
+                ) from exc
+
+            except Exception as exc:
+                raise HTTPException(
+                    status_code=503,
+                    detail=(
+                        "Public chat dependency unavailable"
+                    ),
+                ) from exc
+
+        return wrapped  # type: ignore[return-value]
+
+    if function is None:
+        return decorate
+
+    return decorate(function)
+
+
+__all__ = [
+    "AnonymousSlidingWindowLimiter",
+    "PublicChatControlError",
+    "PublicChatInputRejected",
+    "PublicChatRateLimited",
+    "PublicChatSafetyDenied",
+    "enforce_public_chat_controls",
+    "enforce_public_chat_safety",
+    "reset_public_chat_rate_limiter",
+    "validate_public_chat_text",
+]

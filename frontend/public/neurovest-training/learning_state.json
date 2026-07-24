@@ -1,0 +1,205 @@
+{
+  "phase": "130M_LEARNING_STATE_FEED",
+  "created_at": "2026-07-09T20:01:32.440143+00:00",
+  "current_run": {
+    "run_id": "WEIGHTED_REPLAY_20260709_193226",
+    "rows": 20064,
+    "reward_total": 2.019768914863553,
+    "decision_counts": {
+      "HOLD": 4628,
+      "SELL": 9219,
+      "BUY": 6217
+    },
+    "symbols": [
+      {
+        "symbol": "CNR.TO",
+        "rows": 10032,
+        "reward_total": 3.665375063224383,
+        "average_reward": 0.00036536832767388187,
+        "average_confidence": 0.4127363977164184,
+        "decisions": {
+          "HOLD": 2504,
+          "SELL": 4224,
+          "BUY": 3304
+        }
+      },
+      {
+        "symbol": "ENB.TO",
+        "rows": 5016,
+        "reward_total": -0.4994817713277371,
+        "average_reward": -9.957770560760308e-05,
+        "average_confidence": 0.40142914975780886,
+        "decisions": {
+          "HOLD": 1090,
+          "BUY": 1678,
+          "SELL": 2248
+        }
+      },
+      {
+        "symbol": "VUN.TO",
+        "rows": 2508,
+        "reward_total": -0.5629875306803531,
+        "average_reward": -0.000224476686874144,
+        "average_confidence": 0.32529400820565196,
+        "decisions": {
+          "HOLD": 522,
+          "SELL": 1363,
+          "BUY": 623
+        }
+      },
+      {
+        "symbol": "VFV.TO",
+        "rows": 2508,
+        "reward_total": -0.5831368463527401,
+        "average_reward": -0.00023251070428737645,
+        "average_confidence": 0.31688573862846925,
+        "decisions": {
+          "HOLD": 512,
+          "SELL": 1384,
+          "BUY": 612
+        }
+      }
+    ]
+  },
+  "lifetime": {
+    "runs": 1,
+    "rows_processed": 20064,
+    "reward_total": 2.019768914863553,
+    "decision_counts": {
+      "BUY": 6217,
+      "SELL": 9219,
+      "HOLD": 4628
+    }
+  },
+  "history": [
+    {
+      "run_id": "WEIGHTED_REPLAY_20260709_193226",
+      "rows": 20064,
+      "reward_total": 2.019768914863553,
+      "decision_counts": {
+        "HOLD": 4628,
+        "SELL": 9219,
+        "BUY": 6217
+      },
+      "symbols": [
+        {
+          "symbol": "CNR.TO",
+          "rows": 10032,
+          "reward_total": 3.665375063224383,
+          "average_reward": 0.00036536832767388187,
+          "average_confidence": 0.4127363977164184,
+          "decisions": {
+            "HOLD": 2504,
+            "SELL": 4224,
+            "BUY": 3304
+          }
+        },
+        {
+          "symbol": "ENB.TO",
+          "rows": 5016,
+          "reward_total": -0.4994817713277371,
+          "average_reward": -9.957770560760308e-05,
+          "average_confidence": 0.40142914975780886,
+          "decisions": {
+            "HOLD": 1090,
+            "BUY": 1678,
+            "SELL": 2248
+          }
+        },
+        {
+          "symbol": "VUN.TO",
+          "rows": 2508,
+          "reward_total": -0.5629875306803531,
+          "average_reward": -0.000224476686874144,
+          "average_confidence": 0.32529400820565196,
+          "decisions": {
+            "HOLD": 522,
+            "SELL": 1363,
+            "BUY": 623
+          }
+        },
+        {
+          "symbol": "VFV.TO",
+          "rows": 2508,
+          "reward_total": -0.5831368463527401,
+          "average_reward": -0.00023251070428737645,
+          "average_confidence": 0.31688573862846925,
+          "decisions": {
+            "HOLD": 512,
+            "SELL": 1384,
+            "BUY": 612
+          }
+        }
+      ]
+    }
+  ],
+  "charts": {
+    "reward_history": [
+      {
+        "run_id": "WEIGHTED_REPLAY_20260709_193226",
+        "reward_total": 2.019768914863553
+      }
+    ],
+    "rows_history": [
+      {
+        "run_id": "WEIGHTED_REPLAY_20260709_193226",
+        "rows": 20064
+      }
+    ],
+    "current_reward_by_symbol": [
+      {
+        "symbol": "CNR.TO",
+        "reward": 3.665375063224383,
+        "avg_reward": 0.00036536832767388187
+      },
+      {
+        "symbol": "ENB.TO",
+        "reward": -0.4994817713277371,
+        "avg_reward": -9.957770560760308e-05
+      },
+      {
+        "symbol": "VUN.TO",
+        "reward": -0.5629875306803531,
+        "avg_reward": -0.000224476686874144
+      },
+      {
+        "symbol": "VFV.TO",
+        "reward": -0.5831368463527401,
+        "avg_reward": -0.00023251070428737645
+      }
+    ],
+    "current_confidence_by_symbol": [
+      {
+        "symbol": "CNR.TO",
+        "confidence": 0.4127363977164184
+      },
+      {
+        "symbol": "ENB.TO",
+        "confidence": 0.40142914975780886
+      },
+      {
+        "symbol": "VUN.TO",
+        "confidence": 0.32529400820565196
+      },
+      {
+        "symbol": "VFV.TO",
+        "confidence": 0.31688573862846925
+      }
+    ],
+    "current_decision_mix": [
+      {
+        "decision": "HOLD",
+        "count": 4628
+      },
+      {
+        "decision": "SELL",
+        "count": 9219
+      },
+      {
+        "decision": "BUY",
+        "count": 6217
+      }
+    ]
+  },
+  "certified": true
+}

@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_QCOM",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "QCOM",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/QCOM.csv",
+  "checksum_sha256": "c4b3bbd477e2f5509929a3cd710544c3ec71381806673095d42ab8e57fb6796e",
+  "rows": 8701,
+  "first_date": "1991-12-13",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:27:44.736909+00:00",
+  "updated_at": "2026-07-08T19:27:44.736918+00:00"
+}

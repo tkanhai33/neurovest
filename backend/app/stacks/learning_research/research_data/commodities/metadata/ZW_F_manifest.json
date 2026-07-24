@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_COMMODITIES_ZW_F",
+  "provider": "YFINANCE",
+  "asset_group": "commodities",
+  "symbol": "ZW=F",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/commodities/raw/ZW_F.csv",
+  "checksum_sha256": "8d6f9ab6060855ffd8a92933cd5a4bb67fe7adec823657eb4fba59706fdbbaf6",
+  "rows": 6510,
+  "first_date": "2000-07-17",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:32:08.095435+00:00",
+  "updated_at": "2026-07-08T19:32:08.095443+00:00"
+}

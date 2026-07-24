@@ -118,6 +118,11 @@ ROUTE_POLICIES: tuple[RoutePolicy, ...] = (
         policy='AUTHENTICATED',
     ),
     RoutePolicy(
+        method='POST',
+        path_template='/api/v1/paper/orders',
+        policy='AUTHENTICATED',
+    ),
+    RoutePolicy(
         method='GET',
         path_template='/api/v1/portfolio/positions',
         policy='AUTHENTICATED',
@@ -125,6 +130,11 @@ ROUTE_POLICIES: tuple[RoutePolicy, ...] = (
     RoutePolicy(
         method='GET',
         path_template='/api/v1/positions',
+        policy='AUTHENTICATED',
+    ),
+    RoutePolicy(
+        method='GET',
+        path_template='/api/v1/portfolio/valuation',
         policy='AUTHENTICATED',
     ),
     RoutePolicy(

@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_CANADA_BMO_TO",
+  "provider": "YFINANCE",
+  "asset_group": "equities_canada",
+  "symbol": "BMO.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_canada/raw/BMO_TO.csv",
+  "checksum_sha256": "90d00f1d32e3af09ab24fec4872ff4f2c5d912d699a695975d9054684493e0fc",
+  "rows": 7913,
+  "first_date": "1995-01-12",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:22:19.397722+00:00",
+  "updated_at": "2026-07-08T19:22:19.397730+00:00"
+}

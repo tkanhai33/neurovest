@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+cd ~/Neurovest
+
+export OLLAMA_API_BASE="${OLLAMA_API_BASE:-http://127.0.0.1:11434}"
+
+MODE="${1:-audit}"
+
+case "$MODE" in
+    audit)
+        CHAT_MODE="ask"
+        ;;
+    edit)
+        CHAT_MODE="code"
+        ;;
+    *)
+        echo "Usage:"
+        echo "  scripts/neurovest-engineer audit"
+        echo "  scripts/neurovest-engineer edit"
+        exit 2
+        ;;
+esac
+
+echo "=========================================================="
+echo "NEUROVEST ENGINEER MODE"
+echo "=========================================================="
+echo
+echo "Role:"
+echo "  Lead FinTech Full-Stack Engineer + DevSecOps"
+echo
+echo "Mode:"
+echo "  $MODE"
+echo
+echo "Model:"
+echo "  ollama_chat/qwen3-coder"
+echo
+echo "Repository map:"
+echo "  DISABLED"
+echo
+echo "Canonical context:"
+echo "  NEUROVEST_ENGINEER_MODE.md"
+echo
+echo "Live trading:"
+echo "  NOT APPROVED"
+echo
+echo "Production broker:"
+echo "  NOT APPROVED"
+echo
+echo "Starting Aider..."
+echo
+
+exec aider \
+    --config .aider.engineer.conf.yml \
+    --chat-mode "$CHAT_MODE"

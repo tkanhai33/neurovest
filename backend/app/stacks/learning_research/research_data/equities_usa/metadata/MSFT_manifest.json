@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_MSFT",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "MSFT",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/MSFT.csv",
+  "checksum_sha256": "c897b35a5bac139b61b0324562723312e97e27686500aac0662494a4aaaaf17b",
+  "rows": 10157,
+  "first_date": "1986-03-13",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:26:52.830166+00:00",
+  "updated_at": "2026-07-08T19:26:52.830181+00:00"
+}

@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_US_ETFS_VTI",
+  "provider": "YFINANCE",
+  "asset_group": "us_etfs",
+  "symbol": "VTI",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/us_etfs/raw/VTI.csv",
+  "checksum_sha256": "d37e8da48da9359b8341b87903cc0d5e8a803a217ef081c4d9feb5987c0e5852",
+  "rows": 6301,
+  "first_date": "2001-06-15",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:29:30.835444+00:00",
+  "updated_at": "2026-07-08T19:29:30.835451+00:00"
+}

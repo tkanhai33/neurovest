@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "required_fields": [
+    "dataset_id",
+    "provider",
+    "asset_class",
+    "country",
+    "symbol",
+    "interval",
+    "date_range",
+    "checksum_sha256",
+    "approved",
+    "read_only",
+    "normalized",
+    "training_enabled",
+    "created_at",
+    "updated_at"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_CRYPTO_LINK_USD",
+  "provider": "YFINANCE",
+  "asset_group": "crypto",
+  "symbol": "LINK-USD",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/crypto/raw/LINK_USD.csv",
+  "checksum_sha256": "85fb0c77f62d723316aa139480b25f251c25c3432e41ca4a4250b1fac5e7deb8",
+  "rows": 3164,
+  "first_date": "2017-11-09",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:32:19.297687+00:00",
+  "updated_at": "2026-07-08T19:32:19.297695+00:00"
+}

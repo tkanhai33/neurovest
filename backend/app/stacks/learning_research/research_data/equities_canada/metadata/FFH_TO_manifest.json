@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_CANADA_FFH_TO",
+  "provider": "YFINANCE",
+  "asset_group": "equities_canada",
+  "symbol": "FFH.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_canada/raw/FFH_TO.csv",
+  "checksum_sha256": "0e76fc151be60db814e5ca9846e8745b05eb63486ad4277e309db49a4240194b",
+  "rows": 7913,
+  "first_date": "1995-01-12",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:23:13.758400+00:00",
+  "updated_at": "2026-07-08T19:23:13.758408+00:00"
+}

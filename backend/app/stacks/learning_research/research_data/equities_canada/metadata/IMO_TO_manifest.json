@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_CANADA_IMO_TO",
+  "provider": "YFINANCE",
+  "asset_group": "equities_canada",
+  "symbol": "IMO.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_canada/raw/IMO_TO.csv",
+  "checksum_sha256": "cc4fd3b950520c20ffe5dfe99b0bc56467f185a84b8fac0cb9181f7205b99e3b",
+  "rows": 7913,
+  "first_date": "1995-01-12",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:23:25.889652+00:00",
+  "updated_at": "2026-07-08T19:23:25.889659+00:00"
+}

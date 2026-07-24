@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_CRYPTO_AVAX_USD",
+  "provider": "YFINANCE",
+  "asset_group": "crypto",
+  "symbol": "AVAX-USD",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/crypto/raw/AVAX_USD.csv",
+  "checksum_sha256": "62d38d0dc789df6a4cb8b85cb7d2d5b5ce62fcf72b0d81963ddcc0eb605783d7",
+  "rows": 2118,
+  "first_date": "2020-07-13",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:32:11.291819+00:00",
+  "updated_at": "2026-07-08T19:32:11.291827+00:00"
+}

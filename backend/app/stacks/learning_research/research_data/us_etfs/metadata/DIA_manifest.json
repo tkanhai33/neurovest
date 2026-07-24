@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_US_ETFS_DIA",
+  "provider": "YFINANCE",
+  "asset_group": "us_etfs",
+  "symbol": "DIA",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/us_etfs/raw/DIA.csv",
+  "checksum_sha256": "590027ada20954c509169c1a4fca43031658201bcd49688c210b40d5c890cfba",
+  "rows": 7160,
+  "first_date": "1998-01-20",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:29:05.647148+00:00",
+  "updated_at": "2026-07-08T19:29:05.647155+00:00"
+}

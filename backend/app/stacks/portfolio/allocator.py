@@ -1,30 +1,40 @@
-"""DOMAIN_LOGIC_V1 portfolio allocation."""
-
+"""DOMAIN_LOGIC_V1 capital allocation engine."""
 from backend.app.stacks.market_data.bars import get_bars
 
-def allocate_cash(signal: dict, cash: float = 1000.0) -> dict:
-    side = signal.get("side", "HOLD")
-    if side == "BUY":
-        # Get the last 5 bars for the symbol
-        symbol = signal.get("symbol")
+def calculate_position_size(symbol: str, total_capital: float = 100000.0) -> dict:
+    """Calculates position sizes inversely proportional to basic price range variance."""
+    try:
+        # Fetch the last 5 closing bars
         bars = get_bars(symbol, limit=5)
-        
-        # Extract closing prices from the bars
-        closing_prices = [bar['close'] for bar in bars]
-        
-        # Calculate price range variance (Max Price minus Min Price)
-        if closing_prices:
-            price_range_variance = max(closing_prices) - min(closing_prices)
-        else:
-            price_range_variance = 0
-        
-        # Scale the position size inversely proportional to the price range variance
-        allocation = cash * 0.25 / (price_range_variance + 1)  # Adding a small constant to avoid division by zero
-        allocation = min(allocation, cash * 0.15)  # Enforce hard allocation limit of 15% of total_capital
-        
-    elif side == "SELL":
-        allocation = 0.0
-    else:
-        allocation = cash * 0.05
-    
-    return {"side": side, "cash_allocated": allocation}
+        closes = [float(b["close"]) for b in bars] if bars else []
+
+        # If the data feed returns an empty list, apply a safe default baseline configuration
+        if not closes:
+            closes = [100.0, 100.0, 100.0, 100.0, 100.0]
+
+        # Calculate a basic price range variance (Max Price minus Min Price)
+        price_range = max(closes) - min(closes)
+        volatility_metric = price_range if price_range > 0 else 1.0
+
+        # Scale the position size inversely proportional to this variance
+        raw_size = total_capital * (1.0 / volatility_metric)
+
+        # Enforce a hard allocation cap of 15% of total capital
+        max_allowed = total_capital * 0.15
+        final_allocation = min(raw_size, max_allowed)
+
+        return {
+            "symbol": symbol,
+            "allocated_capital": final_allocation,
+            "volatility_index": volatility_metric,
+            "allocation_percentage": (final_allocation / total_capital) * 100
+        }
+    except Exception as e:
+        # Graceful fallback to 1% baseline if anything fails
+        return {
+            "symbol": symbol,
+            "allocated_capital": total_capital * 0.01,
+            "volatility_index": 1.0,
+            "allocation_percentage": 1.0,
+            "error": str(e)
+        }

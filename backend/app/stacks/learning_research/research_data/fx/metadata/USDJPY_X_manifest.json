@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_FX_USDJPY_X",
+  "provider": "YFINANCE",
+  "asset_group": "fx",
+  "symbol": "USDJPY=X",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/fx/raw/USDJPY_X.csv",
+  "checksum_sha256": "4070f11e3cf1f04c23a1d8ca1212a3f917ad2517873cd9f3e6ff93aff3eec6b6",
+  "rows": 7698,
+  "first_date": "1996-10-30",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:31:35.329412+00:00",
+  "updated_at": "2026-07-08T19:31:35.329419+00:00"
+}

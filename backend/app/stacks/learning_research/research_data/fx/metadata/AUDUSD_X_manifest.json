@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_FX_AUDUSD_X",
+  "provider": "YFINANCE",
+  "asset_group": "fx",
+  "symbol": "AUDUSD=X",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/fx/raw/AUDUSD_X.csv",
+  "checksum_sha256": "b2492e8a1b160a132eef9c5f544bc0b950add3d82db75908fc506b58a893bbe1",
+  "rows": 5240,
+  "first_date": "2006-05-16",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:31:11.825822+00:00",
+  "updated_at": "2026-07-08T19:31:11.825830+00:00"
+}

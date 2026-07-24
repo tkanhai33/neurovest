@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_GOOGL",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "GOOGL",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/GOOGL.csv",
+  "checksum_sha256": "4816357aaeb6610060c6e593076ab756ab15e04c645f4a8dae102df56896a0d1",
+  "rows": 5505,
+  "first_date": "2004-08-19",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:25:43.421412+00:00",
+  "updated_at": "2026-07-08T19:25:43.421419+00:00"
+}

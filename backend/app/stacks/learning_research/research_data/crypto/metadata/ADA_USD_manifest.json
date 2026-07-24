@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_CRYPTO_ADA_USD",
+  "provider": "YFINANCE",
+  "asset_group": "crypto",
+  "symbol": "ADA-USD",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/crypto/raw/ADA_USD.csv",
+  "checksum_sha256": "2a46e08320df799bce21ed3d7ade55ffca5afd6c687f910ee3efb036d2041212",
+  "rows": 3164,
+  "first_date": "2017-11-09",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:32:09.968363+00:00",
+  "updated_at": "2026-07-08T19:32:09.968371+00:00"
+}

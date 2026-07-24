@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_SNOW",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "SNOW",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/SNOW.csv",
+  "checksum_sha256": "9ffb3201336fff17f31f87a5d888b73a3d0bc0ae495812798411cfa6bbfb93d6",
+  "rows": 1458,
+  "first_date": "2020-09-16",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:27:45.672210+00:00",
+  "updated_at": "2026-07-08T19:27:45.672217+00:00"
+}

@@ -1,51 +1,153 @@
 from __future__ import annotations
 
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession
+from types import SimpleNamespace
 
-from backend.app.main import app
-from backend.app.stacks.identity_auth.api_models import (
-    LoginApiRequest,
+import pytest
+from fastapi import HTTPException
+from fastapi.routing import APIRoute
+
+from backend.app.stacks.identity_auth.api_router import (
+    router as auth_router,
+    session_introspection,
 )
-from backend.app.stacks.identity_auth.repositories import IdentityUserRepository
+from backend.app.stacks.identity_auth.route_protection import (
+    AUTHENTICATED,
+    resolve_route_policy,
+)
+from backend.app.stacks.identity_auth.session_introspection import (
+    get_session_introspection,
+)
+
+
+class FakeIdentityUserRepository:
+    def __init__(self, user=None) -> None:
+        self.user = user
+        self.requested_user_id: str | None = None
+
+    async def get_by_id(self, user_id: str):
+        self.requested_user_id = user_id
+        return self.user
+
+
+def identity_user(
+    *,
+    user_id: str = "user-1",
+    role: str = "user",
+    subscription_tier: str = "free",
+    status: str = "active",
+    is_active: bool = True,
+    must_change_password: bool = False,
+):
+    return SimpleNamespace(
+        id=user_id,
+        role=role,
+        subscription_tier=subscription_tier,
+        status=status,
+        is_active=is_active,
+        must_change_password=must_change_password,
+        display_name="Test User",
+        email_normalized="user@example.com",
+    )
+
+
+def test_canonical_router_contains_introspection_route() -> None:
+    matching = [
+        route
+        for route in auth_router.routes
+        if (
+            isinstance(route, APIRoute)
+            and route.path == "/auth/introspection"
+        )
+    ]
+
+    assert len(matching) == 1
+    assert matching[0].methods == {"GET"}
+    assert matching[0].name == "session_introspection"
+
+
+def test_introspection_route_policy_is_authenticated() -> None:
+    assert (
+        resolve_route_policy(
+            "GET",
+            "/auth/introspection",
+        )
+        == AUTHENTICATED
+    )
+
+    assert (
+        resolve_route_policy(
+            "POST",
+            "/auth/introspection",
+        )
+        is None
+    )
 
 
 @pytest.mark.asyncio
-async def test_session_introspection(
-    client: TestClient, async_session: AsyncSession
-):
-    # Create a test user
-    user_repo = IdentityUserRepository(async_session)
-    user = await user_repo.create(
-        email="test@example.com",
-        password_hash="hashed_password",
-        role="user",
-        must_change_password=False,
+async def test_introspection_uses_principal_subject() -> None:
+    repository = FakeIdentityUserRepository(
+        identity_user()
     )
 
-    # Log in to get an access token
-    login_request = LoginApiRequest(
-        email=user.email_normalized, password="password"
+    response = await session_introspection(
+        principal=SimpleNamespace(
+            subject="user-1"
+        ),
+        session_repo=repository,
     )
-    response = client.post("/auth/login", json=login_request.dict())
-    assert response.status_code == 200
-    access_token = response.json().get("access_token")
 
-    # Introspect the session
-    headers = {"Authorization": f"Bearer {access_token}"}
-    response = client.get("/auth/introspection", headers=headers)
-    assert response.status_code == 200
+    assert repository.requested_user_id == "user-1"
+    assert response["user_id"] == "user-1"
+    assert response["role"] == "user"
+    assert response["subscription_tier"] == "free"
+    assert response["status"] == "active"
+    assert response["is_active"] is True
+    assert response["must_change_password"] is False
+    assert "broker.live" not in response["permissions"]
 
-    introspection_data = response.json()
-    assert "user_id" in introspection_data
-    assert "role" in introspection_data
-    assert "subscription_tier" in introspection_data
-    assert "permissions" in introspection_data
-    assert "is_administrative" in introspection_data
-    assert "status" in introspection_data
-    assert "is_active" in introspection_data
-    assert "must_change_password" in introspection_data
 
-    # Clean up the test user
-    await user_repo.delete(user.id)
+@pytest.mark.asyncio
+async def test_missing_identity_fails_closed() -> None:
+    repository = FakeIdentityUserRepository()
+
+    with pytest.raises(HTTPException) as exc_info:
+        await get_session_introspection(
+            "missing-user",
+            repository,
+        )
+
+    assert exc_info.value.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_inactive_identity_fails_closed() -> None:
+    repository = FakeIdentityUserRepository(
+        identity_user(
+            is_active=False
+        )
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        await get_session_introspection(
+            "user-1",
+            repository,
+        )
+
+    assert exc_info.value.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_disabled_identity_fails_closed() -> None:
+    repository = FakeIdentityUserRepository(
+        identity_user(
+            status="disabled"
+        )
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        await get_session_introspection(
+            "user-1",
+            repository,
+        )
+
+    assert exc_info.value.status_code == 403

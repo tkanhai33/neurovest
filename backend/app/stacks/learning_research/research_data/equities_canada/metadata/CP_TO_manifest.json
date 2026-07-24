@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_CANADA_CP_TO",
+  "provider": "YFINANCE",
+  "asset_group": "equities_canada",
+  "symbol": "CP.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_canada/raw/CP_TO.csv",
+  "checksum_sha256": "f015b4814ee11b74356c130257834e11ec3deaa21ebbc687d3a96e17062fa05b",
+  "rows": 6246,
+  "first_date": "2001-08-23",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:22:48.267245+00:00",
+  "updated_at": "2026-07-08T19:22:48.267252+00:00"
+}

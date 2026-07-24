@@ -1,0 +1,37 @@
+import json
+import urllib.request
+
+from backend.app.stacks.chat_public.chat_system_prompt import SYSTEM_PROMPT
+from backend.app.stacks.chat_public.time_context import get_chat_time_context
+
+
+OLLAMA_URL = "http://127.0.0.1:11434/api/chat"
+DEFAULT_MODEL = "llama3.1"
+
+
+def ask_ollama(message: str, *, intent: str = "general_conversation", symbol: str | None = None) -> str:
+    system = SYSTEM_PROMPT + "\n\n" + get_chat_time_context()
+
+    if intent == "trading_conversation":
+        system += "\nYou may discuss market logic, strategy, risk, portfolio, and symbol context, but do not provide financial guarantees."
+
+    payload = {
+        "model": DEFAULT_MODEL,
+        "stream": False,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": f"intent={intent}; symbol={symbol}; message={message}"},
+        ],
+    }
+
+    req = urllib.request.Request(
+        OLLAMA_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    with urllib.request.urlopen(req, timeout=20) as response:
+        data = json.loads(response.read().decode("utf-8"))
+
+    return data.get("message", {}).get("content", "").strip() or "Neuro online."

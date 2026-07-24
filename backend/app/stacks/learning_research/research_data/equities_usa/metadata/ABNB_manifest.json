@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_ABNB",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "ABNB",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/ABNB.csv",
+  "checksum_sha256": "e4c3c0ac6276eb4b0cdd43716f382c5698507ee8dc057446eb5abe8da7ae6e78",
+  "rows": 1398,
+  "first_date": "2020-12-10",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:24:44.460615+00:00",
+  "updated_at": "2026-07-08T19:24:44.460622+00:00"
+}

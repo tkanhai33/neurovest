@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_COMMODITIES_SI_F",
+  "provider": "YFINANCE",
+  "asset_group": "commodities",
+  "symbol": "SI=F",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/commodities/raw/SI_F.csv",
+  "checksum_sha256": "e0e601fef94bb2c9c63cae94c34d6f5af3a47494f3c245ae630f40b6ce78b138",
+  "rows": 6488,
+  "first_date": "2000-08-30",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:31:57.653699+00:00",
+  "updated_at": "2026-07-08T19:31:57.653706+00:00"
+}

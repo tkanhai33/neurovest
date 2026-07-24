@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_LLY",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "LLY",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/LLY.csv",
+  "checksum_sha256": "9c49b00b66c9c3dc9d6c927ae6526485df36b424a41088283ca546acce41d757",
+  "rows": 13637,
+  "first_date": "1972-06-01",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:26:24.250256+00:00",
+  "updated_at": "2026-07-08T19:26:24.250263+00:00"
+}

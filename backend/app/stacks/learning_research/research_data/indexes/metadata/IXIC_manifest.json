@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_INDEXES_IXIC",
+  "provider": "YFINANCE",
+  "asset_group": "indexes",
+  "symbol": "^IXIC",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/indexes/raw/IXIC.csv",
+  "checksum_sha256": "07f0a1a33111267be6e70b3b3522e0c88b0df75fee33d60aa8bb1f12e058c134",
+  "rows": 13971,
+  "first_date": "1971-02-05",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:30:33.243123+00:00",
+  "updated_at": "2026-07-08T19:30:33.243131+00:00"
+}

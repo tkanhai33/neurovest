@@ -16,7 +16,8 @@ from backend.app.stacks.identity_auth.api_dependencies import (
     get_required_password_change_service,
     get_session_lifecycle_api_service,
     require_authenticated_principal,
-    optional_logout_access_principal,
+    optional_logout_access_principal,    get_session_repository,
+
 )
 from backend.app.stacks.identity_auth.api_models import (
     ChangeRequiredPasswordApiRequest,
@@ -42,6 +43,10 @@ from backend.app.stacks.identity_auth.service_contracts import (
 from backend.app.stacks.identity_auth.session_lifecycle_service import (
     SessionLifecycleRejectedError,
     SessionLifecycleService,
+)
+
+from backend.app.stacks.identity_auth.session_introspection import (
+    get_session_introspection,
 )
 
 from backend.app.stacks.identity_auth.password_change_service import (
@@ -120,6 +125,7 @@ async def register_identity(
             RegistrationCommand(
                 email=request.email,
                 password=request.password,
+                display_name=request.display_name,
             )
         )
 

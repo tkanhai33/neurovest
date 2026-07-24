@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_KO",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "KO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/KO.csv",
+  "checksum_sha256": "d545501f6ba8ff76508c6475fff13b5760f432c5151aa7a4c309934e49761b59",
+  "rows": 16236,
+  "first_date": "1962-01-02",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:26:16.964701+00:00",
+  "updated_at": "2026-07-08T19:26:16.964708+00:00"
+}

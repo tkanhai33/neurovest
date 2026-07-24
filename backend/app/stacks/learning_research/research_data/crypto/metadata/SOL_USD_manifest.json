@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_CRYPTO_SOL_USD",
+  "provider": "YFINANCE",
+  "asset_group": "crypto",
+  "symbol": "SOL-USD",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/crypto/raw/SOL_USD.csv",
+  "checksum_sha256": "0dd347625555f46b2e1f8f29f86909d9e10f2cde0dd7945d54dbe6a4d45d0890",
+  "rows": 2281,
+  "first_date": "2020-04-10",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:32:20.758538+00:00",
+  "updated_at": "2026-07-08T19:32:20.758545+00:00"
+}

@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_CANADA_ARX_TO",
+  "provider": "YFINANCE",
+  "asset_group": "equities_canada",
+  "symbol": "ARX.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_canada/raw/ARX_TO.csv",
+  "checksum_sha256": "ddbcbaa0f51a6b7292d00bdc83a3f94116d357b719f39d904957120eaa92580e",
+  "rows": 7513,
+  "first_date": "1996-08-13",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:22:12.862860+00:00",
+  "updated_at": "2026-07-08T19:22:12.862868+00:00"
+}

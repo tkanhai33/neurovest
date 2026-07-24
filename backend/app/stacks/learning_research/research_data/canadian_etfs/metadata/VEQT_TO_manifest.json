@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_CANADIAN_ETFS_VEQT_TO",
+  "provider": "YFINANCE",
+  "asset_group": "canadian_etfs",
+  "symbol": "VEQT.TO",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/canadian_etfs/raw/VEQT_TO.csv",
+  "checksum_sha256": "b5cf5cec1fe2596598fb772671a9049bc3f2784415924fa190a6f6c9df2b6ccd",
+  "rows": 1863,
+  "first_date": "2019-02-05",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:28:34.958695+00:00",
+  "updated_at": "2026-07-08T19:28:34.958702+00:00"
+}

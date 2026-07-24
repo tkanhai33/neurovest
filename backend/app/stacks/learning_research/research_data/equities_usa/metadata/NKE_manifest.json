@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_EQUITIES_USA_NKE",
+  "provider": "YFINANCE",
+  "asset_group": "equities_usa",
+  "symbol": "NKE",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/equities_usa/raw/NKE.csv",
+  "checksum_sha256": "6004ea879f92bb0e7743787026d771db8e1f1d7bb29b699de428abc71434b59c",
+  "rows": 11491,
+  "first_date": "1980-12-02",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:27:07.973372+00:00",
+  "updated_at": "2026-07-08T19:27:07.973381+00:00"
+}

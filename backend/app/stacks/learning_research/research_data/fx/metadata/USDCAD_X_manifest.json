@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_FX_USDCAD_X",
+  "provider": "YFINANCE",
+  "asset_group": "fx",
+  "symbol": "USDCAD=X",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/fx/raw/USDCAD_X.csv",
+  "checksum_sha256": "bd81d964ec42950840dbdbb930da1248acfec5ea268e0d5fae3d12ecf36683c1",
+  "rows": 5932,
+  "first_date": "2003-09-17",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:31:28.014946+00:00",
+  "updated_at": "2026-07-08T19:31:28.014953+00:00"
+}

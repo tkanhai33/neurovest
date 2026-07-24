@@ -1,0 +1,19 @@
+{
+  "dataset_id": "YFINANCE_COMMODITIES_CL_F",
+  "provider": "YFINANCE",
+  "asset_group": "commodities",
+  "symbol": "CL=F",
+  "period": "max",
+  "interval": "1d",
+  "output_file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_data/commodities/raw/CL_F.csv",
+  "checksum_sha256": "b8a5bf3b0597c9577bb5ff04eb5474bd6b238a10ce60176111499c20de4cbd44",
+  "rows": 6495,
+  "first_date": "2000-08-23",
+  "last_date": "2026-07-08",
+  "approved": false,
+  "read_only": true,
+  "normalized": false,
+  "training_enabled": false,
+  "created_at": "2026-07-08T19:31:38.769968+00:00",
+  "updated_at": "2026-07-08T19:31:38.769975+00:00"
+}
