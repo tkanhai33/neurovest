@@ -98,7 +98,7 @@ export default function NeuroWorkspace() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-2">
-        <section className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+        <section className="nv-surface-section p-5">
           <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">Runtime</p>
           <h3 className="mt-2 text-xl font-black text-white">Current Status</h3>
 
@@ -120,7 +120,7 @@ export default function NeuroWorkspace() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+        <section className="nv-surface-section p-5">
           <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">Upcoming Metrics</p>
           <h3 className="mt-2 text-xl font-black text-white">Planned Telemetry</h3>
 

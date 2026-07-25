@@ -351,7 +351,7 @@ function PlaybackTimeline({
   const steps = trace?.steps || [];
 
   return (
-    <section className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+    <section className="nv-surface-section p-5">
       <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
         Ordered Activation Log
       </p>
@@ -671,7 +671,7 @@ export default function GraphWorkspacePanel() {
           }}
         />
 
-        <section className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+        <section className="nv-surface-section p-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
@@ -781,7 +781,7 @@ export default function GraphWorkspacePanel() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
-        <section className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+        <section className="nv-surface-section p-5">
           <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
             Dependency Activations
           </p>

@@ -88,7 +88,7 @@ export default function LearningWorkspacePanel() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
-        <div className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+        <div className="nv-surface-section p-5">
           <div className="mb-5 flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">Performance</p>
@@ -135,7 +135,7 @@ export default function LearningWorkspacePanel() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+          <div className="nv-surface-section p-5">
             <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">Decision Mix</p>
             <h3 className="mt-1 text-xl font-black text-white">Action Distribution</h3>
 
@@ -158,7 +158,7 @@ export default function LearningWorkspacePanel() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+          <div className="nv-surface-section p-5">
             <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">Confidence</p>
             <h3 className="mt-1 text-xl font-black text-white">Symbol Confidence</h3>
 

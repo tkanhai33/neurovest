@@ -1140,3 +1140,588 @@ select:focus-visible {
   animation-play-state: running !important;
 }
 /* End canonical NeuroVest market ribbon speed */
+
+/* NEUROVEST GLOBAL DESIGN-SYSTEM CONTRACT — POST-FREEZE NORMALIZATION */
+
+:root {
+  --nv-space-1: 0.25rem;
+  --nv-space-2: 0.5rem;
+  --nv-space-3: 0.75rem;
+  --nv-space-4: 1rem;
+  --nv-space-5: 1.25rem;
+  --nv-space-6: 1.5rem;
+  --nv-space-8: 2rem;
+  --nv-space-10: 2.5rem;
+  --nv-space-12: 3rem;
+
+  --nv-shell-sidebar-width: 17.5rem;
+  --nv-shell-header-height: 4.75rem;
+
+  --nv-font-size-eyebrow: 0.6875rem;
+  --nv-font-size-body-sm: 0.875rem;
+  --nv-font-size-body: 1rem;
+  --nv-font-size-title-sm: 1.25rem;
+  --nv-font-size-title: clamp(1.5rem, 2vw, 2rem);
+  --nv-font-size-page-title: clamp(2rem, 4vw, 3.75rem);
+
+  --nv-line-body: 1.7;
+  --nv-line-compact: 1.35;
+
+  --nv-focus-ring:
+    0 0 0 4px rgba(34, 211, 238, 0.12);
+}
+
+.nv-page-container {
+  width: 100%;
+  max-width: var(--nv-content-width);
+  margin-inline: auto;
+  padding:
+    clamp(1.25rem, 2.5vw, 2.5rem)
+    var(--nv-page-gutter)
+    clamp(2rem, 4vw, 4rem);
+}
+
+.nv-page-container > * + * {
+  margin-top: var(--nv-space-6);
+}
+
+.nv-page-container-compact {
+  padding-top: var(--nv-space-5);
+}
+
+.nv-section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--nv-space-4);
+}
+
+.nv-section-header-copy {
+  min-width: 0;
+  max-width: 58rem;
+}
+
+.nv-section-title {
+  margin: var(--nv-space-2) 0 0;
+  color: var(--nv-text-strong);
+  font-size: var(--nv-font-size-title);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.nv-section-description {
+  max-width: 48rem;
+  margin: var(--nv-space-3) 0 0;
+  color: var(--nv-text-muted);
+  font-size: var(--nv-font-size-body-sm);
+  line-height: var(--nv-line-body);
+}
+
+.nv-section-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--nv-space-3);
+}
+
+.nv-metric-grid {
+  display: grid;
+  gap: var(--nv-space-4);
+}
+
+.nv-metric-grid-2,
+.nv-metric-grid-3,
+.nv-metric-grid-4,
+.nv-metric-grid-5 {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.nv-workspace-tabs {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(min(100%, 11rem), 1fr)
+    );
+  gap: var(--nv-space-3);
+}
+
+.nv-workspace-tab {
+  min-width: 0;
+  border:
+    1px solid
+    var(--nv-border-soft);
+  border-radius: var(--nv-radius-md);
+  background: var(--nv-bg-muted);
+  padding: var(--nv-space-4);
+  color: var(--nv-text);
+  text-align: left;
+  transition:
+    transform var(--nv-transition-fast),
+    border-color var(--nv-transition-fast),
+    background var(--nv-transition-fast),
+    box-shadow var(--nv-transition-fast);
+}
+
+.nv-workspace-tab:hover {
+  transform: translateY(-2px);
+  border-color: rgba(103, 232, 249, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nv-workspace-tab:focus-visible {
+  outline: none;
+  border-color: var(--nv-cyan-strong);
+  box-shadow: var(--nv-focus-ring);
+}
+
+.nv-workspace-tab-active {
+  border-color: rgba(103, 232, 249, 0.36);
+  background: rgba(34, 211, 238, 0.09);
+  box-shadow: var(--nv-shadow-cyan);
+}
+
+.nv-workspace-tab-icon {
+  display: inline-flex;
+  margin-bottom: var(--nv-space-3);
+  color: var(--nv-cyan);
+}
+
+.nv-workspace-tab-label {
+  display: block;
+  color: var(--nv-text-strong);
+  font-size: var(--nv-font-size-body-sm);
+  font-weight: 900;
+}
+
+.nv-workspace-tab-active .nv-workspace-tab-label {
+  color: #cffafe;
+}
+
+.nv-workspace-tab-description {
+  display: block;
+  margin-top: var(--nv-space-2);
+  color: var(--nv-text-subtle);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.nv-surface-section {
+  border:
+    1px solid
+    var(--nv-border-soft);
+  border-radius: var(--nv-radius-lg);
+  background: var(--nv-bg-elevated);
+  box-shadow: var(--nv-shadow-panel);
+}
+
+.nv-card-title {
+  color: var(--nv-text-strong);
+  font-size: var(--nv-font-size-title-sm);
+  font-weight: 900;
+  line-height: var(--nv-line-compact);
+}
+
+.nv-card-description {
+  color: var(--nv-text-muted);
+  font-size: var(--nv-font-size-body-sm);
+  line-height: var(--nv-line-body);
+}
+
+.nv-value-lg {
+  color: var(--nv-text-strong);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.nv-interactive-focus:focus-visible {
+  outline: none;
+  box-shadow: var(--nv-focus-ring);
+}
+
+@media (min-width: 640px) {
+  .nv-metric-grid-2,
+  .nv-metric-grid-3,
+  .nv-metric-grid-4,
+  .nv-metric-grid-5 {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .nv-metric-grid-3 {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .nv-metric-grid-4,
+  .nv-metric-grid-5 {
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .nv-metric-grid-5 {
+    grid-template-columns:
+      repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-workspace-tab {
+    transition: none;
+  }
+
+  .nv-workspace-tab:hover {
+    transform: none;
+  }
+}
+
+/* NEUROVEST DEVELOPER DASHBOARD VISUAL MIGRATION */
+
+.nv-developer-dashboard {
+  position: relative;
+  isolation: isolate;
+}
+
+.nv-developer-dashboard::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 15% 8%,
+      rgba(34, 211, 238, 0.055),
+      transparent 30rem
+    ),
+    radial-gradient(
+      circle at 88% 18%,
+      rgba(139, 92, 246, 0.045),
+      transparent 28rem
+    );
+}
+
+.nv-developer-dashboard .nv-panel {
+  overflow: hidden;
+}
+
+.nv-developer-summary-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--nv-space-4);
+}
+
+.nv-developer-workspace-navigation {
+  display: grid;
+  gap: var(--nv-space-5);
+}
+
+.nv-developer-legacy-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nv-space-3);
+  margin-bottom: var(--nv-space-6);
+  border:
+    1px solid
+    var(--nv-border-soft);
+  border-radius: var(--nv-radius-lg);
+  background: var(--nv-bg-elevated);
+  padding: var(--nv-space-3);
+  box-shadow: var(--nv-shadow-panel);
+}
+
+.nv-developer-legacy-sidebar {
+  display: none;
+  width: var(--nv-shell-sidebar-width);
+  flex-shrink: 0;
+  border-right:
+    1px solid
+    var(--nv-border-soft);
+  background: var(--nv-bg-glass);
+  padding: var(--nv-space-5);
+}
+
+.nv-developer-sidebar-link {
+  display: block;
+  width: 100%;
+  border:
+    1px solid
+    var(--nv-border-soft);
+  border-radius: var(--nv-radius-md);
+  background: var(--nv-bg-muted);
+  padding:
+    var(--nv-space-3)
+    var(--nv-space-4);
+  color: var(--nv-text-muted);
+  font-size: var(--nv-font-size-body-sm);
+  text-align: left;
+  transition:
+    border-color var(--nv-transition-fast),
+    background var(--nv-transition-fast),
+    color var(--nv-transition-fast);
+}
+
+.nv-developer-sidebar-link:hover {
+  border-color: rgba(103, 232, 249, 0.22);
+  color: var(--nv-text-strong);
+}
+
+.nv-developer-sidebar-link:focus-visible {
+  outline: none;
+  border-color: var(--nv-cyan-strong);
+  box-shadow: var(--nv-focus-ring);
+}
+
+.nv-developer-sidebar-link-active {
+  border-color: rgba(103, 232, 249, 0.34);
+  background: rgba(34, 211, 238, 0.09);
+  color: #cffafe;
+}
+
+.nv-developer-runtime-locks {
+  margin-top: var(--nv-space-8);
+  border:
+    1px solid
+    rgba(52, 211, 153, 0.2);
+  border-radius: var(--nv-radius-md);
+  background: rgba(6, 78, 59, 0.15);
+  padding: var(--nv-space-4);
+}
+
+.nv-developer-header-panel {
+  margin-bottom: var(--nv-space-8);
+  border:
+    1px solid
+    var(--nv-border-soft);
+  border-radius: var(--nv-radius-lg);
+  background: var(--nv-bg-elevated);
+  padding: var(--nv-space-6);
+  box-shadow: var(--nv-shadow-panel);
+}
+
+.nv-developer-inset-card {
+  border:
+    1px solid
+    var(--nv-border-soft);
+  border-radius: var(--nv-radius-md);
+  background: var(--nv-bg-muted);
+  padding: var(--nv-space-4);
+}
+
+.nv-developer-dashboard button,
+.nv-developer-dashboard a {
+  scroll-margin-top: calc(
+    var(--nv-shell-header-height)
+    + var(--nv-space-4)
+  );
+}
+
+@media (min-width: 768px) {
+  .nv-developer-summary-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .nv-developer-legacy-sidebar {
+    display: block;
+  }
+
+  .nv-developer-summary-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .nv-developer-summary-grid {
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-developer-sidebar-link {
+    transition: none;
+  }
+}
+
+/* NEUROVEST DEVELOPER DASHBOARD INFORMATION HIERARCHY */
+
+.nv-developer-page {
+  display: grid;
+  gap: var(--nv-space-5);
+}
+
+.nv-developer-page-header {
+  min-width: 0;
+}
+
+/*
+ * The Developer page gets one restrained header.
+ * The page content, rather than repeated headings, carries the hierarchy.
+ */
+.nv-developer-page-header .nv-page-header {
+  min-height: auto;
+  padding:
+    clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.nv-developer-page-header .nv-page-header-title {
+  max-width: 18ch;
+  font-size:
+    clamp(
+      2.25rem,
+      4.8vw,
+      4.5rem
+    );
+  line-height: 0.98;
+}
+
+.nv-developer-page-header .nv-page-header-description {
+  max-width: 48rem;
+}
+
+.nv-developer-status-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  border:
+    1px solid
+    var(--nv-border-soft);
+  border-radius: var(--nv-radius-lg);
+  background: var(--nv-bg-elevated);
+  box-shadow: var(--nv-shadow-panel);
+}
+
+.nv-developer-status-strip > .nv-panel {
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding:
+    var(--nv-space-4)
+    var(--nv-space-5);
+  box-shadow: none;
+}
+
+.nv-developer-status-strip > .nv-panel + .nv-panel {
+  border-top:
+    1px solid
+    var(--nv-border-soft);
+}
+
+.nv-developer-status-strip .nv-card-title,
+.nv-developer-status-strip .nv-section-title {
+  margin-top: var(--nv-space-1);
+  font-size: 1rem;
+}
+
+.nv-developer-status-strip .nv-card-description {
+  margin-top: var(--nv-space-2);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.nv-developer-ticker {
+  min-width: 0;
+}
+
+.nv-developer-workspace-navigation {
+  display: grid;
+  gap: var(--nv-space-4);
+  border:
+    1px solid
+    var(--nv-border-soft);
+  border-radius: var(--nv-radius-lg);
+  background: var(--nv-bg-elevated);
+  padding: var(--nv-space-5);
+  box-shadow: var(--nv-shadow-panel);
+}
+
+.nv-developer-navigation-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap:
+    var(--nv-space-2)
+    var(--nv-space-4);
+}
+
+.nv-developer-navigation-title {
+  margin: 0;
+  color: var(--nv-text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.nv-developer-metrics {
+  display: grid;
+  gap: var(--nv-space-4);
+}
+
+.nv-developer-section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--nv-space-4);
+}
+
+.nv-developer-metrics .nv-section-title {
+  margin-top: var(--nv-space-1);
+  font-size:
+    clamp(
+      1.25rem,
+      2vw,
+      1.75rem
+    );
+}
+
+.nv-developer-active-workspace {
+  min-width: 0;
+}
+
+/*
+ * The WorkspaceRouter supplies the workspace's real content heading.
+ * Any old outer "active surface" presentation has been removed from
+ * the page hierarchy.
+ */
+.nv-developer-active-workspace > * {
+  margin-top: 0;
+}
+
+@media (min-width: 768px) {
+  .nv-developer-status-strip {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .nv-developer-status-strip > .nv-panel + .nv-panel {
+    border-top: 0;
+    border-left:
+      1px solid
+      var(--nv-border-soft);
+  }
+}
+
+@media (max-width: 767px) {
+  .nv-developer-page {
+    gap: var(--nv-space-4);
+  }
+
+  .nv-developer-workspace-navigation {
+    padding: var(--nv-space-4);
+  }
+}
+

@@ -234,7 +234,7 @@ export default function OverviewWorkspace({
       )}
 
       <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <section className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+        <section className="nv-surface-section p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
@@ -305,7 +305,7 @@ export default function OverviewWorkspace({
         </section>
 
         <section className="space-y-6">
-          <section className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+          <section className="nv-surface-section p-5">
             <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
               Decision Mix
             </p>
@@ -354,7 +354,7 @@ export default function OverviewWorkspace({
             </div>
           </section>
 
-          <section className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+          <section className="nv-surface-section p-5">
             <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
               Symbol Summary
             </p>
@@ -399,7 +399,7 @@ export default function OverviewWorkspace({
       </section>
 
       <section className="grid gap-6 xl:grid-cols-2">
-        <section className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+        <section className="nv-surface-section p-5">
           <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
             Safety Contract
           </p>

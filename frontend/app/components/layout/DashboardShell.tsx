@@ -25,7 +25,7 @@ export function DashboardTabNavigation({
   ];
 
   return (
-    <section className="mb-6 rounded-2xl border border-cyan-400/20 bg-slate-950/80 p-3">
+    <section className="nv-developer-legacy-tabs">
       <div className="flex flex-wrap gap-2">
         {tabs.map((tab) => (
           <button
@@ -34,8 +34,8 @@ export function DashboardTabNavigation({
             onClick={() => setActiveTab(tab)}
             className={
               activeTab === tab
-                ? "rounded-xl border border-cyan-300 bg-cyan-500/20 px-4 py-2 text-sm font-bold text-cyan-100"
-                : "rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-2 text-sm text-slate-300"
+                ? "nv-workspace-tab nv-workspace-tab-active"
+                : "nv-workspace-tab"
             }
           >
             {tab.toUpperCase()}
@@ -63,9 +63,9 @@ export function Sidebar({
   ];
 
   return (
-    <aside className="hidden w-64 shrink-0 border-r border-cyan-400/10 bg-slate-950/80 p-5 lg:block">
+    <aside className="nv-developer-legacy-sidebar">
       <p className="text-xs uppercase tracking-[0.45em] text-cyan-300">Neurovest</p>
-      <h2 className="mt-3 text-2xl font-black text-white">V3 Console</h2>
+      <h2 className="nv-section-title">V3 Console</h2>
 
       <div className="mt-8 space-y-2">
         {tabs.map((tab) => (
@@ -75,8 +75,8 @@ export function Sidebar({
             onClick={() => setActiveTab(tab)}
             className={
               activeTab === tab
-                ? "w-full rounded-2xl border border-cyan-300 bg-cyan-500/20 px-4 py-3 text-left text-sm font-bold text-cyan-100"
-                : "w-full rounded-2xl border border-slate-800 bg-slate-900/50 px-4 py-3 text-left text-sm text-slate-300"
+                ? "nv-developer-sidebar-link nv-developer-sidebar-link-active"
+                : "nv-developer-sidebar-link"
             }
           >
             {tab.toUpperCase()}
@@ -84,7 +84,7 @@ export function Sidebar({
         ))}
       </div>
 
-      <div className="mt-8 rounded-2xl border border-emerald-400/20 bg-emerald-950/20 p-4">
+      <div className="nv-developer-runtime-locks">
         <p className="text-xs uppercase tracking-[0.25em] text-emerald-300">Runtime</p>
         <p className="mt-2 text-sm text-slate-300">Replay locked</p>
         <p className="text-sm text-slate-300">Broker disabled</p>
@@ -104,7 +104,7 @@ export function DashboardHeader({
   setActiveTab: (tab: DashboardTab) => void;
 }) {
   return (
-    <section className="mb-8 rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-6 shadow-[0_0_60px_rgba(34,211,238,0.10)]">
+    <section className="nv-developer-header-panel">
       <p className="text-xs uppercase tracking-[0.4em] text-cyan-300">
         Neurovest V3
       </p>
@@ -122,7 +122,7 @@ export function DashboardHeader({
           Hydration: {hydrated ? "ACTIVE" : "SERVER HTML ONLY"}
         </div>
 
-        <div className="text-xs uppercase tracking-[0.25em] text-slate-500">
+        <div className="nv-stat-label">
           Active Workspace: <span className="text-cyan-200">{activeTab.toUpperCase()}</span>
         </div>
       </div>
@@ -180,7 +180,7 @@ export function DashboardStats({
           className="rounded-3xl border border-cyan-400/10 bg-slate-950/80 p-5 shadow-[0_0_35px_rgba(15,23,42,0.45)]"
         >
           <div className="flex items-center justify-between">
-            <p className="text-xs uppercase tracking-[0.25em] text-slate-500">{card.label}</p>
+            <p className="nv-stat-label">{card.label}</p>
             <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
           </div>
 

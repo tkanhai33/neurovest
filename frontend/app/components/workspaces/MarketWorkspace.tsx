@@ -67,7 +67,7 @@ function LiveMarketWatchlist() {
   }, [loadWatchlist]);
 
   return (
-    <section className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+    <section className="nv-surface-section p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">Live Watchlist</p>
@@ -89,7 +89,7 @@ function LiveMarketWatchlist() {
           const quote = quotes[symbol];
 
           return (
-            <div key={symbol} className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
+            <div key={symbol} className="nv-developer-inset-card">
               <div className="flex items-center justify-between">
                 <p className="font-bold text-white">{symbol}</p>
                 <span className="rounded-full border border-emerald-400/30 px-2 py-1 text-xs text-emerald-300">
@@ -97,7 +97,7 @@ function LiveMarketWatchlist() {
                 </span>
               </div>
 
-              <p className="mt-3 text-2xl font-black text-white">
+              <p className="nv-section-title">
                 {quote?.price ? `$${Number(quote.price).toFixed(2)}` : "—"}
               </p>
 
@@ -146,7 +146,7 @@ export default function MarketWorkspace({
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <LiveMarketWatchlist />
 
-        <section className="rounded-3xl border border-cyan-400/20 bg-slate-950/80 p-5">
+        <section className="nv-surface-section p-5">
           <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">Training Universe</p>
           <h3 className="mt-1 text-xl font-black text-white">Replay Symbol Groups</h3>
 
