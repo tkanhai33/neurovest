@@ -1,33 +1,49 @@
-from backend.app.stacks.snaptrade.contracts.readonly_models import (
-    SnapTradeAccountSnapshot,
-    SnapTradeBalanceSnapshot,
-    SnapTradePositionSnapshot,
+from __future__ import annotations
+
+from backend.app.stacks.snaptrade.adapters.sdk_client_factory import (
+    SnapTradeReadOnlySdkClient,
+    build_snaptrade_sdk_client,
 )
 
 
 class SnapTradeSandboxReadOnlyClient:
+    """
+    Disabled-by-default SDK integration boundary.
+
+    This wrapper intentionally exposes no order, preview, cancel,
+    replace, trade, or mutation operation.
+    """
 
     def __init__(
         self,
-        api_key: str,
-    ):
-        self.api_key = api_key
+    ) -> None:
+        self._client: (
+            SnapTradeReadOnlySdkClient
+            | None
+        ) = None
 
-
-    async def get_account_snapshot(
+    def build_client(
         self,
-    ) -> SnapTradeAccountSnapshot:
+    ) -> SnapTradeReadOnlySdkClient:
+        if self._client is None:
+            self._client = (
+                build_snaptrade_sdk_client()
+            )
 
-        """
-        Placeholder boundary.
+        return self._client
 
-        Real SDK binding occurs here only after
-        read-only permission verification.
+    def client_info_health_check(
+        self,
+    ):
+        return (
+            self.build_client()
+            .get_partner_info()
+        )
 
-        No mutation endpoints permitted.
-        """
-
-        raise RuntimeError(
-            "Sandbox client binding requires approved "
-            "read-only credentials"
+    def api_status_health_check(
+        self,
+    ):
+        return (
+            self.build_client()
+            .check_api_status()
         )

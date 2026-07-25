@@ -752,3 +752,253 @@ app.include_router(
     administrative_mutation_router
 )
 # WORKSTREAM 3 STAGE 9D-C5-B ADMIN MUTATION ROUTER END
+
+# BEGIN NEUROVEST AUTHENTICATED OWNER-SCOPED READONLY PORTFOLIO API
+
+from backend.app.spine.L5_api.owned_readonly_portfolio_service import (
+    AuthenticatedPortfolioAccessDenied,
+    AuthenticatedPortfolioUnavailable,
+    build_owned_facade,
+    serialize_accounts,
+    serialize_balances,
+    serialize_overview,
+    serialize_positions,
+    serialize_symbol_positions,
+    serialize_totals,
+)
+
+
+def _owned_portfolio_facade_for_principal(
+    principal,
+):
+    try:
+        return build_owned_facade(
+            neurovest_user_id=str(
+                principal.subject
+            ),
+        )
+    except AuthenticatedPortfolioAccessDenied as error:
+        raise HTTPException(
+            status_code=403,
+            detail=str(
+                error
+            ),
+        ) from error
+    except AuthenticatedPortfolioUnavailable as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(
+                error
+            ),
+        ) from error
+
+
+@app.get(
+    "/api/v1/portfolio/readonly",
+    tags=["portfolio"],
+)
+async def authenticated_owned_portfolio_overview(
+    principal: AuthenticatedPrincipal = Depends(require_authenticated_principal),
+):
+    facade = _owned_portfolio_facade_for_principal(
+        principal
+    )
+
+    return {
+        "status": "ok",
+        "read_only": True,
+        "paper_only": True,
+        "trading_enabled": False,
+        "order_operations_enabled": False,
+        "overview": serialize_overview(
+            facade
+        ),
+    }
+
+
+@app.get(
+    "/api/v1/portfolio/readonly/accounts",
+    tags=["portfolio"],
+)
+async def authenticated_owned_portfolio_accounts(
+    principal: AuthenticatedPrincipal = Depends(require_authenticated_principal),
+):
+    facade = _owned_portfolio_facade_for_principal(
+        principal
+    )
+
+    return {
+        "status": "ok",
+        "read_only": True,
+        "accounts": serialize_accounts(
+            facade
+        ),
+    }
+
+
+@app.get(
+    "/api/v1/portfolio/readonly/balances",
+    tags=["portfolio"],
+)
+async def authenticated_owned_portfolio_balances(
+    principal: AuthenticatedPrincipal = Depends(require_authenticated_principal),
+):
+    facade = _owned_portfolio_facade_for_principal(
+        principal
+    )
+
+    return {
+        "status": "ok",
+        "read_only": True,
+        "balances": serialize_balances(
+            facade
+        ),
+    }
+
+
+@app.get(
+    "/api/v1/portfolio/readonly/positions",
+    tags=["portfolio"],
+)
+async def authenticated_owned_portfolio_positions(
+    principal: AuthenticatedPrincipal = Depends(require_authenticated_principal),
+):
+    facade = _owned_portfolio_facade_for_principal(
+        principal
+    )
+
+    return {
+        "status": "ok",
+        "read_only": True,
+        "positions": serialize_positions(
+            facade
+        ),
+    }
+
+
+@app.get(
+    "/api/v1/portfolio/readonly/positions/{symbol}",
+    tags=["portfolio"],
+)
+async def authenticated_owned_portfolio_symbol_positions(
+    symbol: str,
+    principal: AuthenticatedPrincipal = Depends(require_authenticated_principal),
+):
+    facade = _owned_portfolio_facade_for_principal(
+        principal
+    )
+
+    return {
+        "status": "ok",
+        "read_only": True,
+        "symbol": symbol.strip().upper(),
+        "positions": serialize_symbol_positions(
+            facade,
+            symbol,
+        ),
+    }
+
+
+@app.get(
+    "/api/v1/portfolio/readonly/totals",
+    tags=["portfolio"],
+)
+async def authenticated_owned_portfolio_totals(
+    principal: AuthenticatedPrincipal = Depends(require_authenticated_principal),
+):
+    facade = _owned_portfolio_facade_for_principal(
+        principal
+    )
+
+    return {
+        "status": "ok",
+        "read_only": True,
+        "totals": serialize_totals(
+            facade
+        ),
+    }
+
+# END NEUROVEST AUTHENTICATED OWNER-SCOPED READONLY PORTFOLIO API
+
+# BEGIN NEUROVEST PORTFOLIO SNAPSHOT LIFECYCLE API
+
+from backend.app.stacks.portfolio.portfolio_snapshot_lifecycle import (
+    PortfolioRefreshInProgress,
+    PortfolioSnapshotLifecycleError,
+    get_portfolio_lifecycle,
+    refresh_portfolio_snapshot,
+)
+
+
+@app.get(
+    "/api/v1/portfolio/readonly/lifecycle",
+    tags=["portfolio"],
+)
+async def authenticated_portfolio_snapshot_lifecycle(
+    principal: AuthenticatedPrincipal = Depends(
+        require_authenticated_principal
+    ),
+):
+    try:
+        return get_portfolio_lifecycle(
+            neurovest_user_id=str(
+                principal.subject
+            ),
+        )
+    except AuthenticatedPortfolioAccessDenied as error:
+        raise HTTPException(
+            status_code=403,
+            detail=str(
+                error
+            ),
+        ) from error
+    except PortfolioSnapshotLifecycleError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(
+                error
+            ),
+        ) from error
+
+
+@app.post(
+    "/api/v1/portfolio/readonly/refresh",
+    tags=["portfolio"],
+)
+async def authenticated_portfolio_snapshot_refresh(
+    principal: AuthenticatedPrincipal = Depends(
+        require_authenticated_principal
+    ),
+):
+    try:
+        return refresh_portfolio_snapshot(
+            neurovest_user_id=str(
+                principal.subject
+            ),
+        )
+    except AuthenticatedPortfolioAccessDenied as error:
+        raise HTTPException(
+            status_code=403,
+            detail=str(
+                error
+            ),
+        ) from error
+    except PortfolioRefreshInProgress as error:
+        raise HTTPException(
+            status_code=409,
+            detail=str(
+                error
+            ),
+        ) from error
+    except PortfolioSnapshotLifecycleError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(
+                error
+            ),
+        ) from error
+
+# END NEUROVEST PORTFOLIO SNAPSHOT LIFECYCLE API
+
+
+
