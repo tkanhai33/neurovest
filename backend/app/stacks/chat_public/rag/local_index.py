@@ -1222,7 +1222,12 @@ def discover_allowlisted_sources(
             and not (
                 "knowledge" in path.relative_to(root).parts
                 and "research" in path.relative_to(root).parts
-                and "originals" in path.relative_to(root).parts
+                and "ssrn" in path.relative_to(root).parts
+                and (
+                    "originals" in path.relative_to(root).parts
+                    or "extracted" in path.relative_to(root).parts
+                    or path.name == "manifest.json"
+                )
             )
         )
     ]
