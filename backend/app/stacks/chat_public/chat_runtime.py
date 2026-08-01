@@ -284,7 +284,7 @@ def handle_chat_message(
             status = "ok"
             error = None
             tool_truth_state = (
-                "retrieval_required"
+                "ungrounded"
                 if routing_decision.retrieval_required
                 else (
                     "deterministic_tool_required"
