@@ -30,13 +30,67 @@ def looks_like_strategy_proposal(message: str) -> bool:
     return any(term in clean for term in STRATEGY_TERMS)
 
 
+RESERVED_NON_SYMBOL_WORDS = frozenset(
+    {
+        "API",
+        "CSS",
+        "DELETE",
+        "FASTAPI",
+        "GET",
+        "HTML",
+        "HTTP",
+        "HTTPS",
+        "JSON",
+        "PATCH",
+        "POST",
+        "PUT",
+        "REST",
+        "SQL",
+        "TCP",
+        "UDP",
+        "URL",
+        "XML",
+    }
+)
+
+
 def extract_symbol(message: str) -> str | None:
-    matches = re.findall(r"\b[A-Z]{2,5}(?:\.TO)?\b", message)
-    return matches[0] if matches else None
+    matches = re.findall(
+        r"\b[A-Z]{2,5}(?:\.TO)?\b",
+        message,
+    )
+
+    for match in matches:
+        if match.upper() not in RESERVED_NON_SYMBOL_WORDS:
+            return match
+
+    return None
 
 
-def capture_strategy_proposal(user_message: str, assistant_message: str, intent: str | None = None, symbol: str | None = None):
-    if not looks_like_strategy_proposal(user_message + "\n" + assistant_message):
+STRATEGY_CAPTURE_INTENTS = frozenset(
+    {
+        "trading_conversation",
+        "simulate_trade",
+    }
+)
+
+
+def capture_strategy_proposal(
+    user_message: str,
+    assistant_message: str,
+    intent: str | None = None,
+    symbol: str | None = None,
+):
+
+    if intent == "research_conversation":
+        return None
+
+    if intent not in STRATEGY_CAPTURE_INTENTS:
+        return None
+
+    if not looks_like_strategy_proposal(
+        user_message + "\n" + assistant_message
+    ):
         return None
 
     candidate_id = f"candidate_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:8]}"

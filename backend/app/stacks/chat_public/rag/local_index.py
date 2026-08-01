@@ -1214,8 +1214,15 @@ def discover_allowlisted_sources(
     return [
         path
         for path in candidates
-        if is_allowed_source(
-            path,
-            root=root,
+        if (
+            is_allowed_source(
+                path,
+                root=root,
+            )
+            and not (
+                "knowledge" in path.relative_to(root).parts
+                and "research" in path.relative_to(root).parts
+                and "originals" in path.relative_to(root).parts
+            )
         )
     ]

@@ -102,6 +102,36 @@ ARCHITECTURE_PATTERNS = [
 ]
 
 
+
+
+SOFTWARE_DEBUG_REQUEST_PATTERN = re.compile(
+    r"\b("
+    r"debug(?:ging)?|traceback|stack trace|exception|"
+    r"http\s*5\d\d|server error"
+    r")\b"
+    r".*\b("
+    r"fastapi|python|typescript|javascript|endpoint|api|"
+    r"function|class|route|handler"
+    r")\b"
+    r"|"
+    r"\b("
+    r"fastapi|python|typescript|javascript|endpoint"
+    r")\b"
+    r".*\b("
+    r"debug(?:ging)?|traceback|exception|http\s*5\d\d|"
+    r"server error"
+    r")\b",
+    re.I,
+)
+
+
+RESEARCH_PATTERNS = (
+    re.compile(
+        r"\b(ssrn|research|paper|papers|journal|citation|citations|academic|knowledge|corpus|document)\b",
+        re.I,
+    ),
+)
+
 DEVELOPER_PATTERNS = [
     re.compile(
         r"\b(as your developer|as (?:the )?authenticated developer|developer mode|"
@@ -195,6 +225,7 @@ _SYMBOL_EXCLUSIONS = {
     "WHY",
     "YES",
     "YOU",
+    "SSRN",
 }
 
 
@@ -292,6 +323,17 @@ def detect_chat_intent(message: str) -> ChatIntent:
                 requires_architecture_context=True,
             )
 
+    # Explicit software-debugging requests must not be redirected by
+    # broad financial terms such as API, route, risk, or endpoint.
+    if SOFTWARE_DEBUG_REQUEST_PATTERN.search(clean):
+        return ChatIntent(
+            intent="general_conversation",
+            family="DEVELOPER",
+            subtype="software_debugging",
+            confidence=1.0,
+            developer_mode=True,
+        )
+
     for subtype, pattern in SYSTEM_PATTERNS:
         if pattern.search(clean):
             return ChatIntent(
@@ -316,6 +358,16 @@ def detect_chat_intent(message: str) -> ChatIntent:
                 intent="general_conversation",
                 family="GENERAL",
                 subtype="personality",
+                confidence=1.0,
+            )
+
+
+    for pattern in RESEARCH_PATTERNS:
+        if pattern.search(clean):
+            return ChatIntent(
+                intent="research_conversation",
+                family="RESEARCH",
+                subtype="knowledge_lookup",
                 confidence=1.0,
             )
 
