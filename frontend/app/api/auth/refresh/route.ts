@@ -11,18 +11,20 @@ const BACKEND_BASE_URL =
   process.env.BACKEND_URL ??
   "http://127.0.0.1:8000";
 
-const AUTH_COOKIES = [
-  "neurovest_access",
-  "neurovest_refresh",
-  "neurovest_csrf",
-  "neurovest_session",
-  "neurovest_preference_scope",
-] as const;
+type RefreshPayload = {
+  access_token?: string;
+  refresh_token?: string;
+  csrf_token?: string;
+  session_state?: string;
+  access_expires_in?: number;
+  refresh_expires_in?: number;
+  [key: string]: unknown;
+};
 
 function appendBackendCookies(
   source: Response,
   target: NextResponse,
-): void {
+): number {
   const headers =
     source.headers as Headers & {
       getSetCookie?: () => string[];
@@ -42,7 +44,7 @@ function appendBackendCookies(
       );
     }
 
-    return;
+    return values.length;
   }
 
   const combined =
@@ -55,36 +57,127 @@ function appendBackendCookies(
       "Set-Cookie",
       combined,
     );
+
+    return 1;
   }
+
+  return 0;
 }
 
-function clearAuthenticationCookies(
+function positiveMaxAge(
+  value: unknown,
+  fallback: number,
+): number {
+  if (
+    typeof value === "number" &&
+    Number.isFinite(value) &&
+    value > 0
+  ) {
+    return Math.floor(value);
+  }
+
+  return fallback;
+}
+
+function installReturnedTokens(
   response: NextResponse,
+  payload: RefreshPayload,
 ): void {
   const secure =
     process.env.NODE_ENV ===
     "production";
 
-  for (const name of AUTH_COOKIES) {
+  const common = {
+    path:
+      "/",
+    sameSite:
+      "lax" as const,
+    secure,
+  };
+
+  if (
+    typeof payload.access_token ===
+      "string" &&
+    payload.access_token.length > 0
+  ) {
     response.cookies.set(
-      name,
-      "",
+      "neurovest_access",
+      payload.access_token,
       {
-        path:
-          "/",
-        expires:
-          new Date(0),
-        maxAge:
-          0,
-        sameSite:
-          "lax",
-        secure,
+        ...common,
         httpOnly:
-          name === "neurovest_access" ||
-          name === "neurovest_refresh",
+          true,
+        maxAge:
+          positiveMaxAge(
+            payload.access_expires_in,
+            15 * 60,
+          ),
       },
     );
   }
+
+  if (
+    typeof payload.refresh_token ===
+      "string" &&
+    payload.refresh_token.length > 0
+  ) {
+    response.cookies.set(
+      "neurovest_refresh",
+      payload.refresh_token,
+      {
+        ...common,
+        httpOnly:
+          true,
+        maxAge:
+          positiveMaxAge(
+            payload.refresh_expires_in,
+            30 * 24 * 60 * 60,
+          ),
+      },
+    );
+  }
+
+  if (
+    typeof payload.csrf_token ===
+      "string" &&
+    payload.csrf_token.length > 0
+  ) {
+    response.cookies.set(
+      "neurovest_csrf",
+      payload.csrf_token,
+      {
+        ...common,
+        httpOnly:
+          false,
+        maxAge:
+          positiveMaxAge(
+            payload.refresh_expires_in,
+            30 * 24 * 60 * 60,
+          ),
+      },
+    );
+  }
+
+  response.cookies.set(
+    "neurovest_session",
+    (
+      typeof payload.session_state ===
+        "string" &&
+      payload.session_state.length > 0
+    )
+      ? payload.session_state
+      : "authenticated",
+    {
+      ...common,
+      httpOnly:
+        false,
+      maxAge:
+        positiveMaxAge(
+          payload.refresh_expires_in,
+          30 * 24 * 60 * 60,
+        ),
+    },
+  );
 }
 
 export async function POST(
@@ -106,29 +199,20 @@ export async function POST(
     "";
 
   if (!refreshToken) {
-    const response =
-      NextResponse.json(
-        {
-          status:
-            "logged_out",
-          detail:
-            "No active refresh token",
+    return NextResponse.json(
+      {
+        detail:
+          "Refresh token is missing",
+      },
+      {
+        status:
+          401,
+        headers: {
+          "Cache-Control":
+            "no-store",
         },
-        {
-          status:
-            200,
-          headers: {
-            "Cache-Control":
-              "no-store",
-          },
-        },
-      );
-
-    clearAuthenticationCookies(
-      response,
+      },
     );
-
-    return response;
   }
 
   let backendResponse: Response;
@@ -136,7 +220,7 @@ export async function POST(
   try {
     backendResponse =
       await fetch(
-        `${BACKEND_BASE_URL}/auth/logout`,
+        `${BACKEND_BASE_URL}/auth/refresh`,
         {
           method:
             "POST",
@@ -173,8 +257,6 @@ export async function POST(
   } catch {
     return NextResponse.json(
       {
-        status:
-          "rejected",
         detail:
           "Authentication service unavailable",
       },
@@ -191,6 +273,23 @@ export async function POST(
 
   const raw =
     await backendResponse.text();
+
+  let parsed:
+    | RefreshPayload
+    | null =
+    null;
+
+  if (raw) {
+    try {
+      parsed =
+        JSON.parse(
+          raw,
+        ) as RefreshPayload;
+    } catch {
+      parsed =
+        null;
+    }
+  }
 
   const response =
     new NextResponse(
@@ -210,14 +309,20 @@ export async function POST(
       },
     );
 
-  appendBackendCookies(
-    backendResponse,
-    response,
-  );
-
-  if (backendResponse.ok) {
-    clearAuthenticationCookies(
+  const backendCookieCount =
+    appendBackendCookies(
+      backendResponse,
       response,
+    );
+
+  if (
+    backendResponse.ok &&
+    backendCookieCount === 0 &&
+    parsed
+  ) {
+    installReturnedTokens(
+      response,
+      parsed,
     );
   }
 
