@@ -12,6 +12,11 @@ const BACKEND_BASE_URL =
   process.env.BACKEND_URL ||
   "http://127.0.0.1:8000";
 
+const refreshPromises = new Map<
+  string,
+  Promise<BrowserTokenPair | null>
+>();
+
 function unauthorizedResponse(): Response {
   return Response.json(
     {
@@ -105,6 +110,33 @@ async function refreshBrowserSession(
   return pair;
 }
 
+async function refreshBrowserSessionSingleFlight(
+  refreshToken: string
+): Promise<BrowserTokenPair | null> {
+  const existing = refreshPromises.get(
+    refreshToken
+  );
+
+  if (existing) {
+    return existing;
+  }
+
+  const pending = refreshBrowserSession(
+    refreshToken
+  ).finally(() => {
+    refreshPromises.delete(
+      refreshToken
+    );
+  });
+
+  refreshPromises.set(
+    refreshToken,
+    pending
+  );
+
+  return pending;
+}
+
 export async function backendFetch(
   path: string,
   init: RequestInit = {}
@@ -147,7 +179,9 @@ export async function backendFetch(
   }
 
   const replacement =
-    await refreshBrowserSession(refreshToken);
+    await refreshBrowserSessionSingleFlight(
+      refreshToken
+    );
 
   if (!replacement) {
     return unauthorizedResponse();
