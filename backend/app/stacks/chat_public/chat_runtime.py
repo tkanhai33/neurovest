@@ -63,6 +63,7 @@ from backend.app.stacks.chat_public.role_overlay_registry import (
 
 from backend.app.stacks.chat_public.ollama_chat_client import (
     ask_ollama,
+    resolve_runtime_model,
 )
 from backend.app.stacks.chat_public.rag.live_retrieval import (
     LiveRetrievalBundle,
@@ -240,10 +241,18 @@ def handle_chat_message(
             "tool_truth_state": "not_required",
         }
 
-    if (
+    use_deterministic_developer_evidence = (
         intent.developer_mode
         and developer_evidence_allowed
-    ):
+        and (
+            intent.self_evaluation
+            or intent.requires_repo_context
+            or intent.requires_architecture_context
+            or intent.subtype == "developer_review"
+        )
+    )
+
+    if use_deterministic_developer_evidence:
         reply = build_developer_response(
             subtype=intent.subtype,
         )
@@ -341,15 +350,12 @@ def handle_chat_message(
         "symbol": intent.symbol,
         "strategy_capture": strategy_capture,
         "provider": provider,
-        "model": model,
+        "model": resolve_runtime_model(model),
         "tool_truth_state": tool_truth_state,
         "error": error,
         "cognitive_route": (
             routing_decision.as_dict()
-            if not (
-                intent.developer_mode
-                and developer_evidence_allowed
-            )
+            if not use_deterministic_developer_evidence
             else None
         ),
     }
