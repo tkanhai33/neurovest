@@ -17,14 +17,27 @@ export async function POST(
         unknown
       >;
 
+    const csrfToken =
+      request.headers.get("x-csrf-token") ??
+      request.headers.get("x-csrftoken");
+
+    const backendHeaders = new Headers({
+      "Content-Type": "application/json",
+      "X-Neurovest-Source": "frontend_chat",
+    });
+
+    if (csrfToken) {
+      backendHeaders.set(
+        "X-CSRF-Token",
+        csrfToken
+      );
+    }
+
     const response = await backendFetch(
       "/api/v1/chat",
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Neurovest-Source": "frontend_chat",
-        },
+        headers: backendHeaders,
         body: JSON.stringify(payload),
       }
     );

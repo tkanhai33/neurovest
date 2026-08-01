@@ -243,9 +243,24 @@ function roleHomeRedirect(
   );
 }
 
+const INTERNAL_CHAT_API_PATH = "/api/v1/chat";
+
 export async function proxy(
   request: NextRequest
 ) {
+
+  /*
+   * /api/v1/chat is an internal API route, not page navigation.
+   * Its handler preserves authentication, CSRF forwarding,
+   * backend authorization, and public chat controls.
+   */
+  if (
+    request.nextUrl.pathname ===
+    INTERNAL_CHAT_API_PATH
+  ) {
+    return NextResponse.next();
+  }
+
   /*
    * Stage 9D-B standalone restricted-session guard.
    * This executes before all normal proxy routing.
@@ -525,15 +540,16 @@ export async function proxy(
       );
     }
 
-    if (
-      isUserWorkspace &&
-      administrative
-    ) {
-      return roleHomeRedirect(
-        request,
-        role
-      );
-    }
+    /*
+     * Administrative, developer, and owner identities may inspect the
+     * genuine lower-level User workspace without changing role truth.
+     *
+     * This is downward view access only:
+     * - the authenticated principal remains unchanged;
+     * - backend authorization remains server authoritative;
+     * - no user impersonation is introduced;
+     * - privileged routes still require their normal role.
+     */
   }
 
   if (
