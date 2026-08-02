@@ -291,6 +291,20 @@ class AdministrativeReadService:
         offset: int,
         limit: int,
     ) -> AdministrativeUserListResponse:
+        total_statement = select(
+            func.count()
+        ).select_from(
+            IdentityUser
+        )
+
+        total_result = await self._session.execute(
+            total_statement
+        )
+
+        total = int(
+            total_result.scalar_one()
+        )
+
         statement = (
             select(
                 IdentityUser
@@ -326,6 +340,7 @@ class AdministrativeReadService:
             offset=offset,
             limit=limit,
             returned=len(items),
+            total=total,
         )
 
     async def get_user(

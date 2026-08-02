@@ -40,6 +40,7 @@ type UserListResponse = {
   offset: number;
   limit: number;
   returned: number;
+  total: number;
 };
 
 type ActionKind =
@@ -367,7 +368,7 @@ export default function AdminUsersPage() {
         try {
           const response =
             await fetch(
-              "/api/admin/users",
+              "/api/admin/users?offset=0&limit=500",
               {
                 method: "GET",
                 credentials:

@@ -106,13 +106,17 @@ class AdministrativeUserListResponse(
 
     limit: int = Field(
         ge=1,
-        le=100,
+        le=500,
     )
 
     returned: int = Field(
         ge=0,
     )
 
+
+    total: int = Field(
+        ge=0,
+    )
 
 class AdministrativeSessionListResponse(
     BaseModel

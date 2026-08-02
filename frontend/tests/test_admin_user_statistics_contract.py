@@ -152,7 +152,10 @@ def test_user_statistics_page_is_live() -> None:
 
     assert '"use client"' in source
     assert '"/api/admin/user-stats"' in source
-    assert "Registered users" in source
+    assert "Customer accounts" in source
+    assert "Database identities" in source
+    assert "Qualification / test identities" in source
+    assert "Internal accounts" in source
     assert "Active sessions" in source
     assert "Broker registered" in source
     assert "Monthly revenue" in source

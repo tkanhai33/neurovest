@@ -19,6 +19,9 @@ type AdminUserStatistics = {
   source: string;
   users: {
     registered: number;
+    customer_accounts: number;
+    internal_accounts: number;
+    qualification_test_accounts: number;
     active: number;
     inactive: number;
     password_reset_required: number;
@@ -250,8 +253,8 @@ export default function AdminUserStatsPage() {
         <>
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <MetricCard
-              label="Registered users"
-              value={statistics.users.registered}
+              label="Customer accounts"
+              value={statistics.users.customer_accounts}
               detail="Canonical identities in identity_users"
             />
 
@@ -384,6 +387,31 @@ export default function AdminUserStatsPage() {
               label="Data source"
               value="PostgreSQL"
               detail="Server-authoritative database calculations"
+            />
+          </section>
+
+          <section className="grid gap-6 md:grid-cols-3">
+            <MetricCard
+              label="Database identities"
+              value={statistics.users.registered}
+              detail="Every identity row, including qualification accounts"
+            />
+
+            <MetricCard
+              label="Qualification / test identities"
+              value={
+                statistics.users
+                  .qualification_test_accounts
+              }
+              detail="Automated launch, Playwright, simulation, and qualification accounts"
+            />
+
+            <MetricCard
+              label="Internal accounts"
+              value={
+                statistics.users.internal_accounts
+              }
+              detail="NeuroVest administrative and developer identities"
             />
           </section>
 

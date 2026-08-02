@@ -1160,6 +1160,93 @@ async def get_administrative_user_statistics(
             ).scalar_one()
         )
 
+        qualification_test_accounts = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM identity_users
+                        WHERE
+                            LOWER(email_normalized)
+                                LIKE '%playwright%'
+                            OR LOWER(email_normalized)
+                                LIKE '%objective%'
+                            OR LOWER(email_normalized)
+                                LIKE '%qualification%'
+                            OR LOWER(email_normalized)
+                                LIKE '%simulation%'
+                            OR LOWER(email_normalized)
+                                LIKE '%launch%'
+                            OR LOWER(email_normalized)
+                                LIKE '%briefing%'
+                            OR LOWER(email_normalized)
+                                LIKE '%test%'
+                            OR LOWER(email_normalized)
+                                LIKE '%example%'
+                            OR LOWER(email_normalized)
+                                LIKE '%neurovest.local'
+                            OR LOWER(email_normalized)
+                                LIKE '%qualification.invalid'
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        internal_accounts = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM identity_users
+                        WHERE LOWER(email_normalized)
+                            LIKE '%neurovest.com'
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        customer_accounts = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM identity_users
+                        WHERE NOT (
+                            LOWER(email_normalized)
+                                LIKE '%playwright%'
+                            OR LOWER(email_normalized)
+                                LIKE '%objective%'
+                            OR LOWER(email_normalized)
+                                LIKE '%qualification%'
+                            OR LOWER(email_normalized)
+                                LIKE '%simulation%'
+                            OR LOWER(email_normalized)
+                                LIKE '%launch%'
+                            OR LOWER(email_normalized)
+                                LIKE '%briefing%'
+                            OR LOWER(email_normalized)
+                                LIKE '%test%'
+                            OR LOWER(email_normalized)
+                                LIKE '%example%'
+                            OR LOWER(email_normalized)
+                                LIKE '%neurovest.local'
+                            OR LOWER(email_normalized)
+                                LIKE '%qualification.invalid'
+                            OR LOWER(email_normalized)
+                                LIKE '%neurovest.com'
+                        )
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+
         active_users = int(
             (
                 await session.execute(
@@ -1444,6 +1531,10 @@ async def get_administrative_user_statistics(
         ),
         "users": {
             "registered": registered_users,
+            "customer_accounts": customer_accounts,
+            "internal_accounts": internal_accounts,
+            "qualification_test_accounts":
+                qualification_test_accounts,
             "active": active_users,
             "inactive": inactive_users,
             "password_reset_required":
