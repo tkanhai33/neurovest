@@ -31,6 +31,14 @@ EXPECTED = {
         "L0",
         "research",
     ),
+    "contract_probe": (
+        "L7",
+        "tests",
+    ),
+    "model_runtime": (
+        "L4",
+        "chat_public",
+    ),
 }
 
 

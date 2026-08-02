@@ -167,6 +167,12 @@ NODE_ARCHITECTURE.update(
             "component_type": "test_suite",
             "source_file": "backend/app",
         },
+        "contract_probe": {
+            "layer": "L7",
+            "stack": "tests",
+            "component_type": "qualification_probe",
+            "source_file": "backend/app/test",
+        },
         "frontend_typecheck": {
             "layer": "L7",
             "stack": "tests",
@@ -375,6 +381,15 @@ NODE_ARCHITECTURE.update(
             "source_file": (
                 "backend/app/stacks/identity_auth/"
                 "runtime_adapter.py"
+            ),
+        },
+        "model_runtime": {
+            "layer": "L4",
+            "stack": "chat_public",
+            "component_type": "runtime",
+            "source_file": (
+                "backend/app/stacks/chat_public/"
+                "chat_runtime.py"
             ),
         },
         "market_runtime": {
@@ -1345,16 +1360,10 @@ def update_metric_contract(
 
 
 
-# Objective 5G — canonical ownership for
-# runtime, frontend, and qualification nodes.
+# Objective 5G — explicit ownership for historical
+# qualification and frontend-observation graph nodes.
 NODE_ARCHITECTURE.update(
     {
-        "model_runtime": {
-            "layer": "L4",
-            "stack": "chat_public",
-            "component_type": "runtime",
-            "source_file": "backend/app/stacks/chat_public/chat_runtime.py",
-        },
         "authenticated_gpu_chat_qualification": {
             "layer": "L7",
             "stack": "tests",
@@ -1451,6 +1460,67 @@ class CognitiveGraphState:
             ),
         }
 
+    def _reconcile_declared_node_ownership(
+        self,
+    ) -> None:
+        """
+        Reapply canonical architecture ownership to restored nodes.
+
+        Persisted runtime history remains authoritative for activity,
+        status, counters, timings, health, and observation metadata.
+
+        NODE_ARCHITECTURE remains authoritative for ownership:
+        layer, stack, component type, source file, and declaration.
+        """
+
+        for node, ownership in NODE_ARCHITECTURE.items():
+            if node not in self.node_meta:
+                continue
+
+            meta = dict(
+                self.node_meta[
+                    node
+                ]
+            )
+
+            meta[
+                "layer"
+            ] = ownership.get(
+                "layer",
+                "UNASSIGNED",
+            )
+
+            meta[
+                "stack"
+            ] = ownership.get(
+                "stack",
+                "UNASSIGNED",
+            )
+
+            meta[
+                "declared"
+            ] = True
+
+            if ownership.get(
+                "component_type"
+            ):
+                meta[
+                    "component_type"
+                ] = ownership[
+                    "component_type"
+                ]
+
+            if "source_file" in ownership:
+                meta[
+                    "source_file"
+                ] = ownership.get(
+                    "source_file"
+                )
+
+            self.node_meta[
+                node
+            ] = meta
+
     def save_snapshot(self) -> None:
         temporary = SNAPSHOT_FILE.with_suffix(".json.tmp")
 
@@ -1480,6 +1550,9 @@ class CognitiveGraphState:
             )
 
             self.node_meta = data.get("node_meta", {})
+
+            self._reconcile_declared_node_ownership()
+
             self.last_events = data.get("events", [])
             self.recent_flows = data.get("recent_flows", [])
 
@@ -2076,6 +2149,45 @@ class CognitiveGraphState:
                 existing.update(
                     meta
                 )
+
+                canonical_ownership = NODE_ARCHITECTURE.get(
+                    node
+                )
+
+                if canonical_ownership is not None:
+                    existing[
+                        "layer"
+                    ] = canonical_ownership.get(
+                        "layer",
+                        "UNASSIGNED",
+                    )
+
+                    existing[
+                        "stack"
+                    ] = canonical_ownership.get(
+                        "stack",
+                        "UNASSIGNED",
+                    )
+
+                    existing[
+                        "declared"
+                    ] = True
+
+                    if canonical_ownership.get(
+                        "component_type"
+                    ):
+                        existing[
+                            "component_type"
+                        ] = canonical_ownership[
+                            "component_type"
+                        ]
+
+                    if "source_file" in canonical_ownership:
+                        existing[
+                            "source_file"
+                        ] = canonical_ownership.get(
+                            "source_file"
+                        )
 
                 existing[
                     "observed"
