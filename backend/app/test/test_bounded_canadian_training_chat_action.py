@@ -83,6 +83,8 @@ def test_canadian_historical_repository_is_found() -> None:
 
 
 def test_two_minute_chat_duration_is_forwarded() -> None:
+    from types import SimpleNamespace
+
     fake_record = {
         "run_id":
             "training_test_0001",
@@ -92,6 +94,17 @@ def test_two_minute_chat_duration_is_forwarded() -> None:
             "queued",
     }
 
+    principal = SimpleNamespace(
+        subject="user-test-1",
+        role="user",
+        token_id="session-test-1",
+        claims={
+            "sub": "user-test-1",
+            "authorization_role": "user",
+            "jti": "session-test-1",
+        },
+    )
+
     with patch(
         "backend.app.stacks.chat_public."
         "chat_runtime."
@@ -100,16 +113,19 @@ def test_two_minute_chat_duration_is_forwarded() -> None:
     ) as start:
         result = handle_chat_message(
             "Run a training session for "
-            "2 minutes on all Canadian symbols."
+            "2 minutes on all Canadian symbols.",
+            principal=principal,
         )
 
     start.assert_called_once_with(
         duration_seconds=120,
         universe="canada",
-        requested_by=(
-            "authenticated_chat"
-        ),
-        source="chat",
+        requested_by="user-test-1",
+        source="authenticated_user_chat",
+        scope="user",
+        owner_user_id="user-test-1",
+        owner_session_id="session-test-1",
+        requested_by_role="user",
     )
 
     assert result["status"] == "ok"
@@ -132,8 +148,9 @@ def test_two_minute_chat_duration_is_forwarded() -> None:
         == "grounded"
     )
 
-
 def test_thirty_second_chat_duration_is_forwarded() -> None:
+    from types import SimpleNamespace
+
     fake_record = {
         "run_id":
             "training_test_0030",
@@ -143,6 +160,17 @@ def test_thirty_second_chat_duration_is_forwarded() -> None:
             "queued",
     }
 
+    principal = SimpleNamespace(
+        subject="user-test-30",
+        role="user",
+        token_id="session-test-30",
+        claims={
+            "sub": "user-test-30",
+            "authorization_role": "user",
+            "jti": "session-test-30",
+        },
+    )
+
     with patch(
         "backend.app.stacks.chat_public."
         "chat_runtime."
@@ -151,18 +179,20 @@ def test_thirty_second_chat_duration_is_forwarded() -> None:
     ) as start:
         handle_chat_message(
             "Start a training session for "
-            "30 seconds on Canadian symbols."
+            "30 seconds on Canadian symbols.",
+            principal=principal,
         )
 
     start.assert_called_once_with(
         duration_seconds=30,
         universe="canada",
-        requested_by=(
-            "authenticated_chat"
-        ),
-        source="chat",
+        requested_by="user-test-30",
+        source="authenticated_user_chat",
+        scope="user",
+        owner_user_id="user-test-30",
+        owner_session_id="session-test-30",
+        requested_by_role="user",
     )
-
 
 def test_one_second_session_completes() -> None:
     record = (

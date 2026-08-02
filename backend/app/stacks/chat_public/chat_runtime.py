@@ -163,6 +163,169 @@ def _ensure_approved_retrieval_citation(
     )
 
 
+
+def _chat_training_role(
+    principal: Any | None,
+) -> str:
+    if principal is None:
+        return ""
+
+    direct = (
+        getattr(
+            principal,
+            "role",
+            None,
+        )
+        or getattr(
+            principal,
+            "authorization_role",
+            None,
+        )
+    )
+
+    if direct:
+        return str(
+            direct
+        ).strip().lower()
+
+    claims = getattr(
+        principal,
+        "claims",
+        {},
+    )
+
+    if not isinstance(
+        claims,
+        dict,
+    ):
+        claims = {}
+
+    return str(
+        claims.get(
+            "authorization_role"
+        )
+        or claims.get("role")
+        or ""
+    ).strip().lower()
+
+
+def _chat_training_subject(
+    principal: Any | None,
+) -> str:
+    if principal is None:
+        return ""
+
+    direct = (
+        getattr(
+            principal,
+            "subject",
+            None,
+        )
+        or getattr(
+            principal,
+            "user_id",
+            None,
+        )
+    )
+
+    if direct:
+        return str(
+            direct
+        ).strip()
+
+    claims = getattr(
+        principal,
+        "claims",
+        {},
+    )
+
+    if not isinstance(
+        claims,
+        dict,
+    ):
+        claims = {}
+
+    return str(
+        claims.get("sub")
+        or claims.get("user_id")
+        or ""
+    ).strip()
+
+
+def _chat_training_session(
+    principal: Any | None,
+) -> str:
+    if principal is None:
+        return ""
+
+    direct = (
+        getattr(
+            principal,
+            "session_id",
+            None,
+        )
+        or getattr(
+            principal,
+            "token_family_id",
+            None,
+        )
+        or getattr(
+            principal,
+            "token_id",
+            None,
+        )
+    )
+
+    if direct:
+        return str(
+            direct
+        ).strip()
+
+    claims = getattr(
+        principal,
+        "claims",
+        {},
+    )
+
+    if not isinstance(
+        claims,
+        dict,
+    ):
+        claims = {}
+
+    return str(
+        claims.get("session_id")
+        or claims.get("session_family_id")
+        or claims.get("family_id")
+        or claims.get("sid")
+        or claims.get("jti")
+        or ""
+    ).strip()
+
+
+def _blocked_training_chat_response(
+    *,
+    intent,
+    message: str,
+    reason: str,
+) -> dict[str, Any]:
+    return {
+        "status": "blocked",
+        "response": {
+            "type": "text",
+            "message": message,
+        },
+        "intent": intent.intent,
+        "symbol": None,
+        "training_run": None,
+        "provider": None,
+        "model": None,
+        "tool_truth_state":
+            "deterministic_policy",
+        "error": reason,
+        "cognitive_route": None,
+    }
+
 def handle_chat_message(
     message: str,
     *,
@@ -170,6 +333,7 @@ def handle_chat_message(
     detected_intent: Any | None = None,
     developer_evidence_allowed: bool = False,
     routing_decision: CognitiveRoutingDecision | None = None,
+    principal: Any | None = None,
 ) -> dict[str, Any]:
     """
     Preserve the existing intent and Ollama behavior.
@@ -241,16 +405,105 @@ def handle_chat_message(
             ),
         )
 
-        training = (
-            start_bounded_training_session(
-                duration_seconds=(
-                    duration_seconds
-                ),
-                universe="canada",
-                requested_by="authenticated_chat",
-                source="chat",
-            )
+        role = _chat_training_role(
+            principal
         )
+
+        subject = _chat_training_subject(
+            principal
+        )
+
+        session_id = _chat_training_session(
+            principal
+        )
+
+        if not subject:
+            return _blocked_training_chat_response(
+                intent=intent,
+                message=(
+                    "Training could not start because "
+                    "the authenticated account identity "
+                    "was unavailable."
+                ),
+                reason=(
+                    "authenticated_training_subject_missing"
+                ),
+            )
+
+        if role in {
+            "admin",
+            "administrator",
+            "system_admin",
+            "support",
+        }:
+            return _blocked_training_chat_response(
+                intent=intent,
+                message=(
+                    "Administrators may inspect training "
+                    "health and failures, but cannot start "
+                    "training sessions. System-wide "
+                    "training is restricted to the "
+                    "Developer role."
+                ),
+                reason=(
+                    "administrator_training_start_denied"
+                ),
+            )
+
+        if role in {
+            "developer",
+            "dev",
+            "owner",
+        }:
+            training = (
+                start_bounded_training_session(
+                    duration_seconds=(
+                        duration_seconds
+                    ),
+                    universe="canada",
+                    requested_by=subject,
+                    source=(
+                        "authenticated_developer_chat"
+                    ),
+                    scope="system",
+                    owner_user_id=None,
+                    owner_session_id=None,
+                    requested_by_role=role,
+                )
+            )
+
+        else:
+            if not session_id:
+                return _blocked_training_chat_response(
+                    intent=intent,
+                    message=(
+                        "Training could not start because "
+                        "the authenticated session identity "
+                        "was unavailable."
+                    ),
+                    reason=(
+                        "authenticated_training_session_missing"
+                    ),
+                )
+
+            training = (
+                start_bounded_training_session(
+                    duration_seconds=(
+                        duration_seconds
+                    ),
+                    universe="canada",
+                    requested_by=subject,
+                    source=(
+                        "authenticated_user_chat"
+                    ),
+                    scope="user",
+                    owner_user_id=subject,
+                    owner_session_id=session_id,
+                    requested_by_role=(
+                        role or "user"
+                    ),
+                )
+            )
 
         run_id = str(
             training["run_id"]
@@ -983,6 +1236,7 @@ async def run_chat_turn(
         routing_decision=(
             routing_decision
         ),
+        principal=principal,
     )
 
     if (
