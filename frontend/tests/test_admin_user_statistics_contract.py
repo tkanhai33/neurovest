@@ -145,3 +145,42 @@ def test_placeholder_api_binding_is_removed() -> None:
 
     assert "API binding pending" not in source
     assert 'value="—"' not in source
+
+
+def test_statistics_uses_canonical_principal_role_first() -> None:
+    source = BACKEND.read_text(
+        encoding="utf-8",
+    )
+
+    assert (
+        'getattr(\n'
+        '            principal,\n'
+        '            "role",'
+        in source
+    )
+
+    assert (
+        'getattr(\n'
+        '            principal,\n'
+        '            "authorization_role",'
+        in source
+    )
+
+    assert "direct_role" in source
+    assert "claim_role" in source
+
+    assert (
+        "direct_role\n"
+        "        or claim_role"
+        in source
+    )
+
+
+def test_developer_and_owner_roles_are_administrative() -> None:
+    source = BACKEND.read_text(
+        encoding="utf-8",
+    )
+
+    assert '"developer"' in source
+    assert '"owner"' in source
+

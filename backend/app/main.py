@@ -1105,6 +1105,14 @@ from sqlalchemy import text as _admin_stats_text
 def _require_admin_statistics_principal(
     principal: AuthenticatedPrincipal,
 ) -> None:
+    """
+    Enforce the canonical authenticated administrative role.
+
+    The identity adapter exposes the normalized authorization role
+    directly on the authenticated principal. Raw claims are retained
+    only as a compatibility fallback.
+    """
+
     claims = getattr(
         principal,
         "claims",
@@ -1117,14 +1125,31 @@ def _require_admin_statistics_principal(
     ):
         claims = {}
 
-    role = str(
-        claims.get(
-            "authorization_role",
-            claims.get(
-                "role",
-                "",
-            ),
+    direct_role = (
+        getattr(
+            principal,
+            "role",
+            None,
         )
+        or getattr(
+            principal,
+            "authorization_role",
+            None,
+        )
+    )
+
+    claim_role = (
+        claims.get(
+            "authorization_role"
+        )
+        or claims.get(
+            "role"
+        )
+    )
+
+    role = str(
+        direct_role
+        or claim_role
         or ""
     ).strip().lower()
 
