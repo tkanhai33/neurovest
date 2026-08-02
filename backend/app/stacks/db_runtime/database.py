@@ -14,6 +14,12 @@ the runtime uses SQLAlchemy's asynchronous engine and sessions.
 
 from __future__ import annotations
 
+from backend.app.core.runtime_trace import (
+    create_trace_id,
+    emit_runtime_step,
+)
+
+
 import os
 
 from sqlalchemy.ext.asyncio import (
@@ -90,6 +96,23 @@ async def init_db() -> None:
     Runtime model discovery belongs to the application composition
     root and must complete before this function is called.
     """
+
+    trace_id = create_trace_id(
+        "database-runtime"
+    )
+
+    await emit_runtime_step(
+        trace_id=trace_id,
+        event_type="DATABASE_RUNTIME_INITIALIZATION",
+        node="db_runtime",
+        status="active",
+        message=(
+            "Database runtime initialization began"
+        ),
+        layer="L0",
+        stack="db_runtime",
+    )
+
 
     # Runtime ORM models are registered by the application
     # composition root before this function is called.
