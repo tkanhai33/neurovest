@@ -4,15 +4,19 @@ import Image from "next/image";
 
 import {
   useCallback,
+  useEffect,
   useState,
 } from "react";
 
 import {
   createChatMessage,
+  getTrainingRun,
   normalizeChatMeta,
   normalizeChatReply,
+  normalizeTrainingRun,
   sendChatMessage,
   type ChatMessage,
+  type TrainingRunSummary,
 } from "../../../services/chatService";
 
 export default function FloatingChatWidget() {
@@ -76,6 +80,9 @@ export default function FloatingChatWidget() {
         createChatMessage(
           "assistant",
           normalizeChatReply(data),
+          normalizeTrainingRun(
+            data.training_run
+          ),
         );
 
       setMessages(
@@ -101,6 +108,111 @@ export default function FloatingChatWidget() {
       setLoading(false);
     }
   }, [message]);
+
+  useEffect(() => {
+    const activeRuns =
+      messages
+        .filter(
+          (
+            item
+          ): item is ChatMessage & {
+            trainingRun:
+              TrainingRunSummary;
+          } => {
+            const run =
+              item.trainingRun;
+
+            if (!run?.run_id) {
+              return false;
+            }
+
+            const status =
+              String(
+                run.status ?? ""
+              )
+                .trim()
+                .toLowerCase();
+
+            return ![
+              "completed",
+              "failed",
+              "cancelled",
+              "canceled",
+            ].includes(status);
+          }
+        );
+
+    if (activeRuns.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const poll = async (): Promise<void> => {
+      const updates =
+        await Promise.all(
+          activeRuns.map(
+            async (item) => {
+              try {
+                const trainingRun =
+                  await getTrainingRun(
+                    item.trainingRun.run_id
+                  );
+
+                return {
+                  messageId: item.id,
+                  trainingRun,
+                };
+              } catch {
+                return null;
+              }
+            }
+          )
+        );
+
+      if (cancelled) {
+        return;
+      }
+
+      setMessages(
+        current =>
+          current.map(item => {
+            const update =
+              updates.find(
+                candidate =>
+                  candidate?.messageId ===
+                  item.id
+              );
+
+            return update
+              ? {
+                  ...item,
+                  trainingRun:
+                    update.trainingRun,
+                }
+              : item;
+          })
+      );
+    };
+
+    void poll();
+
+    const interval =
+      window.setInterval(
+        () => {
+          void poll();
+        },
+        1500
+      );
+
+    return () => {
+      cancelled = true;
+
+      window.clearInterval(
+        interval
+      );
+    };
+  }, [messages]);
 
   return (
     <div className="fixed bottom-5 right-5 z-[999999] sm:bottom-6 sm:right-6">
@@ -158,7 +270,116 @@ export default function FloatingChatWidget() {
                         : "inline-block max-w-[85%] rounded-2xl border border-white/[0.09] bg-slate-950 px-3 py-2 text-sm text-slate-200"
                     }
                   >
-                    {item.content}
+                    <p>
+                      {item.content}
+                    </p>
+
+                    {item.trainingRun && (
+                      <div
+                        data-testid="chat-training-chip"
+                        className="mt-3 min-w-[235px] rounded-xl border border-cyan-300/25 bg-cyan-300/[0.06] p-3 text-left"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-200">
+                            {[
+                              "completed",
+                            ].includes(
+                              String(
+                                item.trainingRun
+                                  .status ?? ""
+                              ).toLowerCase()
+                            )
+                              ? "Training complete"
+                              : [
+                                  "failed",
+                                  "cancelled",
+                                  "canceled",
+                                ].includes(
+                                  String(
+                                    item.trainingRun
+                                      .status ?? ""
+                                  ).toLowerCase()
+                                )
+                                ? "Training stopped"
+                                : "Training active"}
+                          </span>
+
+                          <span className="text-[10px] font-bold uppercase text-slate-400">
+                            {item.trainingRun.status ??
+                              "queued"}
+                          </span>
+                        </div>
+
+                        <p className="mt-2 text-xs font-semibold text-slate-200">
+                          {item.trainingRun.universe ===
+                          "canada"
+                            ? "Canadian symbols"
+                            : (
+                                item.trainingRun.universe ??
+                                "Training universe"
+                              )}
+                          {" · "}
+                          {item.trainingRun.scope ===
+                          "user"
+                            ? "Your session"
+                            : (
+                                item.trainingRun.scope ??
+                                "Bounded"
+                              )}
+                        </p>
+
+                        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-800">
+                          <div
+                            className="h-full rounded-full bg-cyan-300 transition-[width] duration-500"
+                            style={{
+                              width:
+                                `${Math.min(
+                                  100,
+                                  Math.max(
+                                    0,
+                                    Number(
+                                      item.trainingRun
+                                        .progress_percent ??
+                                      0
+                                    )
+                                  )
+                                )}%`,
+                            }}
+                          />
+                        </div>
+
+                        <div className="mt-2 flex items-center justify-between gap-3 text-[10px] text-slate-400">
+                          <span>
+                            {Math.round(
+                              Number(
+                                item.trainingRun
+                                  .progress_percent ??
+                                0
+                              )
+                            )}
+                            %
+                          </span>
+
+                          <span>
+                            {item.trainingRun
+                              .eligible_symbol_count !=
+                            null
+                              ? `${item.trainingRun.eligible_symbol_count} symbols`
+                              : `${item.trainingRun.duration_seconds ?? 0}s bounded`}
+                          </span>
+                        </div>
+
+                        {item.trainingRun.status ===
+                          "completed" && (
+                          <p className="mt-2 text-[10px] font-semibold text-emerald-300">
+                            {item.trainingRun
+                              .rows_evaluated != null
+                              ? `${item.trainingRun.rows_evaluated.toLocaleString()} rows evaluated`
+                              : "Session completed safely"}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ),

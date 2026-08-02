@@ -10,10 +10,23 @@ export type ChatRole =
   | "user"
   | "assistant";
 
+export type TrainingRunSummary = {
+  run_id: string;
+  scope?: string | null;
+  status?: string | null;
+  duration_seconds?: number | null;
+  progress_percent?: number | null;
+  universe?: string | null;
+  eligible_symbol_count?: number | null;
+  rows_evaluated?: number | null;
+  cycles?: number | null;
+};
+
 export type ChatMessage = {
   id: string;
   role: ChatRole;
   content: string;
+  trainingRun?: TrainingRunSummary | null;
 };
 
 export type ChatResponsePayload =
@@ -26,6 +39,10 @@ export type ChatResponsePayload =
           command?: string;
           symbol?: string | null;
         };
+
+    training_run?:
+      | TrainingRunSummary
+      | null;
   };
 
 export type StoredChatThread = {
@@ -63,7 +80,8 @@ function createClientMessageId(): string {
 
 export function createChatMessage(
   role: ChatRole,
-  content: string
+  content: string,
+  trainingRun: TrainingRunSummary | null = null
 ): ChatMessage {
   return {
     id: [
@@ -73,6 +91,7 @@ export function createChatMessage(
     ].join("-"),
     role,
     content,
+    trainingRun,
   };
 }
 
@@ -228,6 +247,146 @@ export async function sendChatMessage(
   storeChatThread(data);
 
   return data;
+}
+
+
+function isRecord(
+  value: unknown
+): value is Record<string, unknown> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value)
+  );
+}
+
+export function normalizeTrainingRun(
+  value: unknown
+): TrainingRunSummary | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const runId =
+    typeof value.run_id === "string"
+      ? value.run_id
+      : "";
+
+  if (!runId) {
+    return null;
+  }
+
+  return {
+    run_id: runId,
+
+    scope:
+      typeof value.scope === "string"
+        ? value.scope
+        : null,
+
+    status:
+      typeof value.status === "string"
+        ? value.status
+        : null,
+
+    duration_seconds:
+      typeof value.duration_seconds === "number"
+        ? value.duration_seconds
+        : null,
+
+    progress_percent:
+      typeof value.progress_percent === "number"
+        ? value.progress_percent
+        : null,
+
+    universe:
+      typeof value.universe === "string"
+        ? value.universe
+        : null,
+
+    eligible_symbol_count:
+      typeof value.eligible_symbol_count === "number"
+        ? value.eligible_symbol_count
+        : null,
+
+    rows_evaluated:
+      typeof value.rows_evaluated === "number"
+        ? value.rows_evaluated
+        : null,
+
+    cycles:
+      typeof value.cycles === "number"
+        ? value.cycles
+        : null,
+  };
+}
+
+export async function getTrainingRun(
+  runId: string
+): Promise<TrainingRunSummary> {
+  const cleanRunId = runId.trim();
+
+  if (!cleanRunId) {
+    throw new Error(
+      "Training run ID is required."
+    );
+  }
+
+  const response = await fetch(
+    `/api/v1/training/runs/${encodeURIComponent(
+      cleanRunId
+    )}`,
+    {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+
+  const payload: unknown =
+    await response.json().catch(
+      () => null
+    );
+
+  if (!response.ok) {
+    const detail =
+      isRecord(payload) &&
+      typeof payload.detail === "string"
+        ? payload.detail
+        : (
+            "Training status request failed " +
+            `with status ${response.status}.`
+          );
+
+    throw new Error(detail);
+  }
+
+  const direct =
+    normalizeTrainingRun(payload);
+
+  if (direct) {
+    return direct;
+  }
+
+  if (isRecord(payload)) {
+    const nested =
+      normalizeTrainingRun(
+        payload.training_run ??
+        payload.run ??
+        payload.result
+      );
+
+    if (nested) {
+      return nested;
+    }
+  }
+
+  throw new Error(
+    "Training status response did not match the required contract."
+  );
 }
 
 export function normalizeChatReply(
