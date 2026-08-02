@@ -83,6 +83,8 @@ from backend.app.stacks.portfolio.reconciliation import (
 
 from backend.app.stacks.chat_public.chat_api import router as chat_router
 from backend.app.stacks.market_data.api_router import router as market_data_router
+from backend.app.stacks.notification.api_router import router as notification_router
+from backend.app.stacks.snaptrade.api_router import router as snaptrade_router
 from backend.app.stacks.identity_auth.api_router import router as auth_router
 from backend.app.stacks.identity_auth.route_protection import enforce_route_policy
 
@@ -154,6 +156,7 @@ async def order_event_consumer(event_frame: dict):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    daemon_task = None
     register_runtime_models()
     await init_db()
 
@@ -177,7 +180,8 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    daemon_task.cancel()
+    if daemon_task is not None:
+        daemon_task.cancel()
     global_event_bus.unsubscribe(order_event_consumer)
 
 
@@ -188,6 +192,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(chat_router)
+app.include_router(notification_router)
+app.include_router(snaptrade_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -206,6 +212,31 @@ app.add_middleware(
 # =========================
 # API ROUTES
 # =========================
+
+
+# =========================
+# SERVICE LIVENESS
+# =========================
+
+@app.get(
+    "/health/live",
+    tags=["service-health"],
+)
+async def service_liveness() -> dict[str, object]:
+    """
+    Dependency-free process liveness contract.
+
+    This endpoint confirms only that the FastAPI process is running
+    and capable of serving requests. It intentionally performs no
+    database, broker, market-data, Ollama, or external-service checks.
+    """
+
+    return {
+        "status": "alive",
+        "service": "neurovest-backend",
+        "live": True,
+    }
+
 
 @app.get("/api/v1/graph/live")
 async def get_live_graph():
@@ -679,12 +710,26 @@ async def submit_authenticated_paper_order(
         "source": "authenticated_user_order",
     }
 
-    await process_portfolio_output(
-        portfolio_matrix,
-        portfolio_output,
-        user_id=principal.subject,
-        trace_id=trace_id,
-    )
+    try:
+        await process_portfolio_output(
+            portfolio_matrix,
+            portfolio_output,
+            user_id=principal.subject,
+            trace_id=trace_id,
+        )
+    except ExecutionBlockedError as error:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "status": "blocked",
+                "reason": "paper_execution_not_allowed",
+                "message": str(error),
+                "execution_mode": "paper",
+                "live_execution": False,
+                "owner_scope": "authenticated_account",
+                "trace_id": trace_id,
+            },
+        ) from error
 
     return {
         "status": "processed",
@@ -933,6 +978,10 @@ from backend.app.stacks.portfolio.portfolio_snapshot_lifecycle import (
     PortfolioSnapshotLifecycleError,
     get_portfolio_lifecycle,
     refresh_portfolio_snapshot,
+)
+
+from backend.app.stacks.execution.execution_control import (
+    ExecutionBlockedError,
 )
 
 
