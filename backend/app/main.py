@@ -1093,4 +1093,463 @@ async def authenticated_portfolio_snapshot_refresh(
 # END NEUROVEST PORTFOLIO SNAPSHOT LIFECYCLE API
 
 
+# BEGIN ADMIN USER STATISTICS ENDPOINT
 
+from datetime import UTC as _admin_stats_UTC
+from datetime import datetime as _admin_stats_datetime
+from datetime import timedelta as _admin_stats_timedelta
+
+from sqlalchemy import text as _admin_stats_text
+
+
+def _require_admin_statistics_principal(
+    principal: AuthenticatedPrincipal,
+) -> None:
+    claims = getattr(
+        principal,
+        "claims",
+        {},
+    )
+
+    if not isinstance(
+        claims,
+        dict,
+    ):
+        claims = {}
+
+    role = str(
+        claims.get(
+            "authorization_role",
+            claims.get(
+                "role",
+                "",
+            ),
+        )
+        or ""
+    ).strip().lower()
+
+    administrative_roles = {
+        "admin",
+        "administrator",
+        "developer",
+        "dev",
+        "owner",
+        "system_admin",
+    }
+
+    if role not in administrative_roles:
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "Administrative statistics access denied"
+            ),
+        )
+
+
+@app.get(
+    "/api/v1/admin/user-stats",
+    tags=["admin"],
+)
+async def get_administrative_user_statistics(
+    principal: AuthenticatedPrincipal = Depends(
+        require_authenticated_principal
+    ),
+):
+    """
+    Return server-authoritative administrative statistics.
+
+    Sources:
+    - identity_users
+    - identity_refresh_sessions
+    - order_history
+    - portfolio_inventory
+    - snaptrade_user_credentials
+
+    No broker calls or live execution occur.
+    """
+
+    _require_admin_statistics_principal(
+        principal
+    )
+
+    now = _admin_stats_datetime.now(
+        _admin_stats_UTC
+    )
+
+    last_24_hours = (
+        now
+        - _admin_stats_timedelta(
+            hours=24,
+        )
+    )
+
+    last_7_days = (
+        now
+        - _admin_stats_timedelta(
+            days=7,
+        )
+    )
+
+    async with async_session() as session:
+        registered_users = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM identity_users
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        active_users = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM identity_users
+                        WHERE is_active IS TRUE
+                          AND status = 'active'
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        inactive_users = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM identity_users
+                        WHERE is_active IS NOT TRUE
+                           OR status <> 'active'
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        password_reset_required = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM identity_users
+                        WHERE must_change_password
+                            IS TRUE
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        users_last_24_hours = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM identity_users
+                        WHERE created_at >= :boundary
+                        """
+                    ),
+                    {
+                        "boundary":
+                            last_24_hours,
+                    },
+                )
+            ).scalar_one()
+        )
+
+        users_last_7_days = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM identity_users
+                        WHERE created_at >= :boundary
+                        """
+                    ),
+                    {
+                        "boundary":
+                            last_7_days,
+                    },
+                )
+            ).scalar_one()
+        )
+
+        total_sessions = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM identity_refresh_sessions
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        active_sessions = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM identity_refresh_sessions
+                        WHERE revoked_at IS NULL
+                          AND expires_at > :now
+                        """
+                    ),
+                    {
+                        "now": now,
+                    },
+                )
+            ).scalar_one()
+        )
+
+        users_with_active_sessions = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(
+                            DISTINCT user_id
+                        )
+                        FROM identity_refresh_sessions
+                        WHERE revoked_at IS NULL
+                          AND expires_at > :now
+                        """
+                    ),
+                    {
+                        "now": now,
+                    },
+                )
+            ).scalar_one()
+        )
+
+        paper_order_count = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM order_history
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        executed_order_count = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM order_history
+                        WHERE status = 'executed'
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        blocked_order_count = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM order_history
+                        WHERE status = 'blocked_by_risk'
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        portfolio_position_count = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM portfolio_inventory
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        active_position_count = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(*)
+                        FROM portfolio_inventory
+                        WHERE shares_quantity > 0
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        users_with_positions = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(
+                            DISTINCT user_id
+                        )
+                        FROM portfolio_inventory
+                        WHERE shares_quantity > 0
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        broker_registered_users = int(
+            (
+                await session.execute(
+                    _admin_stats_text(
+                        """
+                        SELECT COUNT(
+                            DISTINCT neurovest_user_id
+                        )
+                        FROM snaptrade_user_credentials
+                        """
+                    )
+                )
+            ).scalar_one()
+        )
+
+        role_rows = (
+            await session.execute(
+                _admin_stats_text(
+                    """
+                    SELECT
+                        role,
+                        COUNT(*) AS total
+                    FROM identity_users
+                    GROUP BY role
+                    ORDER BY role
+                    """
+                )
+            )
+        ).all()
+
+        tier_rows = (
+            await session.execute(
+                _admin_stats_text(
+                    """
+                    SELECT
+                        subscription_tier,
+                        COUNT(*) AS total
+                    FROM identity_users
+                    GROUP BY subscription_tier
+                    ORDER BY subscription_tier
+                    """
+                )
+            )
+        ).all()
+
+        status_rows = (
+            await session.execute(
+                _admin_stats_text(
+                    """
+                    SELECT
+                        status,
+                        COUNT(*) AS total
+                    FROM identity_users
+                    GROUP BY status
+                    ORDER BY status
+                    """
+                )
+            )
+        ).all()
+
+    return {
+        "status": "ok",
+        "generated_at": now.isoformat(),
+        "source": (
+            "server-authoritative-postgresql"
+        ),
+        "users": {
+            "registered": registered_users,
+            "active": active_users,
+            "inactive": inactive_users,
+            "password_reset_required":
+                password_reset_required,
+            "registered_last_24_hours":
+                users_last_24_hours,
+            "registered_last_7_days":
+                users_last_7_days,
+            "with_active_sessions":
+                users_with_active_sessions,
+            "with_positions":
+                users_with_positions,
+            "by_role": {
+                str(role): int(total)
+                for role, total in role_rows
+            },
+            "by_subscription_tier": {
+                str(tier): int(total)
+                for tier, total in tier_rows
+            },
+            "by_status": {
+                str(status): int(total)
+                for status, total in status_rows
+            },
+        },
+        "sessions": {
+            "active": active_sessions,
+            "total": total_sessions,
+        },
+        "paper_trading": {
+            "orders": paper_order_count,
+            "executed_orders":
+                executed_order_count,
+            "risk_blocked_orders":
+                blocked_order_count,
+            "positions":
+                portfolio_position_count,
+            "active_positions":
+                active_position_count,
+        },
+        "brokerage": {
+            "registered_users":
+                broker_registered_users,
+            "live_execution_enabled":
+                False,
+        },
+        "billing": {
+            "configured": False,
+            "monthly_revenue": None,
+            "display_value":
+                "Billing not configured",
+            "reason": (
+                "No qualified billing or payment "
+                "ledger is connected."
+            ),
+        },
+        "boundaries": {
+            "paper_and_simulation_only": True,
+            "live_broker_trading": False,
+            "production_wide_launch": False,
+        },
+    }
+
+
+# END ADMIN USER STATISTICS ENDPOINT

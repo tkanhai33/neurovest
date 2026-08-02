@@ -1,163 +1,438 @@
-import PageHeader from "../../../components/app-shell/PageHeader";
+"use client";
 
 import {
-  Panel,
-  StatCard,
-  StatusBadge,
-} from "../../../components/ui";
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
-const plans = [
-  {
-    tier: "Free",
-    price: "$0",
-    features: [
-      "Talk with Neuro",
-      "Paper trading",
-      "Simulation",
-      "No broker connection",
-    ],
-  },
-  {
-    tier: "Tier 1",
-    price: "$19.99",
-    features: [
-      "Everything in Free",
-      "Broker connection",
-      "Controlled trade access",
-    ],
-  },
-  {
-    tier: "Tier 2",
-    price: "$29.99",
-    features: [
-      "Everything in Tier 1",
-      "Built-in strategies",
-      "Session AI training",
-      "No custom uploads",
-    ],
-  },
-  {
-    tier: "Tier 3",
-    price: "$39.99",
-    features: [
-      "Everything in Tier 2",
-      "User-created strategies",
-      "Custom strategy management",
-    ],
-  },
-];
+import PageHeader from "../../../components/app-shell/PageHeader";
+
+type StatisticsMap = Record<
+  string,
+  number
+>;
+
+type AdminUserStatistics = {
+  status: string;
+  generated_at: string;
+  source: string;
+  users: {
+    registered: number;
+    active: number;
+    inactive: number;
+    password_reset_required: number;
+    registered_last_24_hours: number;
+    registered_last_7_days: number;
+    with_active_sessions: number;
+    with_positions: number;
+    by_role: StatisticsMap;
+    by_subscription_tier: StatisticsMap;
+    by_status: StatisticsMap;
+  };
+  sessions: {
+    active: number;
+    total: number;
+  };
+  paper_trading: {
+    orders: number;
+    executed_orders: number;
+    risk_blocked_orders: number;
+    positions: number;
+    active_positions: number;
+  };
+  brokerage: {
+    registered_users: number;
+    live_execution_enabled: boolean;
+  };
+  billing: {
+    configured: boolean;
+    monthly_revenue: number | null;
+    display_value: string;
+    reason: string;
+  };
+  boundaries: {
+    paper_and_simulation_only: boolean;
+    live_broker_trading: boolean;
+    production_wide_launch: boolean;
+  };
+};
+
+type MetricCardProps = {
+  label: string;
+  value: string | number;
+  detail: string;
+};
+
+function MetricCard({
+  label,
+  value,
+  detail,
+}: MetricCardProps) {
+  return (
+    <article className="rounded-2xl border border-white/10 bg-slate-950/75 p-5 shadow-xl shadow-black/10">
+      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+        {label}
+      </p>
+
+      <p className="mt-3 text-3xl font-black text-white">
+        {value}
+      </p>
+
+      <p className="mt-2 text-sm leading-6 text-slate-400">
+        {detail}
+      </p>
+    </article>
+  );
+}
+
+function DistributionPanel({
+  title,
+  values,
+}: {
+  title: string;
+  values: StatisticsMap;
+}) {
+  const rows = Object.entries(values);
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-slate-950/75 p-6">
+      <h2 className="text-lg font-black text-white">
+        {title}
+      </h2>
+
+      <div className="mt-5 space-y-3">
+        {rows.length > 0 ? (
+          rows.map(([label, value]) => (
+            <div
+              key={label}
+              className="flex items-center justify-between rounded-xl border border-white/5 bg-black/20 px-4 py-3"
+            >
+              <span className="text-sm font-bold capitalize text-slate-300">
+                {label.replaceAll("_", " ")}
+              </span>
+
+              <span className="text-lg font-black text-cyan-200">
+                {value}
+              </span>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-slate-500">
+            No records available.
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
 
 export default function AdminUserStatsPage() {
+  const [
+    statistics,
+    setStatistics,
+  ] = useState<AdminUserStatistics | null>(
+    null,
+  );
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    error,
+    setError,
+  ] = useState<string | null>(
+    null,
+  );
+
+  const loadStatistics = useCallback(
+    async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(
+          "/api/admin/user-stats",
+          {
+            method: "GET",
+            cache: "no-store",
+            credentials: "same-origin",
+          },
+        );
+
+        const payload: unknown =
+          await response
+            .json()
+            .catch(() => null);
+
+        if (!response.ok) {
+          const message =
+            payload &&
+            typeof payload === "object" &&
+            "detail" in payload
+              ? String(
+                  (
+                    payload as {
+                      detail?: unknown;
+                    }
+                  ).detail,
+                )
+              : (
+                  "Unable to load administrative statistics"
+                );
+
+          throw new Error(message);
+        }
+
+        setStatistics(
+          payload as AdminUserStatistics,
+        );
+      } catch (loadError) {
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : String(loadError),
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    void loadStatistics();
+  }, [loadStatistics]);
+
   return (
     <main className="space-y-6">
-
       <PageHeader
         eyebrow="NeuroVest Administration"
-        title="User statistics."
-        description="Subscription distribution, account activity, licensing and broker eligibility."
-        badge={
-          <StatusBadge tone="info">
-            Administrative overview
-          </StatusBadge>
+        title="User statistics"
+        description="Server-authoritative account, session, paper-trading, portfolio, and brokerage registration totals."
+        actions={
+          <button
+            type="button"
+            onClick={() => {
+              void loadStatistics();
+            }}
+            disabled={loading}
+            className="rounded-xl border border-cyan-300/20 bg-cyan-300/10 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-cyan-100 transition hover:border-cyan-300/40 disabled:cursor-wait disabled:opacity-50"
+          >
+            {loading
+              ? "Refreshing…"
+              : "Refresh statistics"}
+          </button>
         }
       />
 
-      <section className="grid gap-4 md:grid-cols-4">
+      {error ? (
+        <section className="rounded-2xl border border-red-400/25 bg-red-950/25 p-5">
+          <p className="font-black text-red-200">
+            Statistics unavailable
+          </p>
 
-        <StatCard
-          label="Registered Users"
-          value="—"
-          detail="Awaiting server statistics."
-        />
+          <p className="mt-2 text-sm text-red-100/70">
+            {error}
+          </p>
+        </section>
+      ) : null}
 
-        <StatCard
-          label="Active Sessions"
-          value="—"
-          detail="Server authoritative."
-        />
+      {loading && !statistics ? (
+        <section className="rounded-2xl border border-white/10 bg-slate-950/75 p-8 text-sm text-slate-400">
+          Loading server-authoritative statistics…
+        </section>
+      ) : null}
 
-        <StatCard
-          label="Broker Eligible"
-          value="—"
-          detail="Tier controlled."
-        />
+      {statistics ? (
+        <>
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <MetricCard
+              label="Registered users"
+              value={statistics.users.registered}
+              detail="Canonical identities in identity_users"
+            />
 
-        <StatCard
-          label="Monthly Revenue"
-          value="—"
-          detail="Subscription derived."
-        />
+            <MetricCard
+              label="Active users"
+              value={statistics.users.active}
+              detail="Enabled accounts with active status"
+            />
 
-      </section>
+            <MetricCard
+              label="Inactive users"
+              value={statistics.users.inactive}
+              detail="Disabled or non-active accounts"
+            />
 
-      <Panel
-        variant="default"
-        className="p-6"
-      >
-        <div className="flex items-center justify-between">
-          <div>
+            <MetricCard
+              label="Password reset"
+              value={
+                statistics.users
+                  .password_reset_required
+              }
+              detail="Accounts requiring a password change"
+            />
 
-            <p className="nv-eyebrow">
-              Licensing
-            </p>
+            <MetricCard
+              label="Active sessions"
+              value={statistics.sessions.active}
+              detail={`${statistics.sessions.total} total refresh sessions`}
+            />
 
-            <h2 className="mt-3 text-2xl font-black text-white">
-              Subscription structure
-            </h2>
+            <MetricCard
+              label="Users online-capable"
+              value={
+                statistics.users
+                  .with_active_sessions
+              }
+              detail="Distinct users with an unexpired, non-revoked session"
+            />
 
-            <p className="mt-3 text-sm leading-7 text-slate-400">
-              These plans define platform capability tiers. Values shown
-              here are configuration, not live customer counts.
-            </p>
+            <MetricCard
+              label="New users — 24 hours"
+              value={
+                statistics.users
+                  .registered_last_24_hours
+              }
+              detail="Accounts created during the previous 24 hours"
+            />
 
-          </div>
+            <MetricCard
+              label="New users — 7 days"
+              value={
+                statistics.users
+                  .registered_last_7_days
+              }
+              detail="Accounts created during the previous seven days"
+            />
+          </section>
 
-          <StatusBadge tone="success">
-            Controlled licensing
-          </StatusBadge>
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <MetricCard
+              label="Paper orders"
+              value={
+                statistics.paper_trading.orders
+              }
+              detail={`${statistics.paper_trading.executed_orders} executed`}
+            />
 
-        </div>
+            <MetricCard
+              label="Risk-blocked orders"
+              value={
+                statistics.paper_trading
+                  .risk_blocked_orders
+              }
+              detail="Orders stopped by the paper risk boundary"
+            />
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-4">
+            <MetricCard
+              label="Active positions"
+              value={
+                statistics.paper_trading
+                  .active_positions
+              }
+              detail={`${statistics.paper_trading.positions} total inventory rows`}
+            />
 
-          {plans.map((plan) => (
+            <MetricCard
+              label="Users with positions"
+              value={
+                statistics.users.with_positions
+              }
+              detail="Distinct owners with positive paper exposure"
+            />
 
-            <Panel
-              key={plan.tier}
-              variant="muted"
-              className="p-5"
-            >
+            <MetricCard
+              label="Broker registered"
+              value={
+                statistics.brokerage
+                  .registered_users
+              }
+              detail="Distinct users with stored SnapTrade registration"
+            />
 
-              <p className="nv-eyebrow">
-                {plan.tier}
-              </p>
+            <MetricCard
+              label="Monthly revenue"
+              value={
+                statistics.billing.configured &&
+                statistics.billing
+                  .monthly_revenue !== null
+                  ? (
+                      `$${statistics.billing.monthly_revenue.toFixed(2)}`
+                    )
+                  : statistics.billing
+                      .display_value
+              }
+              detail={statistics.billing.reason}
+            />
 
-              <h3 className="mt-3 text-3xl font-black text-white">
-                {plan.price}
-              </h3>
+            <MetricCard
+              label="Execution boundary"
+              value={
+                statistics.boundaries
+                  .paper_and_simulation_only
+                  ? "Paper only"
+                  : "Unverified"
+              }
+              detail="Live broker execution remains disabled"
+            />
 
-              <p className="text-sm text-slate-500">
-                per month
-              </p>
+            <MetricCard
+              label="Data source"
+              value="PostgreSQL"
+              detail="Server-authoritative database calculations"
+            />
+          </section>
 
-              <ul className="mt-6 space-y-3 text-sm text-slate-300">
+          <section className="grid gap-6 lg:grid-cols-3">
+            <DistributionPanel
+              title="Users by subscription tier"
+              values={
+                statistics.users
+                  .by_subscription_tier
+              }
+            />
 
-                {plan.features.map((feature) => (
-                  <li key={feature}>
-                    • {feature}
-                  </li>
-                ))}
+            <DistributionPanel
+              title="Users by role"
+              values={
+                statistics.users.by_role
+              }
+            />
 
-              </ul>
+            <DistributionPanel
+              title="Users by account status"
+              values={
+                statistics.users.by_status
+              }
+            />
+          </section>
 
-            </Panel>
+          <section className="rounded-2xl border border-white/10 bg-slate-950/75 p-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-300">
+                  Statistics connected
+                </p>
 
-          ))}
+                <p className="mt-2 text-sm text-slate-400">
+                  Generated{" "}
+                  {new Date(
+                    statistics.generated_at,
+                  ).toLocaleString()}
+                </p>
+              </div>
 
-        </div>
-
-      </Panel>
-
+              <div className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-emerald-200">
+                Live execution disabled
+              </div>
+            </div>
+          </section>
+        </>
+      ) : null}
     </main>
   );
 }
