@@ -278,23 +278,60 @@ def test_runtime_status_is_fail_closed() -> None:
     )
 
 
-def test_administrative_routes_are_exposed() -> None:
+def test_training_role_routes_are_exposed() -> None:
     source = MAIN.read_text(
         encoding="utf-8",
     )
 
-    for route in (
+    user_routes = (
+        '"/api/v1/training/runs"',
+        '"/api/v1/training/runs/{run_id}"',
+    )
+
+    admin_observability_routes = (
         '"/api/v1/admin/training/status"',
-        '"/api/v1/admin/training/runs"',
-        '"/api/v1/admin/training/runs/{run_id}"',
+        '"/api/v1/admin/training/health"',
+        '"/api/v1/admin/training/failures"',
+    )
+
+    developer_routes = (
+        '"/api/v1/developer/training/runs"',
+        '"/api/v1/developer/training/runs/{run_id}"',
+    )
+
+    for route in (
+        user_routes
+        + admin_observability_routes
+        + developer_routes
     ):
         assert route in source
+
+    assert (
+        '@app.post(\n'
+        '    "/api/v1/admin/training/runs"'
+        not in source
+    )
+
+    assert (
+        '@app.get(\n'
+        '    "/api/v1/admin/training/runs"'
+        not in source
+    )
+
+    assert (
+        '"/api/v1/admin/training/runs/{run_id}"'
+        not in source
+    )
 
     assert (
         "require_administrative_principal"
         in source
     )
 
+    assert (
+        "_require_developer_training_role"
+        in source
+    )
 
 def test_service_contains_no_execution_calls() -> None:
     source = SERVICE.read_text(

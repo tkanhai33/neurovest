@@ -654,6 +654,322 @@ def _run_training(
         live_orders=0,
     )
 
+    completed_record = get_training_session(
+        run_id
+    )
+
+    if completed_record is not None:
+        _update_run(
+            run_id,
+            sanitized_learning_contribution=(
+                _sanitized_learning_contribution(
+                    completed_record
+                )
+            ),
+        )
+
+
+
+def _normalize_training_scope(
+    value: Any,
+) -> str:
+    scope = str(
+        value or ""
+    ).strip().lower()
+
+    if scope not in {
+        "user",
+        "system",
+    }:
+        raise ValueError(
+            "Training scope must be USER or SYSTEM."
+        )
+
+    return scope
+
+
+def _normalized_owner_value(
+    value: Any,
+) -> str | None:
+    normalized = str(
+        value or ""
+    ).strip()
+
+    return normalized or None
+
+
+def _public_health_record(
+    record: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    Return operational health without exposing customer identity.
+    """
+
+    return {
+        "run_id":
+            record.get("run_id"),
+
+        "scope":
+            record.get("scope"),
+
+        "status":
+            record.get("status"),
+
+        "created_at":
+            record.get("created_at"),
+
+        "started_at":
+            record.get("started_at"),
+
+        "completed_at":
+            record.get("completed_at"),
+
+        "duration_seconds":
+            record.get(
+                "duration_seconds"
+            ),
+
+        "elapsed_seconds":
+            record.get(
+                "elapsed_seconds"
+            ),
+
+        "progress_percent":
+            record.get(
+                "progress_percent"
+            ),
+
+        "eligible_symbol_count":
+            record.get(
+                "eligible_symbol_count"
+            ),
+
+        "rows_evaluated":
+            record.get(
+                "rows_evaluated"
+            ),
+
+        "cycles":
+            record.get("cycles"),
+
+        "error":
+            record.get("error"),
+
+        "safety":
+            deepcopy(
+                record.get(
+                    "safety",
+                    {},
+                )
+            ),
+    }
+
+
+def _sanitized_learning_contribution(
+    record: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    Produce transferable aggregate learning output.
+
+    This intentionally excludes:
+    - user and session identifiers
+    - email and display name
+    - chat content
+    - portfolio, position, order, and account data
+    - authentication information
+    """
+
+    decision_counts = record.get(
+        "decision_counts",
+        {},
+    )
+
+    if not isinstance(
+        decision_counts,
+        dict,
+    ):
+        decision_counts = {}
+
+    return {
+        "contribution_id":
+            "contribution_"
+            + uuid4().hex,
+
+        "source_scope":
+            record.get("scope"),
+
+        "universe":
+            record.get("universe"),
+
+        "completed":
+            record.get("status")
+            == "completed",
+
+        "duration_seconds":
+            record.get(
+                "duration_seconds"
+            ),
+
+        "elapsed_seconds":
+            record.get(
+                "elapsed_seconds"
+            ),
+
+        "symbols_evaluated":
+            record.get(
+                "eligible_symbol_count"
+            ),
+
+        "rows_evaluated":
+            record.get(
+                "rows_evaluated"
+            ),
+
+        "cycles":
+            record.get("cycles"),
+
+        "signal_totals": {
+            "BUY_SIGNAL":
+                int(
+                    decision_counts.get(
+                        "BUY_SIGNAL",
+                        0,
+                    )
+                ),
+
+            "SELL_SIGNAL":
+                int(
+                    decision_counts.get(
+                        "SELL_SIGNAL",
+                        0,
+                    )
+                ),
+
+            "HOLD":
+                int(
+                    decision_counts.get(
+                        "HOLD",
+                        0,
+                    )
+                ),
+        },
+
+        "safety": {
+            "customer_identity_included":
+                False,
+
+            "session_identity_included":
+                False,
+
+            "portfolio_data_included":
+                False,
+
+            "order_data_included":
+                False,
+
+            "chat_content_included":
+                False,
+
+            "authentication_data_included":
+                False,
+
+            "broker_execution":
+                False,
+
+            "live_execution":
+                False,
+        },
+    }
+
+
+def get_training_session_for_owner(
+    *,
+    run_id: str,
+    owner_user_id: str,
+    owner_session_id: str,
+) -> dict[str, Any] | None:
+    record = get_training_session(
+        run_id
+    )
+
+    if record is None:
+        return None
+
+    if record.get("scope") != "user":
+        return None
+
+    if (
+        record.get("owner_user_id")
+        != str(owner_user_id)
+    ):
+        return None
+
+    if (
+        record.get("owner_session_id")
+        != str(owner_session_id)
+    ):
+        return None
+
+    return record
+
+
+def list_training_sessions_for_owner(
+    *,
+    owner_user_id: str,
+    owner_session_id: str,
+    limit: int = 20,
+) -> list[dict[str, Any]]:
+    return [
+        record
+        for record
+        in list_training_sessions(
+            limit=100,
+        )
+        if (
+            record.get("scope")
+            == "user"
+            and record.get(
+                "owner_user_id"
+            )
+            == str(owner_user_id)
+            and record.get(
+                "owner_session_id"
+            )
+            == str(owner_session_id)
+        )
+    ][:max(1, min(int(limit), 100))]
+
+
+def list_training_health(
+    *,
+    limit: int = 100,
+) -> list[dict[str, Any]]:
+    return [
+        _public_health_record(
+            record
+        )
+        for record
+        in list_training_sessions(
+            limit=limit,
+        )
+    ]
+
+
+def list_training_failures(
+    *,
+    limit: int = 100,
+) -> list[dict[str, Any]]:
+    return [
+        _public_health_record(
+            record
+        )
+        for record
+        in list_training_sessions(
+            limit=limit,
+        )
+        if record.get("status")
+        == "failed"
+    ]
 
 def start_bounded_training_session(
     *,
@@ -663,6 +979,10 @@ def start_bounded_training_session(
     universe: str = "canada",
     requested_by: str | None = None,
     source: str = "api",
+    scope: str = "system",
+    owner_user_id: str | None = None,
+    owner_session_id: str | None = None,
+    requested_by_role: str | None = None,
 ) -> dict[str, Any]:
     normalized_universe = str(
         universe
@@ -681,6 +1001,50 @@ def start_bounded_training_session(
     duration = _resolve_duration(
         duration_seconds
     )
+
+    resolved_scope = (
+        _normalize_training_scope(
+            scope
+        )
+    )
+
+    resolved_owner_user_id = (
+        _normalized_owner_value(
+            owner_user_id
+        )
+    )
+
+    resolved_owner_session_id = (
+        _normalized_owner_value(
+            owner_session_id
+        )
+    )
+
+    resolved_role = str(
+        requested_by_role or ""
+    ).strip().lower() or None
+
+    if resolved_scope == "user":
+        if not resolved_owner_user_id:
+            raise ValueError(
+                "USER training requires an owner user ID."
+            )
+
+        if not resolved_owner_session_id:
+            raise ValueError(
+                "USER training requires an owner session ID."
+            )
+
+    if resolved_scope == "system":
+        if resolved_owner_user_id is not None:
+            raise ValueError(
+                "SYSTEM training cannot have a customer owner."
+            )
+
+        if resolved_owner_session_id is not None:
+            raise ValueError(
+                "SYSTEM training cannot have a customer session."
+            )
 
     run_id = (
         "training_"
@@ -703,8 +1067,22 @@ def start_bounded_training_session(
         "elapsed_seconds": 0.0,
         "progress_percent": 0.0,
         "universe": "canada",
+
+        "scope":
+            resolved_scope,
+
+        "owner_user_id":
+            resolved_owner_user_id,
+
+        "owner_session_id":
+            resolved_owner_session_id,
+
         "requested_by":
             requested_by,
+
+        "requested_by_role":
+            resolved_role,
+
         "source": source,
         "discovered_symbol_count": 0,
         "eligible_symbol_count": 0,
@@ -961,7 +1339,11 @@ def training_runtime_status() -> dict[str, Any]:
 __all__ = [
     "discover_canadian_datasets",
     "get_training_session",
+    "get_training_session_for_owner",
+    "list_training_failures",
+    "list_training_health",
     "list_training_sessions",
+    "list_training_sessions_for_owner",
     "start_bounded_training_session",
     "training_runtime_status",
 ]

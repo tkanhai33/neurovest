@@ -10,7 +10,11 @@ from backend.app.stacks.strategy.strategy_service import get_strategy_decision_f
 from backend.app.stacks.portfolio.portfolio_service import get_portfolio_positions_for_api
 from backend.app.stacks.strategy_candidate_sandbox.L4_runtime_orchestration.bounded_training_runtime import (
     get_training_session,
+    get_training_session_for_owner,
+    list_training_failures,
+    list_training_health,
     list_training_sessions,
+    list_training_sessions_for_owner,
     start_bounded_training_session,
     training_runtime_status,
 )
@@ -1612,42 +1616,227 @@ async def get_administrative_user_statistics(
 # BEGIN BOUNDED TRAINING RUNTIME API
 
 
-@app.get(
-    "/api/v1/admin/training/status",
-    tags=["admin", "training"],
-)
-async def administrative_training_runtime_status(
-    principal: AdministrativePrincipal = Depends(
-        require_administrative_principal
-    ),
-):
-    return training_runtime_status()
+def _training_principal_role(
+    principal,
+) -> str:
+    role = (
+        getattr(
+            principal,
+            "role",
+            None,
+        )
+        or getattr(
+            principal,
+            "authorization_role",
+            None,
+        )
+    )
+
+    if role:
+        return str(
+            role
+        ).strip().lower()
+
+    claims = getattr(
+        principal,
+        "claims",
+        {},
+    )
+
+    if not isinstance(
+        claims,
+        dict,
+    ):
+        claims = {}
+
+    return str(
+        claims.get(
+            "authorization_role"
+        )
+        or claims.get("role")
+        or ""
+    ).strip().lower()
+
+
+def _training_principal_subject(
+    principal,
+) -> str:
+    value = (
+        getattr(
+            principal,
+            "subject",
+            None,
+        )
+        or getattr(
+            principal,
+            "user_id",
+            None,
+        )
+    )
+
+    if not value:
+        claims = getattr(
+            principal,
+            "claims",
+            {},
+        )
+
+        if isinstance(
+            claims,
+            dict,
+        ):
+            value = (
+                claims.get("sub")
+                or claims.get(
+                    "user_id"
+                )
+            )
+
+    normalized = str(
+        value or ""
+    ).strip()
+
+    if not normalized:
+        raise HTTPException(
+            status_code=401,
+            detail=(
+                "Authenticated training subject "
+                "is unavailable"
+            ),
+        )
+
+    return normalized
+
+
+def _training_principal_session(
+    principal,
+) -> str:
+    value = (
+        getattr(
+            principal,
+            "session_id",
+            None,
+        )
+        or getattr(
+            principal,
+            "token_family_id",
+            None,
+        )
+        or getattr(
+            principal,
+            "token_id",
+            None,
+        )
+    )
+
+    if not value:
+        claims = getattr(
+            principal,
+            "claims",
+            {},
+        )
+
+        if isinstance(
+            claims,
+            dict,
+        ):
+            value = (
+                claims.get(
+                    "session_id"
+                )
+                or claims.get(
+                    "session_family_id"
+                )
+                or claims.get(
+                    "family_id"
+                )
+                or claims.get("sid")
+                or claims.get("jti")
+            )
+
+    normalized = str(
+        value or ""
+    ).strip()
+
+    if not normalized:
+        raise HTTPException(
+            status_code=401,
+            detail=(
+                "Authenticated training session "
+                "is unavailable"
+            ),
+        )
+
+    return normalized
+
+
+def _require_developer_training_role(
+    principal: AdministrativePrincipal,
+) -> str:
+    role = _training_principal_role(
+        principal
+    )
+
+    if role not in {
+        "developer",
+        "dev",
+        "owner",
+    }:
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "System-wide training requires "
+                "Developer authorization"
+            ),
+        )
+
+    return role
+
+
+# ---------------------------------------------------------------------
+# USER-SCOPED TRAINING
+# ---------------------------------------------------------------------
 
 
 @app.post(
-    "/api/v1/admin/training/runs",
-    tags=["admin", "training"],
+    "/api/v1/training/runs",
+    tags=["training"],
     status_code=202,
 )
-async def start_administrative_training_run(
+async def start_authenticated_user_training_run(
     duration_seconds: int = 120,
     universe: str = "canada",
-    principal: AdministrativePrincipal = Depends(
-        require_administrative_principal
+    principal: AuthenticatedPrincipal = Depends(
+        require_authenticated_principal
     ),
 ):
+    owner_user_id = (
+        _training_principal_subject(
+            principal
+        )
+    )
+
+    owner_session_id = (
+        _training_principal_session(
+            principal
+        )
+    )
+
     try:
         return start_bounded_training_session(
             duration_seconds=duration_seconds,
             universe=universe,
-            requested_by=str(
-                getattr(
-                    principal,
-                    "subject",
-                    "administrative_principal",
+            requested_by=owner_user_id,
+            source="authenticated_user_api",
+            scope="user",
+            owner_user_id=owner_user_id,
+            owner_session_id=owner_session_id,
+            requested_by_role=(
+                _training_principal_role(
+                    principal
                 )
+                or "user"
             ),
-            source="administrative_api",
         )
 
     except ValueError as error:
@@ -1658,15 +1847,192 @@ async def start_administrative_training_run(
 
 
 @app.get(
-    "/api/v1/admin/training/runs",
+    "/api/v1/training/runs",
+    tags=["training"],
+)
+async def list_authenticated_user_training_runs(
+    limit: int = 20,
+    principal: AuthenticatedPrincipal = Depends(
+        require_authenticated_principal
+    ),
+):
+    return {
+        "runs":
+            list_training_sessions_for_owner(
+                owner_user_id=(
+                    _training_principal_subject(
+                        principal
+                    )
+                ),
+                owner_session_id=(
+                    _training_principal_session(
+                        principal
+                    )
+                ),
+                limit=limit,
+            ),
+    }
+
+
+@app.get(
+    "/api/v1/training/runs/{run_id}",
+    tags=["training"],
+)
+async def get_authenticated_user_training_run(
+    run_id: str,
+    principal: AuthenticatedPrincipal = Depends(
+        require_authenticated_principal
+    ),
+):
+    result = get_training_session_for_owner(
+        run_id=run_id,
+        owner_user_id=(
+            _training_principal_subject(
+                principal
+            )
+        ),
+        owner_session_id=(
+            _training_principal_session(
+                principal
+            )
+        ),
+    )
+
+    if result is None:
+        # Return 404 so another customer's run existence is not leaked.
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "Training session was not found"
+            ),
+        )
+
+    return result
+
+
+# ---------------------------------------------------------------------
+# ADMIN OBSERVABILITY — NO START OR MUTATION
+# ---------------------------------------------------------------------
+
+
+@app.get(
+    "/api/v1/admin/training/status",
     tags=["admin", "training"],
 )
-async def list_administrative_training_runs(
-    limit: int = 20,
+async def administrative_training_runtime_status(
     principal: AdministrativePrincipal = Depends(
         require_administrative_principal
     ),
 ):
+    status = training_runtime_status()
+
+    status[
+        "administrative_permissions"
+    ] = {
+        "view_health": True,
+        "view_failures": True,
+        "start_training": False,
+        "cancel_training": False,
+        "modify_training": False,
+    }
+
+    return status
+
+
+@app.get(
+    "/api/v1/admin/training/health",
+    tags=["admin", "training"],
+)
+async def administrative_training_health(
+    limit: int = 100,
+    principal: AdministrativePrincipal = Depends(
+        require_administrative_principal
+    ),
+):
+    return {
+        "runs":
+            list_training_health(
+                limit=limit
+            ),
+    }
+
+
+@app.get(
+    "/api/v1/admin/training/failures",
+    tags=["admin", "training"],
+)
+async def administrative_training_failures(
+    limit: int = 100,
+    principal: AdministrativePrincipal = Depends(
+        require_administrative_principal
+    ),
+):
+    return {
+        "failures":
+            list_training_failures(
+                limit=limit
+            ),
+    }
+
+
+# ---------------------------------------------------------------------
+# DEVELOPER / OWNER SYSTEM-WIDE TRAINING
+# ---------------------------------------------------------------------
+
+
+@app.post(
+    "/api/v1/developer/training/runs",
+    tags=["developer", "training"],
+    status_code=202,
+)
+async def start_developer_system_training_run(
+    duration_seconds: int = 120,
+    universe: str = "canada",
+    principal: AdministrativePrincipal = Depends(
+        require_administrative_principal
+    ),
+):
+    role = _require_developer_training_role(
+        principal
+    )
+
+    try:
+        return start_bounded_training_session(
+            duration_seconds=duration_seconds,
+            universe=universe,
+            requested_by=(
+                _training_principal_subject(
+                    principal
+                )
+            ),
+            source="developer_system_api",
+            scope="system",
+            owner_user_id=None,
+            owner_session_id=None,
+            requested_by_role=role,
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        ) from error
+
+
+@app.get(
+    "/api/v1/developer/training/runs",
+    tags=["developer", "training"],
+)
+async def list_developer_training_runs(
+    limit: int = 100,
+    principal: AdministrativePrincipal = Depends(
+        require_administrative_principal
+    ),
+):
+    _require_developer_training_role(
+        principal
+    )
+
     return {
         "runs":
             list_training_sessions(
@@ -1676,15 +2042,19 @@ async def list_administrative_training_runs(
 
 
 @app.get(
-    "/api/v1/admin/training/runs/{run_id}",
-    tags=["admin", "training"],
+    "/api/v1/developer/training/runs/{run_id}",
+    tags=["developer", "training"],
 )
-async def get_administrative_training_run(
+async def get_developer_training_run(
     run_id: str,
     principal: AdministrativePrincipal = Depends(
         require_administrative_principal
     ),
 ):
+    _require_developer_training_role(
+        principal
+    )
+
     result = get_training_session(
         run_id
     )
