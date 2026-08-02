@@ -18,7 +18,7 @@ OLLAMA_TIMEOUT_SECONDS = float(
 
 
 RUNTIME_MODEL_ALIASES = {
-    "neuro-fast:latest": os.getenv(
+    "neuro-fast-no-think:latest": os.getenv(
         "NEUROVEST_FAST_RUNTIME_MODEL",
         "llama3.1:latest",
     ),
@@ -31,15 +31,13 @@ RUNTIME_MODEL_ALIASES = {
 
 def resolve_runtime_model(
     requested_model: str | None,
-) -> str:
-    canonical_model = (
-        requested_model
-        or DEFAULT_MODEL
-    )
+) -> str | None:
+    if requested_model is None:
+        return None
 
     return RUNTIME_MODEL_ALIASES.get(
-        canonical_model,
-        canonical_model,
+        requested_model,
+        requested_model,
     )
 
 
