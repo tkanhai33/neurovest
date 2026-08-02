@@ -1898,9 +1898,37 @@ async def run_chat_turn(
         training_run,
         dict,
     ):
-        payload["training_run"] = dict(
-            training_run
-        )
+        payload["training_run"] = {
+            "run_id":
+                training_run.get(
+                    "run_id"
+                ),
+
+            "scope":
+                training_run.get(
+                    "scope"
+                ),
+
+            "status":
+                training_run.get(
+                    "status"
+                ),
+
+            "duration_seconds":
+                training_run.get(
+                    "duration_seconds"
+                ),
+
+            "progress_percent":
+                training_run.get(
+                    "progress_percent"
+                ),
+
+            "universe":
+                training_run.get(
+                    "universe"
+                ),
+        }
 
     await emit_runtime_step(
         trace_id=trace_id,

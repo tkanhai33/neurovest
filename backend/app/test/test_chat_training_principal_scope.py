@@ -285,7 +285,7 @@ def test_chat_runtime_source_passes_principal() -> None:
     )
 
 
-def test_run_chat_turn_preserves_structured_training_run() -> None:
+def test_run_chat_turn_preserves_safe_structured_training_run() -> None:
     from pathlib import Path
 
     source = Path(
@@ -295,35 +295,52 @@ def test_run_chat_turn_preserves_structured_training_run() -> None:
         encoding="utf-8",
     )
 
-    assert (
-        'training_run = runtime_result.get(\n'
-        '        "training_run"\n'
-        '    )'
-        in source
+    start = source.index(
+        "    training_run = runtime_result.get("
     )
+
+    end = source.index(
+        '    await emit_runtime_step(\n'
+        '        trace_id=trace_id,\n'
+        '        event_type="CHAT_RUNTIME_COMPLETED"',
+        start,
+    )
+
+    serializer = source[start:end]
+
+    required_public_fields = (
+        '"run_id"',
+        '"scope"',
+        '"status"',
+        '"duration_seconds"',
+        '"progress_percent"',
+        '"universe"',
+    )
+
+    for field in required_public_fields:
+        assert field in serializer
+
+    forbidden_public_fields = (
+        '"owner_user_id"',
+        '"owner_session_id"',
+        '"requested_by"',
+        '"requested_by_role"',
+        '"source"',
+        '"sanitized_learning_contribution"',
+        '"decision_counts"',
+        '"error"',
+    )
+
+    for field in forbidden_public_fields:
+        assert field not in serializer
 
     assert (
-        'payload["training_run"] = dict(\n'
-        '            training_run\n'
-        '        )'
-        in source
+        'payload["training_run"] = {'
+        in serializer
     )
 
-    response_assignment = source.index(
-        'payload["response"] = runtime_result['
-    )
-
-    training_assignment = source.index(
+    assert (
         'payload["training_run"] = dict('
-    )
-
-    completion_event = source.index(
-        'event_type="CHAT_RUNTIME_COMPLETED"'
-    )
-
-    assert (
-        response_assignment
-        < training_assignment
-        < completion_event
+        not in serializer
     )
 
