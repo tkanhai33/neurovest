@@ -283,3 +283,47 @@ def test_chat_runtime_source_passes_principal() -> None:
         "        principal=principal,"
         in source
     )
+
+
+def test_run_chat_turn_preserves_structured_training_run() -> None:
+    from pathlib import Path
+
+    source = Path(
+        "backend/app/stacks/chat_public/"
+        "chat_runtime.py"
+    ).read_text(
+        encoding="utf-8",
+    )
+
+    assert (
+        'training_run = runtime_result.get(\n'
+        '        "training_run"\n'
+        '    )'
+        in source
+    )
+
+    assert (
+        'payload["training_run"] = dict(\n'
+        '            training_run\n'
+        '        )'
+        in source
+    )
+
+    response_assignment = source.index(
+        'payload["response"] = runtime_result['
+    )
+
+    training_assignment = source.index(
+        'payload["training_run"] = dict('
+    )
+
+    completion_event = source.index(
+        'event_type="CHAT_RUNTIME_COMPLETED"'
+    )
+
+    assert (
+        response_assignment
+        < training_assignment
+        < completion_event
+    )
+

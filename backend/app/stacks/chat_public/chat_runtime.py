@@ -1890,6 +1890,18 @@ async def run_chat_turn(
         "response"
     ]
 
+    training_run = runtime_result.get(
+        "training_run"
+    )
+
+    if isinstance(
+        training_run,
+        dict,
+    ):
+        payload["training_run"] = dict(
+            training_run
+        )
+
     await emit_runtime_step(
         trace_id=trace_id,
         event_type="CHAT_RUNTIME_COMPLETED",
