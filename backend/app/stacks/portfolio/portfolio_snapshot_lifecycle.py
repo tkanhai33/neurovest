@@ -22,6 +22,10 @@ from backend.app.spine.L5_api.owned_readonly_portfolio_service import (
     find_latest_normalized_portfolio,
 )
 
+from backend.app.spine.L5_api.owned_readonly_portfolio_service import (
+    AuthenticatedPortfolioUnavailable,
+)
+
 
 ROOT = Path(".").resolve()
 
@@ -861,6 +865,14 @@ def refresh_portfolio_snapshot(
                 metadata_path,
                 failed_metadata,
             )
+
+            if isinstance(
+                error,
+                AuthenticatedPortfolioUnavailable,
+            ):
+                raise PortfolioSnapshotLifecycleError(
+                    str(error)
+                ) from error
 
             raise
 
