@@ -73,6 +73,8 @@ def test_orm_enforces_owned_rows() -> None:
 
 @pytest.mark.asyncio
 async def test_live_database_enforces_owned_rows() -> None:
+    await engine.dispose(close=False)
+
     async with engine.connect() as connection:
         def inspect_schema(sync_connection):
             inspector = inspect(sync_connection)

@@ -1343,6 +1343,69 @@ def update_metric_contract(
     return normalized
 
 
+
+
+# Objective 5G — canonical ownership for
+# runtime, frontend, and qualification nodes.
+NODE_ARCHITECTURE.update(
+    {
+        "model_runtime": {
+            "layer": "L4",
+            "stack": "chat_public",
+            "component_type": "runtime",
+            "source_file": "backend/app/stacks/chat_public/chat_runtime.py",
+        },
+        "authenticated_gpu_chat_qualification": {
+            "layer": "L7",
+            "stack": "tests",
+            "component_type": "qualification",
+            "source_file": "runtime/launch_candidate",
+        },
+        "backend_launcher_completion": {
+            "layer": "L7",
+            "stack": "tests",
+            "component_type": "qualification",
+            "source_file": "runtime/launch_candidate",
+        },
+        "backend_launcher_qualification": {
+            "layer": "L7",
+            "stack": "tests",
+            "component_type": "qualification",
+            "source_file": "runtime/launch_candidate",
+        },
+        "frontend_notifications": {
+            "layer": "L6",
+            "stack": "notification",
+            "component_type": "frontend_proxy",
+            "source_file": "frontend/app/api/v1/notifications",
+        },
+        "jwt_launch_source_recovery": {
+            "layer": "L7",
+            "stack": "tests",
+            "component_type": "recovery",
+            "source_file": "runtime/launch_candidate",
+        },
+        "objective_5c_backup_restore": {
+            "layer": "L7",
+            "stack": "tests",
+            "component_type": "backup_restore_qualification",
+            "source_file": "runtime/launch_candidate",
+        },
+        "registration_503_diagnosis": {
+            "layer": "L7",
+            "stack": "tests",
+            "component_type": "diagnosis",
+            "source_file": "runtime/launch_candidate",
+        },
+        "route_probe": {
+            "layer": "L7",
+            "stack": "tests",
+            "component_type": "probe",
+            "source_file": "runtime/launch_candidate",
+        },
+    }
+)
+
 class CognitiveGraphState:
     def __init__(self) -> None:
         self._lock = RLock()
