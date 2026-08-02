@@ -8,6 +8,13 @@ from backend.app.stacks.db_runtime.model_registry import register_runtime_models
 from backend.app.stacks.risk.risk_service import get_risk_gate_for_api
 from backend.app.stacks.strategy.strategy_service import get_strategy_decision_for_api
 from backend.app.stacks.portfolio.portfolio_service import get_portfolio_positions_for_api
+from backend.app.stacks.strategy_candidate_sandbox.L4_runtime_orchestration.bounded_training_runtime import (
+    get_training_session,
+    list_training_sessions,
+    start_bounded_training_session,
+    training_runtime_status,
+)
+
 from backend.app.stacks.identity_auth.api_dependencies import (
     require_authenticated_principal,
 )
@@ -1600,4 +1607,98 @@ async def get_administrative_user_statistics(
 
 
 # END ADMIN USER STATISTICS ENDPOINT
+
+
+# BEGIN BOUNDED TRAINING RUNTIME API
+
+
+@app.get(
+    "/api/v1/admin/training/status",
+    tags=["admin", "training"],
+)
+async def administrative_training_runtime_status(
+    principal: AdministrativePrincipal = Depends(
+        require_administrative_principal
+    ),
+):
+    return training_runtime_status()
+
+
+@app.post(
+    "/api/v1/admin/training/runs",
+    tags=["admin", "training"],
+    status_code=202,
+)
+async def start_administrative_training_run(
+    duration_seconds: int = 120,
+    universe: str = "canada",
+    principal: AdministrativePrincipal = Depends(
+        require_administrative_principal
+    ),
+):
+    try:
+        return start_bounded_training_session(
+            duration_seconds=duration_seconds,
+            universe=universe,
+            requested_by=str(
+                getattr(
+                    principal,
+                    "subject",
+                    "administrative_principal",
+                )
+            ),
+            source="administrative_api",
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        ) from error
+
+
+@app.get(
+    "/api/v1/admin/training/runs",
+    tags=["admin", "training"],
+)
+async def list_administrative_training_runs(
+    limit: int = 20,
+    principal: AdministrativePrincipal = Depends(
+        require_administrative_principal
+    ),
+):
+    return {
+        "runs":
+            list_training_sessions(
+                limit=limit
+            ),
+    }
+
+
+@app.get(
+    "/api/v1/admin/training/runs/{run_id}",
+    tags=["admin", "training"],
+)
+async def get_administrative_training_run(
+    run_id: str,
+    principal: AdministrativePrincipal = Depends(
+        require_administrative_principal
+    ),
+):
+    result = get_training_session(
+        run_id
+    )
+
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "Training session was not found"
+            ),
+        )
+
+    return result
+
+
+# END BOUNDED TRAINING RUNTIME API
 

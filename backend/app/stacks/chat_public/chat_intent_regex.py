@@ -242,6 +242,20 @@ def _extract_symbol(message: str) -> str | None:
     return None
 
 
+TRAINING_SESSION_PATTERN = re.compile(
+    r"\b(?:run|start|begin|launch)\b"
+    r".{0,80}\btraining\s+session\b"
+    r".{0,100}\b(?:canadian|canada|tsx)\b",
+    re.IGNORECASE,
+)
+
+TRAINING_DURATION_PATTERN = re.compile(
+    r"\b(\d{1,3})\s*"
+    r"(second|seconds|minute|minutes)\b",
+    re.IGNORECASE,
+)
+
+
 def detect_chat_intent(message: str) -> ChatIntent:
     clean = message.strip()
 
@@ -255,6 +269,47 @@ def detect_chat_intent(message: str) -> ChatIntent:
                 subtype="blocked_live_execution",
                 confidence=1.0,
             )
+
+
+    training_match = (
+        TRAINING_SESSION_PATTERN.search(
+            clean
+        )
+    )
+
+    if training_match:
+        duration_seconds = 120
+
+        duration_match = (
+            TRAINING_DURATION_PATTERN.search(
+                clean
+            )
+        )
+
+        if duration_match:
+            amount = int(
+                duration_match.group(1)
+            )
+
+            unit = (
+                duration_match.group(2)
+                .lower()
+            )
+
+            duration_seconds = (
+                amount * 60
+                if unit.startswith(
+                    "minute"
+                )
+                else amount
+            )
+
+        return ChatIntent(
+            intent="run_training_session",
+            family="TRAINING",
+            subtype="bounded_canadian_training",
+            confidence=1.0,
+        )
 
     # Existing runtime commands retain their exact legacy intent strings.
     for intent_name, pattern in COMMAND_PATTERNS.items():

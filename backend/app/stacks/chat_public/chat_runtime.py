@@ -23,12 +23,18 @@ This phase does not:
 
 from __future__ import annotations
 
+import re
+
 from typing import Any
 from time import perf_counter
 
 from backend.app.core.runtime_trace import (
     create_trace_id,
     emit_runtime_step,
+)
+
+from backend.app.stacks.strategy_candidate_sandbox.L4_runtime_orchestration.bounded_training_runtime import (
+    start_bounded_training_session,
 )
 
 from backend.app.stacks.chat_public.chat_intent_regex import (
@@ -196,6 +202,88 @@ def handle_chat_message(
             "provider": None,
             "model": None,
             "tool_truth_state": "not_required",
+        }
+
+
+    if intent.intent == "run_training_session":
+        duration_seconds = 120
+
+        duration_match = re.search(
+            r"\b(\d{1,3})\s*"
+            r"(second|seconds|minute|minutes)\b",
+            message,
+            re.IGNORECASE,
+        )
+
+        if duration_match:
+            amount = int(
+                duration_match.group(1)
+            )
+
+            unit = (
+                duration_match.group(2)
+                .lower()
+            )
+
+            duration_seconds = (
+                amount * 60
+                if unit.startswith(
+                    "minute"
+                )
+                else amount
+            )
+
+        duration_seconds = max(
+            1,
+            min(
+                duration_seconds,
+                600,
+            ),
+        )
+
+        training = (
+            start_bounded_training_session(
+                duration_seconds=(
+                    duration_seconds
+                ),
+                universe="canada",
+                requested_by="authenticated_chat",
+                source="chat",
+            )
+        )
+
+        run_id = str(
+            training["run_id"]
+        )
+
+        return {
+            "status": "ok",
+            "response": {
+                "type": "text",
+                "message": (
+                    "Bounded Canadian historical "
+                    "training session started. "
+                    f"Run ID: {run_id}. "
+                    f"Planned duration: "
+                    f"{training['duration_seconds']} "
+                    "seconds. The session reads "
+                    "repository historical CSV data "
+                    "only. Trades, portfolio mutation, "
+                    "strategy promotion, broker access, "
+                    "and live execution remain disabled."
+                ),
+            },
+            "intent": intent.intent,
+            "symbol": None,
+            "training_run": training,
+            "provider": (
+                "neurovest_bounded_"
+                "training_runtime"
+            ),
+            "model": None,
+            "tool_truth_state": "grounded",
+            "error": None,
+            "cognitive_route": None,
         }
 
     if intent.intent == "graph_reset":
