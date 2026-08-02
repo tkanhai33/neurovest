@@ -55,6 +55,10 @@ type OrderRecord = {
   signal: string;
   status: string;
   timestamp: string;
+  shares_quantity?: number | null;
+  allocated_capital?: number | null;
+  slippage_price?: number | null;
+  commission_paid?: number | null;
 };
 
 type OrdersPayload = {

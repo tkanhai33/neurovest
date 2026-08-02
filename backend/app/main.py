@@ -623,6 +623,43 @@ async def get_orders(
                     "signal": o.signal,
                     "status": o.status,
                     "timestamp": o.timestamp.isoformat(),
+                    "allocated_capital": (
+                        round(
+                            float(o.allocated_capital),
+                            2,
+                        )
+                        if o.allocated_capital is not None
+                        else None
+                    ),
+                    "slippage_price": (
+                        round(
+                            float(o.slippage_price),
+                            4,
+                        )
+                        if o.slippage_price is not None
+                        else None
+                    ),
+                    "commission_paid": (
+                        round(
+                            float(o.commission_paid),
+                            2,
+                        )
+                        if o.commission_paid is not None
+                        else None
+                    ),
+                    "shares_quantity": (
+                        round(
+                            float(o.allocated_capital)
+                            / float(o.slippage_price),
+                            6,
+                        )
+                        if (
+                            o.allocated_capital is not None
+                            and o.slippage_price is not None
+                            and float(o.slippage_price) != 0.0
+                        )
+                        else None
+                    ),
                 }
                 for o in orders
             ],
