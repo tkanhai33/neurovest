@@ -30,10 +30,14 @@ def test_backend_exposes_admin_statistics_route() -> None:
     )
 
     assert (
-        "_require_admin_statistics_principal"
+        "require_administrative_principal"
         in source
     )
 
+    assert (
+        "AdministrativePrincipal"
+        in source
+    )
 
 def test_statistics_use_proven_database_tables() -> None:
     source = BACKEND.read_text(
@@ -64,10 +68,27 @@ def test_statistics_remain_admin_only() -> None:
         encoding="utf-8",
     )
 
-    assert "Administrative statistics access denied" in source
-    assert "status_code=403" in source
-    assert "administrative_roles" in source
+    assert (
+        "principal: AdministrativePrincipal = Depends("
+        in source
+    )
 
+    assert (
+        "require_administrative_principal"
+        in source
+    )
+
+    assert (
+        "require_authenticated_principal"
+        not in source[
+            source.index(
+                "async def get_administrative_user_statistics("
+            ):
+            source.index(
+                "# END ADMIN USER STATISTICS ENDPOINT"
+            )
+        ]
+    )
 
 def test_broker_stat_is_owner_distinct() -> None:
     source = BACKEND.read_text(
@@ -153,34 +174,122 @@ def test_statistics_uses_canonical_principal_role_first() -> None:
     )
 
     assert (
-        'getattr(\n'
-        '            principal,\n'
-        '            "role",'
+        "from backend.app.stacks.identity_auth."
+        "admin_read_dependencies import ("
         in source
     )
 
     assert (
-        'getattr(\n'
-        '            principal,\n'
-        '            "authorization_role",'
+        "AdministrativePrincipal,"
         in source
     )
-
-    assert "direct_role" in source
-    assert "claim_role" in source
 
     assert (
-        "direct_role\n"
-        "        or claim_role"
+        "require_administrative_principal,"
         in source
     )
 
+    assert (
+        "def _require_admin_statistics_principal"
+        not in source
+    )
 
 def test_developer_and_owner_roles_are_administrative() -> None:
+    policy = Path(
+        "backend/app/stacks/identity_auth/"
+        "authorization_policy.py"
+    ).read_text(
+        encoding="utf-8",
+    )
+
+    assert (
+        '"developer": AuthorizationRole.DEVELOPER'
+        in policy
+    )
+
+    assert (
+        '"owner": AuthorizationRole.DEVELOPER'
+        in policy
+    )
+
+    assert (
+        "AuthorizationRole.DEVELOPER,"
+        in policy
+    )
+
+def test_admin_statistics_uses_canonical_administrative_dependency() -> None:
     source = BACKEND.read_text(
         encoding="utf-8",
     )
 
-    assert '"developer"' in source
-    assert '"owner"' in source
+    assert (
+        "from backend.app.stacks.identity_auth."
+        "admin_read_dependencies import ("
+        in source
+    )
+
+    assert (
+        "AdministrativePrincipal,"
+        in source
+    )
+
+    assert (
+        "require_administrative_principal,"
+        in source
+    )
+
+    expected_signature = (
+        "async def get_administrative_user_statistics(\n"
+        "    principal: AdministrativePrincipal = Depends(\n"
+        "        require_administrative_principal\n"
+        "    ),\n"
+        "):"
+    )
+
+    assert expected_signature in source
+
+
+def test_admin_statistics_no_longer_uses_custom_role_helper() -> None:
+    source = BACKEND.read_text(
+        encoding="utf-8",
+    )
+
+    assert (
+        "def _require_admin_statistics_principal"
+        not in source
+    )
+
+    assert (
+        "_require_admin_statistics_principal("
+        not in source
+    )
+
+
+def test_admin_statistics_dependency_reads_canonical_database_role() -> None:
+    dependency = Path(
+        "backend/app/stacks/identity_auth/"
+        "admin_read_dependencies.py"
+    ).read_text(
+        encoding="utf-8",
+    )
+
+    assert (
+        "IdentityUser.id == subject"
+        in dependency
+    )
+
+    assert (
+        "is_administrative_role("
+        in dependency
+    )
+
+    assert (
+        "canonical_role_value("
+        in dependency
+    )
+
+    assert (
+        "return AdministrativePrincipal("
+        in dependency
+    )
 

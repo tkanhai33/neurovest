@@ -11,6 +11,11 @@ from backend.app.stacks.portfolio.portfolio_service import get_portfolio_positio
 from backend.app.stacks.identity_auth.api_dependencies import (
     require_authenticated_principal,
 )
+
+from backend.app.stacks.identity_auth.admin_read_dependencies import (
+    AdministrativePrincipal,
+    require_administrative_principal,
+)
 from backend.app.stacks.identity_auth.contracts import (
     AuthenticatedPrincipal,
 )
@@ -1092,7 +1097,6 @@ async def authenticated_portfolio_snapshot_refresh(
 
 # END NEUROVEST PORTFOLIO SNAPSHOT LIFECYCLE API
 
-
 # BEGIN ADMIN USER STATISTICS ENDPOINT
 
 from datetime import UTC as _admin_stats_UTC
@@ -1102,82 +1106,13 @@ from datetime import timedelta as _admin_stats_timedelta
 from sqlalchemy import text as _admin_stats_text
 
 
-def _require_admin_statistics_principal(
-    principal: AuthenticatedPrincipal,
-) -> None:
-    """
-    Enforce the canonical authenticated administrative role.
-
-    The identity adapter exposes the normalized authorization role
-    directly on the authenticated principal. Raw claims are retained
-    only as a compatibility fallback.
-    """
-
-    claims = getattr(
-        principal,
-        "claims",
-        {},
-    )
-
-    if not isinstance(
-        claims,
-        dict,
-    ):
-        claims = {}
-
-    direct_role = (
-        getattr(
-            principal,
-            "role",
-            None,
-        )
-        or getattr(
-            principal,
-            "authorization_role",
-            None,
-        )
-    )
-
-    claim_role = (
-        claims.get(
-            "authorization_role"
-        )
-        or claims.get(
-            "role"
-        )
-    )
-
-    role = str(
-        direct_role
-        or claim_role
-        or ""
-    ).strip().lower()
-
-    administrative_roles = {
-        "admin",
-        "administrator",
-        "developer",
-        "dev",
-        "owner",
-        "system_admin",
-    }
-
-    if role not in administrative_roles:
-        raise HTTPException(
-            status_code=403,
-            detail=(
-                "Administrative statistics access denied"
-            ),
-        )
-
-
 @app.get(
     "/api/v1/admin/user-stats",
     tags=["admin"],
 )
 async def get_administrative_user_statistics(
-    principal: AuthenticatedPrincipal = Depends(
-        require_authenticated_principal
+    principal: AdministrativePrincipal = Depends(
+        require_administrative_principal
     ),
 ):
     """
@@ -1192,10 +1127,6 @@ async def get_administrative_user_statistics(
 
     No broker calls or live execution occur.
     """
-
-    _require_admin_statistics_principal(
-        principal
-    )
 
     now = _admin_stats_datetime.now(
         _admin_stats_UTC
@@ -1578,3 +1509,4 @@ async def get_administrative_user_statistics(
 
 
 # END ADMIN USER STATISTICS ENDPOINT
+
