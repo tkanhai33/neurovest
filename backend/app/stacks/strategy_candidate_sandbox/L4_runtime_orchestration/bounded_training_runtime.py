@@ -31,6 +31,11 @@ import csv
 import json
 import math
 
+from backend.app.stacks.strategy_candidate_sandbox.persistent_learning_ledger import (
+    persist_sanitized_learning_contribution,
+)
+
+
 
 _REPO_ROOT = Path(__file__).resolve().parents[5]
 
@@ -650,6 +655,9 @@ def _run_training(
         portfolio_mutations=0,
         database_rows_written=0,
         strategy_promotions=0,
+        learning_artifacts_written=0,
+        learning_updates=0,
+        model_updates=0,
         broker_requests=0,
         live_orders=0,
     )
@@ -659,14 +667,70 @@ def _run_training(
     )
 
     if completed_record is not None:
-        _update_run(
-            run_id,
-            sanitized_learning_contribution=(
-                _sanitized_learning_contribution(
-                    completed_record
-                )
-            ),
+        contribution = (
+            _sanitized_learning_contribution(
+                completed_record
+            )
         )
+
+        try:
+            persistence = (
+                persist_sanitized_learning_contribution(
+                    contribution
+                )
+            )
+
+            _update_run(
+                run_id,
+                sanitized_learning_contribution=(
+                    contribution
+                ),
+                learning_ledger_status=(
+                    persistence.get(
+                        "status"
+                    )
+                ),
+                learning_contribution_id=(
+                    persistence.get(
+                        "contribution_id"
+                    )
+                ),
+                learning_ledger_entry_id=(
+                    persistence.get(
+                        "ledger_entry_id"
+                    )
+                ),
+                learning_artifacts_written=int(
+                    persistence.get(
+                        "artifacts_written",
+                        0,
+                    )
+                ),
+                learning_updates=int(
+                    persistence.get(
+                        "learning_updates",
+                        0,
+                    )
+                ),
+                model_updates=0,
+            )
+
+        except Exception as error:
+            _update_run(
+                run_id,
+                sanitized_learning_contribution=(
+                    contribution
+                ),
+                learning_ledger_status=(
+                    "failed"
+                ),
+                learning_ledger_error=(
+                    type(error).__name__
+                ),
+                learning_artifacts_written=0,
+                learning_updates=0,
+                model_updates=0,
+            )
 
 
 
