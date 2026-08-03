@@ -244,6 +244,7 @@ function roleHomeRedirect(
 }
 
 const INTERNAL_CHAT_API_PATH = "/api/v1/chat";
+const INTERNAL_ADAPTIVE_API_PREFIX = "/api/v1/training/adaptive";
 
 export async function proxy(
   request: NextRequest
@@ -256,7 +257,10 @@ export async function proxy(
    */
   if (
     request.nextUrl.pathname ===
-    INTERNAL_CHAT_API_PATH
+      INTERNAL_CHAT_API_PATH ||
+    request.nextUrl.pathname.startsWith(
+      INTERNAL_ADAPTIVE_API_PREFIX
+    )
   ) {
     return NextResponse.next();
   }
