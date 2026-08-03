@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from pathlib import Path
-from threading import RLock
+from threading import RLock, Thread
 from typing import Any
 from uuid import uuid4
 from datetime import UTC, datetime
@@ -506,6 +506,315 @@ def _next_window_values(
     }
 
 
+def start_adaptive_training_controller(
+    *,
+    confidence_threshold: float,
+    maximum_rounds: int,
+    duration_seconds_per_round: int = 1,
+    initial_candidate: dict[str, Any] | None = None,
+    window_start: str | None = None,
+    window_end: str | None = None,
+    lookback_rows: int | None = 120,
+    row_offset: int = 0,
+    requested_by: str = "adaptive_training_controller",
+    timeout_seconds_per_round: float = 120.0,
+    scope: str = "system",
+    owner_user_id: str | None = None,
+    owner_session_id: str | None = None,
+    requested_by_role: str | None = None,
+) -> dict[str, Any]:
+    resolved_scope = str(
+        scope
+        or "system"
+    ).strip().lower()
+
+    resolved_owner_user_id = (
+        str(owner_user_id).strip()
+        if owner_user_id is not None
+        else None
+    ) or None
+
+    resolved_owner_session_id = (
+        str(owner_session_id).strip()
+        if owner_session_id is not None
+        else None
+    ) or None
+
+    if resolved_scope not in {
+        "user",
+        "system",
+    }:
+        raise ValueError(
+            "Adaptive controller scope must be USER or SYSTEM."
+        )
+
+    if resolved_scope == "user":
+        if not resolved_owner_user_id:
+            raise ValueError(
+                "USER adaptive training requires an owner user ID."
+            )
+
+        if not resolved_owner_session_id:
+            raise ValueError(
+                "USER adaptive training requires an owner session ID."
+            )
+
+    if resolved_scope == "system":
+        if resolved_owner_user_id is not None:
+            raise ValueError(
+                "SYSTEM adaptive training cannot have a customer owner."
+            )
+
+        if resolved_owner_session_id is not None:
+            raise ValueError(
+                "SYSTEM adaptive training cannot have a customer session."
+            )
+
+    controller_id = (
+        "adaptive_controller_"
+        + uuid4().hex[:24]
+    )
+
+    queued = {
+        "controller_id":
+            controller_id,
+
+        "controller_version":
+            1,
+
+        "status":
+            "queued",
+
+        "created_at":
+            _utc_now(),
+
+        "started_at":
+            None,
+
+        "completed_at":
+            None,
+
+        "confidence_threshold":
+            float(confidence_threshold),
+
+        "maximum_rounds":
+            int(maximum_rounds),
+
+        "duration_seconds_per_round":
+            int(duration_seconds_per_round),
+
+        "requested_by":
+            requested_by,
+
+        "requested_by_role":
+            (
+                str(requested_by_role).strip().lower()
+                if requested_by_role is not None
+                else None
+            ),
+
+        "scope":
+            resolved_scope,
+
+        "owner_user_id":
+            resolved_owner_user_id,
+
+        "owner_session_id":
+            resolved_owner_session_id,
+
+        "rounds_completed":
+            0,
+
+        "stop_reason":
+            None,
+
+        "best_round_number":
+            None,
+
+        "best_average_confidence":
+            None,
+
+        "best_candidate_id":
+            None,
+
+        "best_training_window_id":
+            None,
+
+        "rounds":
+            [],
+
+        "safety": {
+            "historical_training_only":
+                True,
+
+            "automatic_strategy_promotion":
+                False,
+
+            "paper_order_creation":
+                False,
+
+            "portfolio_mutation":
+                False,
+
+            "database_writes":
+                False,
+
+            "model_mutation":
+                False,
+
+            "broker_execution":
+                False,
+
+            "live_execution":
+                False,
+        },
+    }
+
+    with _LOCK:
+        _CONTROLLERS[
+            controller_id
+        ] = queued
+
+    _write_controller_record(
+        deepcopy(queued)
+    )
+
+    thread = Thread(
+        target=run_adaptive_training_controller,
+        kwargs={
+            "confidence_threshold":
+                confidence_threshold,
+
+            "maximum_rounds":
+                maximum_rounds,
+
+            "duration_seconds_per_round":
+                duration_seconds_per_round,
+
+            "initial_candidate":
+                initial_candidate,
+
+            "window_start":
+                window_start,
+
+            "window_end":
+                window_end,
+
+            "lookback_rows":
+                lookback_rows,
+
+            "row_offset":
+                row_offset,
+
+            "requested_by":
+                requested_by,
+
+            "timeout_seconds_per_round":
+                timeout_seconds_per_round,
+
+            "scope":
+                resolved_scope,
+
+            "owner_user_id":
+                resolved_owner_user_id,
+
+            "owner_session_id":
+                resolved_owner_session_id,
+
+            "requested_by_role":
+                requested_by_role,
+
+            "controller_id":
+                controller_id,
+        },
+        name=controller_id,
+        daemon=True,
+    )
+
+    thread.start()
+
+    return deepcopy(
+        queued
+    )
+
+
+def get_adaptive_controller_for_owner(
+    *,
+    controller_id: str,
+    owner_user_id: str,
+    owner_session_id: str,
+) -> dict[str, Any] | None:
+    record = get_adaptive_controller(
+        controller_id
+    )
+
+    if record is None:
+        return None
+
+    if record.get("scope") != "user":
+        return None
+
+    if (
+        record.get("owner_user_id")
+        != str(owner_user_id)
+    ):
+        return None
+
+    if (
+        record.get("owner_session_id")
+        != str(owner_session_id)
+    ):
+        return None
+
+    return record
+
+
+def list_adaptive_controllers_for_owner(
+    *,
+    owner_user_id: str,
+    owner_session_id: str,
+    limit: int = 20,
+) -> list[dict[str, Any]]:
+    resolved_limit = max(
+        1,
+        min(
+            int(limit),
+            100,
+        ),
+    )
+
+    with _LOCK:
+        records = [
+            deepcopy(record)
+            for record
+            in _CONTROLLERS.values()
+            if (
+                record.get("scope")
+                == "user"
+                and record.get(
+                    "owner_user_id"
+                )
+                == str(owner_user_id)
+                and record.get(
+                    "owner_session_id"
+                )
+                == str(owner_session_id)
+            )
+        ]
+
+    records.sort(
+        key=lambda item: str(
+            item.get("created_at")
+            or ""
+        ),
+        reverse=True,
+    )
+
+    return records[
+        :resolved_limit
+    ]
+
+
 def get_adaptive_controller(
     controller_id: str,
 ) -> dict[str, Any] | None:
@@ -587,6 +896,11 @@ def run_adaptive_training_controller(
         "adaptive_training_controller"
     ),
     timeout_seconds_per_round: float = 120.0,
+    scope: str = "system",
+    owner_user_id: str | None = None,
+    owner_session_id: str | None = None,
+    requested_by_role: str | None = None,
+    controller_id: str | None = None,
 ) -> dict[str, Any]:
     threshold = _finite_float(
         confidence_threshold,
@@ -630,6 +944,59 @@ def run_adaptive_training_controller(
             "be greater than 0 and at most 600"
         )
 
+    resolved_scope = str(
+        scope
+        or "system"
+    ).strip().lower()
+
+    if resolved_scope not in {
+        "user",
+        "system",
+    }:
+        raise ValueError(
+            "Adaptive controller scope must be USER or SYSTEM."
+        )
+
+    resolved_owner_user_id = (
+        str(owner_user_id).strip()
+        if owner_user_id is not None
+        else None
+    ) or None
+
+    resolved_owner_session_id = (
+        str(owner_session_id).strip()
+        if owner_session_id is not None
+        else None
+    ) or None
+
+    resolved_requested_by_role = (
+        str(requested_by_role).strip().lower()
+        if requested_by_role is not None
+        else None
+    ) or None
+
+    if resolved_scope == "user":
+        if not resolved_owner_user_id:
+            raise ValueError(
+                "USER adaptive training requires an owner user ID."
+            )
+
+        if not resolved_owner_session_id:
+            raise ValueError(
+                "USER adaptive training requires an owner session ID."
+            )
+
+    if resolved_scope == "system":
+        if resolved_owner_user_id is not None:
+            raise ValueError(
+                "SYSTEM adaptive training cannot have a customer owner."
+            )
+
+        if resolved_owner_session_id is not None:
+            raise ValueError(
+                "SYSTEM adaptive training cannot have a customer session."
+            )
+
     if initial_candidate is None:
         candidate = (
             build_training_candidate_contract(
@@ -649,10 +1016,19 @@ def run_adaptive_training_controller(
             "initial candidate contract is invalid"
         )
 
-    controller_id = (
-        "adaptive_controller_"
-        + uuid4().hex[:24]
+    resolved_controller_id = (
+        str(controller_id).strip()
+        if controller_id is not None
+        else ""
     )
+
+    if not resolved_controller_id:
+        resolved_controller_id = (
+            "adaptive_controller_"
+            + uuid4().hex[:24]
+        )
+
+    controller_id = resolved_controller_id
 
     controller = {
         "controller_id":
@@ -684,6 +1060,18 @@ def run_adaptive_training_controller(
 
         "requested_by":
             requested_by,
+
+        "requested_by_role":
+            resolved_requested_by_role,
+
+        "scope":
+            resolved_scope,
+
+        "owner_user_id":
+            resolved_owner_user_id,
+
+        "owner_session_id":
+            resolved_owner_session_id,
 
         "rounds_completed":
             0,
@@ -782,9 +1170,20 @@ def run_adaptive_training_controller(
                     source=(
                         "adaptive_controller"
                     ),
-                    scope="system",
+                    scope=resolved_scope,
+                    owner_user_id=(
+                        resolved_owner_user_id
+                    ),
+                    owner_session_id=(
+                        resolved_owner_session_id
+                    ),
                     requested_by_role=(
-                        "developer"
+                        resolved_requested_by_role
+                        or (
+                            "user"
+                            if resolved_scope == "user"
+                            else "developer"
+                        )
                     ),
                     training_candidate=(
                         candidate

@@ -1,4 +1,10 @@
 
+from backend.app.stacks.strategy_candidate_sandbox.adaptive_training_controller import (
+    get_adaptive_controller_for_owner,
+    list_adaptive_controllers_for_owner,
+    start_adaptive_training_controller,
+)
+
 from uuid import NAMESPACE_URL, uuid5
 from backend.app.stacks.db_runtime.database import async_session
 from backend.app.stacks.journal_ledger.decision_audit_service import build_decision_audit_service
@@ -1913,6 +1919,149 @@ async def get_authenticated_user_training_run(
 # ---------------------------------------------------------------------
 # ADMIN OBSERVABILITY — NO START OR MUTATION
 # ---------------------------------------------------------------------
+
+
+
+@app.post(
+    "/api/v1/training/adaptive",
+    tags=["training", "adaptive-training"],
+    status_code=202,
+)
+async def start_authenticated_user_adaptive_controller(
+    confidence_threshold: float = 0.75,
+    maximum_rounds: int = 3,
+    duration_seconds_per_round: int = 1,
+    lookback_rows: int = 120,
+    row_offset: int = 0,
+    principal: AuthenticatedPrincipal = Depends(
+        require_authenticated_principal
+    ),
+):
+    owner_user_id = (
+        _training_principal_subject(
+            principal
+        )
+    )
+
+    owner_session_id = (
+        _training_principal_session(
+            principal
+        )
+    )
+
+    role = (
+        _training_principal_role(
+            principal
+        )
+        or "user"
+    )
+
+    try:
+        return start_adaptive_training_controller(
+            confidence_threshold=(
+                confidence_threshold
+            ),
+            maximum_rounds=(
+                maximum_rounds
+            ),
+            duration_seconds_per_round=(
+                duration_seconds_per_round
+            ),
+            lookback_rows=(
+                lookback_rows
+            ),
+            row_offset=(
+                row_offset
+            ),
+            requested_by=(
+                owner_user_id
+            ),
+            scope="user",
+            owner_user_id=(
+                owner_user_id
+            ),
+            owner_session_id=(
+                owner_session_id
+            ),
+            requested_by_role=(
+                role
+            ),
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        ) from error
+
+
+@app.get(
+    "/api/v1/training/adaptive",
+    tags=["training", "adaptive-training"],
+)
+async def list_authenticated_user_adaptive_controllers(
+    limit: int = 20,
+    principal: AuthenticatedPrincipal = Depends(
+        require_authenticated_principal
+    ),
+):
+    return {
+        "controllers":
+            list_adaptive_controllers_for_owner(
+                owner_user_id=(
+                    _training_principal_subject(
+                        principal
+                    )
+                ),
+                owner_session_id=(
+                    _training_principal_session(
+                        principal
+                    )
+                ),
+                limit=limit,
+            ),
+    }
+
+
+@app.get(
+    "/api/v1/training/adaptive/{controller_id}",
+    tags=["training", "adaptive-training"],
+)
+async def get_authenticated_user_adaptive_controller(
+    controller_id: str,
+    principal: AuthenticatedPrincipal = Depends(
+        require_authenticated_principal
+    ),
+):
+    result = (
+        get_adaptive_controller_for_owner(
+            controller_id=(
+                controller_id
+            ),
+            owner_user_id=(
+                _training_principal_subject(
+                    principal
+                )
+            ),
+            owner_session_id=(
+                _training_principal_session(
+                    principal
+                )
+            ),
+        )
+    )
+
+    if result is None:
+        # Do not reveal whether another customer's controller exists.
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "Adaptive training controller "
+                "was not found"
+            ),
+        )
+
+    return result
 
 
 @app.get(
