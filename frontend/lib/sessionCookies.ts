@@ -22,19 +22,30 @@ export const CSRF_COOKIE =
 export const PREFERENCE_SCOPE_COOKIE =
   "neurovest_preference_scope";
 
-const isProduction =
-  process.env.NODE_ENV === "production";
+/**
+ * Browser cookies are secure in production by default.
+ *
+ * Plain HTTP is permitted only when the controlled runtime explicitly sets:
+ *
+ *   NEUROVEST_COOKIE_SECURE=false
+ *
+ * Production deployments must omit the override or set it to true.
+ */
+const secureBrowserCookies =
+  process.env.NEUROVEST_COOKIE_SECURE === "false"
+    ? false
+    : process.env.NODE_ENV === "production";
 
 const privateOptions = {
   httpOnly: true,
-  secure: isProduction,
+  secure: secureBrowserCookies,
   sameSite: "strict" as const,
   path: "/",
 };
 
 const readableOptions = {
   httpOnly: false,
-  secure: isProduction,
+  secure: secureBrowserCookies,
   sameSite: "strict" as const,
   path: "/",
 };
