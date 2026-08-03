@@ -35,6 +35,11 @@ from backend.app.stacks.strategy_candidate_sandbox.persistent_learning_ledger im
     persist_sanitized_learning_contribution,
 )
 
+from backend.app.stacks.strategy_candidate_sandbox.bounded_training_confidence_pipeline import (
+    build_bounded_training_confidence_summary,
+)
+
+
 
 
 _REPO_ROOT = Path(__file__).resolve().parents[5]
@@ -633,7 +638,7 @@ def _run_training(
 
     _update_run(
         run_id,
-        status="completed",
+        status="finalizing",
         completed_at=_utc_now(),
         elapsed_seconds=round(
             actual_duration,
@@ -667,11 +672,48 @@ def _run_training(
     )
 
     if completed_record is not None:
+        contribution_record = dict(
+            completed_record
+        )
+
+        contribution_record[
+            "status"
+        ] = "completed"
+
         contribution = (
             _sanitized_learning_contribution(
-                completed_record
+                contribution_record
             )
         )
+
+        confidence_summary = {}
+        confidence_pipeline_status = "pending"
+        confidence_pipeline_error = None
+
+        try:
+            confidence_summary = (
+                build_bounded_training_confidence_summary(
+                    run_id=run_id,
+                    datasets=prepared,
+                )
+            )
+
+            contribution.update(
+                confidence_summary
+            )
+
+            confidence_pipeline_status = (
+                "completed"
+            )
+
+        except Exception as error:
+            confidence_pipeline_status = (
+                "failed"
+            )
+
+            confidence_pipeline_error = (
+                type(error).__name__
+            )
 
         try:
             persistence = (
@@ -682,6 +724,7 @@ def _run_training(
 
             _update_run(
                 run_id,
+                    status="completed",
                 sanitized_learning_contribution=(
                     contribution
                 ),
@@ -713,6 +756,54 @@ def _run_training(
                     )
                 ),
                 model_updates=0,
+                confidence_pipeline_status=(
+                    confidence_pipeline_status
+                ),
+                confidence_pipeline_error=(
+                    confidence_pipeline_error
+                ),
+                valid_learning_artifacts=int(
+                    confidence_summary.get(
+                        "valid_learning_artifacts",
+                        0,
+                    )
+                ),
+                learning_observations=int(
+                    confidence_summary.get(
+                        "learning_observations",
+                        0,
+                    )
+                ),
+                average_reward=float(
+                    confidence_summary.get(
+                        "average_reward",
+                        0.0,
+                    )
+                ),
+                average_confidence=float(
+                    confidence_summary.get(
+                        "average_confidence",
+                        0.0,
+                    )
+                ),
+                minimum_symbol_confidence=float(
+                    confidence_summary.get(
+                        "minimum_symbol_confidence",
+                        0.0,
+                    )
+                ),
+                maximum_symbol_confidence=float(
+                    confidence_summary.get(
+                        "maximum_symbol_confidence",
+                        0.0,
+                    )
+                ),
+                symbols_with_valid_confidence=int(
+                    confidence_summary.get(
+                        "symbols_with_valid_confidence",
+                        0,
+                    )
+                ),
             )
 
         except Exception as error:

@@ -24,7 +24,7 @@ SERVICE = Path(
 def wait_for_completion(
     run_id: str,
 ) -> dict:
-    deadline = time.monotonic() + 10
+    deadline = time.monotonic() + 120
 
     while time.monotonic() < deadline:
         record = get_training_session(

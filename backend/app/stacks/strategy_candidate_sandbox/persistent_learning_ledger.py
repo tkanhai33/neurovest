@@ -49,6 +49,18 @@ _ALLOWED_TOP_LEVEL_KEYS = {
     "cycles",
     "signal_totals",
     "safety",
+    "learning_pipeline_version",
+    "learning_pipeline",
+    "valid_learning_artifacts",
+    "learning_observations",
+    "average_reward",
+    "average_confidence",
+    "minimum_symbol_confidence",
+    "maximum_symbol_confidence",
+    "symbols_with_valid_confidence",
+    "invalid_confidence_datasets",
+    "symbol_confidence",
+    "confidence_safety",
 }
 
 _REQUIRED_TOP_LEVEL_KEYS = {
@@ -252,6 +264,147 @@ def validate_sanitized_contribution(
         return False
 
     for value in totals.values():
+        if not isinstance(
+            value,
+            int,
+        ):
+            return False
+
+        if value < 0:
+            return False
+
+    symbol_confidence = contribution.get(
+        "symbol_confidence"
+    )
+
+    if symbol_confidence is not None:
+        if not isinstance(
+            symbol_confidence,
+            list,
+        ):
+            return False
+
+        observed_symbols: set[str] = set()
+
+        for item in symbol_confidence:
+            if not isinstance(
+                item,
+                dict,
+            ):
+                return False
+
+            if set(item) != {
+                "symbol",
+                "observations",
+                "average_reward",
+                "average_confidence",
+            }:
+                return False
+
+            symbol = str(
+                item.get(
+                    "symbol"
+                )
+                or ""
+            ).strip().upper()
+
+            if not symbol:
+                return False
+
+            if symbol in observed_symbols:
+                return False
+
+            observed_symbols.add(
+                symbol
+            )
+
+            observations = item.get(
+                "observations"
+            )
+
+            if not isinstance(
+                observations,
+                int,
+            ):
+                return False
+
+            if observations < 0:
+                return False
+
+            reward = item.get(
+                "average_reward"
+            )
+
+            confidence = item.get(
+                "average_confidence"
+            )
+
+            if not isinstance(
+                reward,
+                (
+                    int,
+                    float,
+                ),
+            ):
+                return False
+
+            if not isinstance(
+                confidence,
+                (
+                    int,
+                    float,
+                ),
+            ):
+                return False
+
+            if not (
+                0.0
+                <= float(confidence)
+                <= 1.0
+            ):
+                return False
+
+    for key in (
+        "average_confidence",
+        "minimum_symbol_confidence",
+        "maximum_symbol_confidence",
+    ):
+        value = contribution.get(
+            key
+        )
+
+        if value is None:
+            continue
+
+        if not isinstance(
+            value,
+            (
+                int,
+                float,
+            ),
+        ):
+            return False
+
+        if not (
+            0.0
+            <= float(value)
+            <= 1.0
+        ):
+            return False
+
+    for key in (
+        "valid_learning_artifacts",
+        "learning_observations",
+        "symbols_with_valid_confidence",
+        "invalid_confidence_datasets",
+    ):
+        value = contribution.get(
+            key
+        )
+
+        if value is None:
+            continue
+
         if not isinstance(
             value,
             int,
