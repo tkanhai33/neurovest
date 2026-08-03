@@ -39,6 +39,11 @@ from backend.app.stacks.strategy_candidate_sandbox.bounded_training_confidence_p
     build_bounded_training_confidence_summary,
 )
 
+from backend.app.stacks.strategy_candidate_sandbox.training_confidence_baseline import (
+    build_confidence_baseline_comparison,
+)
+
+
 
 
 
@@ -702,6 +707,18 @@ def _run_training(
                 confidence_summary
             )
 
+            confidence_baseline = (
+                build_confidence_baseline_comparison(
+                    current_contribution=(
+                        contribution
+                    ),
+                )
+            )
+
+            contribution.update(
+                confidence_baseline
+            )
+
             confidence_pipeline_status = (
                 "completed"
             )
@@ -802,6 +819,67 @@ def _run_training(
                     confidence_summary.get(
                         "symbols_with_valid_confidence",
                         0,
+                    )
+                ),
+                confidence_baseline_available=(
+                    confidence_baseline.get(
+                        "confidence_baseline_available"
+                    )
+                ),
+                baseline_contribution_id=(
+                    confidence_baseline.get(
+                        "baseline_contribution_id"
+                    )
+                ),
+                baseline_average_confidence=(
+                    confidence_baseline.get(
+                        "baseline_average_confidence"
+                    )
+                ),
+                current_average_confidence=(
+                    confidence_baseline.get(
+                        "current_average_confidence"
+                    )
+                ),
+                average_confidence_delta=(
+                    confidence_baseline.get(
+                        "average_confidence_delta"
+                    )
+                ),
+                symbols_compared=int(
+                    confidence_baseline.get(
+                        "symbols_compared",
+                        0,
+                    )
+                ),
+                symbols_improved=int(
+                    confidence_baseline.get(
+                        "symbols_improved",
+                        0,
+                    )
+                ),
+                symbols_unchanged=int(
+                    confidence_baseline.get(
+                        "symbols_unchanged",
+                        0,
+                    )
+                ),
+                symbols_declined=int(
+                    confidence_baseline.get(
+                        "symbols_declined",
+                        0,
+                    )
+                ),
+                all_compared_symbols_improved=(
+                    confidence_baseline.get(
+                        "all_compared_symbols_improved",
+                        False,
+                    )
+                ),
+                confidence_improved=(
+                    confidence_baseline.get(
+                        "confidence_improved",
+                        False,
                     )
                 ),
             )
