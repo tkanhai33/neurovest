@@ -705,6 +705,48 @@ def start_adaptive_training_controller(
     owner_session_id: str | None = None,
     requested_by_role: str | None = None,
 ) -> dict[str, Any]:
+    threshold = _finite_float(
+        confidence_threshold,
+        default=-1.0,
+    )
+
+    if not (
+        _MINIMUM_THRESHOLD
+        <= threshold
+        <= _MAXIMUM_THRESHOLD
+    ):
+        raise ValueError(
+            "confidence_threshold must be "
+            "between 0 and 1"
+        )
+
+    resolved_maximum_rounds = (
+        _bounded_int(
+            maximum_rounds,
+            minimum=_MINIMUM_ROUNDS,
+            maximum=_MAXIMUM_ROUNDS,
+            name="maximum_rounds",
+        )
+    )
+
+    resolved_duration = _bounded_int(
+        duration_seconds_per_round,
+        minimum=1,
+        maximum=300,
+        name="duration_seconds_per_round",
+    )
+
+    if (
+        timeout_seconds_per_round
+        <= 0
+        or timeout_seconds_per_round
+        > 600
+    ):
+        raise ValueError(
+            "timeout_seconds_per_round must "
+            "be greater than 0 and at most 600"
+        )
+
     resolved_scope = str(
         scope
         or "system"
@@ -777,13 +819,13 @@ def start_adaptive_training_controller(
             None,
 
         "confidence_threshold":
-            float(confidence_threshold),
+            threshold,
 
         "maximum_rounds":
-            int(maximum_rounds),
+            resolved_maximum_rounds,
 
         "duration_seconds_per_round":
-            int(duration_seconds_per_round),
+            resolved_duration,
 
         "requested_by":
             requested_by,
@@ -865,13 +907,13 @@ def start_adaptive_training_controller(
         target=run_adaptive_training_controller,
         kwargs={
             "confidence_threshold":
-                confidence_threshold,
+                threshold,
 
             "maximum_rounds":
-                maximum_rounds,
+                resolved_maximum_rounds,
 
             "duration_seconds_per_round":
-                duration_seconds_per_round,
+                resolved_duration,
 
             "initial_candidate":
                 initial_candidate,
@@ -918,7 +960,6 @@ def start_adaptive_training_controller(
     return deepcopy(
         queued
     )
-
 
 def get_adaptive_controller_for_owner(
     *,
