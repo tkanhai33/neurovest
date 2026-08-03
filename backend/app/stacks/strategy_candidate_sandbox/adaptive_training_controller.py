@@ -75,6 +75,188 @@ _TERMINAL_RUN_STATES = {
     "canceled",
 }
 
+
+def _persisted_controller_record(
+    payload: object,
+) -> dict[str, Any] | None:
+    """
+    Extract one adaptive-controller snapshot from a JSONL entry.
+
+    The canonical direct-record format is accepted, along with known wrapper
+    keys so historical qualification records remain readable.
+    """
+
+    if not isinstance(
+        payload,
+        dict,
+    ):
+        return None
+
+    candidates = (
+        payload,
+        payload.get("controller"),
+        payload.get("record"),
+        payload.get("result"),
+    )
+
+    candidate = next(
+        (
+            item
+            for item in candidates
+            if (
+                isinstance(item, dict)
+                and str(
+                    item.get("controller_id")
+                    or ""
+                ).startswith(
+                    "adaptive_controller_"
+                )
+            )
+        ),
+        None,
+    )
+
+    if candidate is None:
+        return None
+
+    record = dict(candidate)
+
+    controller_id = str(
+        record.get("controller_id")
+        or ""
+    ).strip()
+
+    if not controller_id.startswith(
+        "adaptive_controller_"
+    ):
+        return None
+
+    scope = str(
+        record.get("scope")
+        or ""
+    ).strip()
+
+    owner_user_id = str(
+        record.get("owner_user_id")
+        or ""
+    ).strip()
+
+    if (
+        scope == "user"
+        and not owner_user_id
+    ):
+        return None
+
+    status = str(
+        record.get("status")
+        or ""
+    ).strip()
+
+    if status in {
+        "queued",
+        "starting",
+        "running",
+        "finalizing",
+    }:
+        record["status"] = "failed"
+        record["stop_reason"] = (
+            "interrupted_by_runtime_restart"
+        )
+
+        if not record.get("completed_at"):
+            record["completed_at"] = (
+                record.get("started_at")
+                or record.get("created_at")
+            )
+
+    return record
+
+
+def _read_persisted_controller_records() -> dict[
+    str,
+    dict[str, Any],
+]:
+    """
+    Read the adaptive-controller JSONL index.
+
+    Entries are processed in file order. Later snapshots replace earlier
+    snapshots for the same controller, matching append-only JSONL semantics.
+    """
+
+    restored: dict[
+        str,
+        dict[str, Any],
+    ] = {}
+
+    if not _CONTROLLER_INDEX.is_file():
+        return restored
+
+    try:
+        handle = _CONTROLLER_INDEX.open(
+            "r",
+            encoding="utf-8",
+        )
+    except OSError:
+        return restored
+
+    with handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+
+            if not line:
+                continue
+
+            try:
+                payload = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            record = _persisted_controller_record(
+                payload
+            )
+
+            if record is None:
+                continue
+
+            controller_id = str(
+                record["controller_id"]
+            )
+
+            restored[
+                controller_id
+            ] = record
+
+    return restored
+
+
+def _load_persisted_controllers() -> int:
+    """
+    Restore the newest persisted snapshot for every controller.
+
+    No controller is resumed automatically. Interrupted nonterminal records
+    are exposed as failed with an explicit restart-interruption reason.
+    """
+
+    restored = (
+        _read_persisted_controller_records()
+    )
+
+    if not restored:
+        return 0
+
+    with _LOCK:
+        _CONTROLLERS.update(
+            restored
+        )
+
+    return len(restored)
+
+
+_RESTORED_CONTROLLER_COUNT = (
+    _load_persisted_controllers()
+)
+
+
 _MINIMUM_ROUNDS = 1
 _MAXIMUM_ROUNDS = 10
 
