@@ -20,6 +20,17 @@ runtime/training_sessions.
 
 from __future__ import annotations
 
+from backend.app.stacks.strategy_candidate_sandbox.training_candidate_contract import (
+    build_training_candidate_contract,
+    validate_training_candidate_contract,
+)
+from backend.app.stacks.strategy_candidate_sandbox.training_window_contract import (
+    apply_training_window,
+    build_close_prefix_sums,
+    build_training_window_contract,
+    candidate_decision_from_prefix,
+)
+
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
@@ -219,14 +230,13 @@ def discover_canadian_datasets() -> list[
     return datasets
 
 
+
 def _read_close_rows(
     path: Path,
-) -> list[
-    tuple[str | None, float]
-]:
-    rows: list[
-        tuple[str | None, float]
-    ] = []
+    *,
+    training_window: dict[str, Any],
+) -> list[tuple[str | None, float]]:
+    rows: list[tuple[str | None, float]] = []
 
     with path.open(
         "r",
@@ -234,46 +244,35 @@ def _read_close_rows(
         errors="replace",
         newline="",
     ) as handle:
-        reader = csv.DictReader(
-            handle
-        )
+        reader = csv.DictReader(handle)
 
         if not reader.fieldnames:
             return rows
 
         normalized = {
-            str(name).strip().lower():
-                name
+            str(name).strip().lower(): name
             for name in reader.fieldnames
             if name is not None
         }
 
         close_key = (
             normalized.get("close")
-            or normalized.get(
-                "adj close"
-            )
-            or normalized.get(
-                "adj_close"
-            )
+            or normalized.get("adj close")
+            or normalized.get("adj_close")
         )
 
         date_key = (
             normalized.get("date")
-            or normalized.get(
-                "datetime"
-            )
-            or normalized.get(
-                "timestamp"
-            )
+            or normalized.get("datetime")
+            or normalized.get("timestamp")
         )
 
         if close_key is None:
             return rows
 
-        for row in reader:
+        for raw in reader:
             close = _safe_float(
-                row.get(close_key)
+                raw.get(close_key)
             )
 
             if close is None:
@@ -281,7 +280,7 @@ def _read_close_rows(
 
             timestamp = (
                 str(
-                    row.get(
+                    raw.get(
                         date_key,
                         "",
                     )
@@ -297,29 +296,31 @@ def _read_close_rows(
                 )
             )
 
-    return rows
+    return apply_training_window(
+        rows,
+        timestamps=[
+            timestamp
+            for timestamp, _
+            in rows
+        ],
+        window=training_window,
+    )
+
 
 
 def _decision(
     *,
-    previous_close: float,
-    current_close: float,
+    closes: list[float],
+    prefix_sums: list[float],
+    index: int,
+    training_candidate: dict[str, Any],
 ) -> str:
-    if previous_close == 0:
-        return "HOLD"
-
-    change = (
-        current_close
-        - previous_close
-    ) / abs(previous_close)
-
-    if change >= 0.0025:
-        return "BUY_SIGNAL"
-
-    if change <= -0.0025:
-        return "SELL_SIGNAL"
-
-    return "HOLD"
+    return candidate_decision_from_prefix(
+        closes=closes,
+        prefix_sums=prefix_sums,
+        index=index,
+        candidate=training_candidate,
+    )
 
 
 def _write_evidence(
@@ -439,7 +440,12 @@ def _run_training(
 
         try:
             rows = _read_close_rows(
-                path
+                path,
+                training_window=(
+                    record[
+                        "training_window"
+                    ]
+                ),
             )
         except Exception:
             rows = []
@@ -450,10 +456,24 @@ def _run_training(
             )
             continue
 
+        closes = [
+            float(value)
+            for _, value in rows
+        ]
+
+        prefix_sums = (
+            build_close_prefix_sums(
+                closes
+            )
+        )
+
         prepared.append(
             {
                 **dataset,
                 "rows": rows,
+                "closes": closes,
+                "prefix_sums":
+                    prefix_sums,
                 "cursor": 1,
             }
         )
@@ -549,8 +569,18 @@ def _run_training(
             )
 
             signal = _decision(
-                previous_close=previous,
-                current_close=current,
+                closes=item[
+                    "closes"
+                ],
+                prefix_sums=item[
+                    "prefix_sums"
+                ],
+                index=cursor,
+                training_candidate=(
+                    record[
+                        "training_candidate"
+                    ]
+                ),
             )
 
             decision_counts[
@@ -700,6 +730,16 @@ def _run_training(
                 build_bounded_training_confidence_summary(
                     run_id=run_id,
                     datasets=prepared,
+                    training_candidate=(
+                        record[
+                            "training_candidate"
+                        ]
+                    ),
+                    training_window=(
+                        record[
+                            "training_window"
+                        ]
+                    ),
                 )
             )
 
@@ -1061,6 +1101,76 @@ def _sanitized_learning_contribution(
         "cycles":
             record.get("cycles"),
 
+        "candidate_id":
+            record[
+                "training_candidate"
+            ][
+                "candidate_id"
+            ],
+
+        "training_candidate":
+            dict(
+                record[
+                    "training_candidate"
+                ]
+            ),
+
+        "training_window_id":
+            record[
+                "training_window"
+            ][
+                "training_window_id"
+            ],
+
+        "training_window":
+            dict(
+                record[
+                    "training_window"
+                ]
+            ),
+
+        "window_start":
+            record[
+                "training_window"
+            ][
+                "window_start"
+            ],
+
+        "window_end":
+            record[
+                "training_window"
+            ][
+                "window_end"
+            ],
+
+        "lookback_rows":
+            record[
+                "training_window"
+            ][
+                "lookback_rows"
+            ],
+
+        "row_offset":
+            record[
+                "training_window"
+            ][
+                "row_offset"
+            ],
+
+        "round_number":
+            record[
+                "training_window"
+            ][
+                "round_number"
+            ],
+
+        "maximum_rounds":
+            record[
+                "training_window"
+            ][
+                "maximum_rounds"
+            ],
+
         "signal_totals": {
             "BUY_SIGNAL":
                 int(
@@ -1216,6 +1326,13 @@ def start_bounded_training_session(
     owner_user_id: str | None = None,
     owner_session_id: str | None = None,
     requested_by_role: str | None = None,
+    training_candidate: dict[str, Any] | None = None,
+    window_start: str | None = None,
+    window_end: str | None = None,
+    lookback_rows: int | None = None,
+    row_offset: int = 0,
+    round_number: int = 1,
+    maximum_rounds: int = 1,
 ) -> dict[str, Any]:
     normalized_universe = str(
         universe
@@ -1279,6 +1396,35 @@ def start_bounded_training_session(
                 "SYSTEM training cannot have a customer session."
             )
 
+    if training_candidate is None:
+        resolved_candidate = (
+            build_training_candidate_contract(
+                created_from="manual",
+            ).to_dict()
+        )
+    else:
+        resolved_candidate = dict(
+            training_candidate
+        )
+
+    if not validate_training_candidate_contract(
+        resolved_candidate
+    ):
+        raise ValueError(
+            "Training candidate contract is invalid."
+        )
+
+    resolved_window = (
+        build_training_window_contract(
+            window_start=window_start,
+            window_end=window_end,
+            lookback_rows=lookback_rows,
+            row_offset=row_offset,
+            round_number=round_number,
+            maximum_rounds=maximum_rounds,
+        ).to_dict()
+    )
+
     run_id = (
         "training_"
         + datetime.now(
@@ -1317,6 +1463,52 @@ def start_bounded_training_session(
             resolved_role,
 
         "source": source,
+
+        "training_candidate":
+            resolved_candidate,
+
+        "candidate_id":
+            resolved_candidate[
+                "candidate_id"
+            ],
+
+        "training_window":
+            resolved_window,
+
+        "training_window_id":
+            resolved_window[
+                "training_window_id"
+            ],
+
+        "window_start":
+            resolved_window[
+                "window_start"
+            ],
+
+        "window_end":
+            resolved_window[
+                "window_end"
+            ],
+
+        "lookback_rows":
+            resolved_window[
+                "lookback_rows"
+            ],
+
+        "row_offset":
+            resolved_window[
+                "row_offset"
+            ],
+
+        "round_number":
+            resolved_window[
+                "round_number"
+            ],
+
+        "maximum_rounds":
+            resolved_window[
+                "maximum_rounds"
+            ],
         "discovered_symbol_count": 0,
         "eligible_symbol_count": 0,
         "symbols": [],

@@ -17,6 +17,18 @@ creation, broker request, or live execution is permitted here.
 
 from __future__ import annotations
 
+from backend.app.stacks.strategy_candidate_sandbox.training_candidate_contract import (
+    build_training_candidate_contract,
+    validate_training_candidate_contract,
+)
+from backend.app.stacks.strategy_candidate_sandbox.training_window_contract import (
+    apply_training_window,
+    build_close_prefix_sums,
+    build_training_window_contract,
+    candidate_decision_from_prefix,
+    validate_training_window_contract,
+)
+
 from pathlib import Path
 from typing import Any
 import csv
@@ -98,8 +110,11 @@ def _finite_float(
     return resolved
 
 
+
 def _read_full_ohlcv_rows(
     path: Path,
+    *,
+    training_window: dict[str, Any],
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
 
@@ -108,7 +123,9 @@ def _read_full_ohlcv_rows(
         encoding="utf-8-sig",
         newline="",
     ) as handle:
-        reader = csv.DictReader(handle)
+        reader = csv.DictReader(
+            handle
+        )
 
         for raw in reader:
             normalized = {
@@ -166,24 +183,33 @@ def _read_full_ohlcv_rows(
                 }
             )
 
-    return rows
+    return apply_training_window(
+        rows,
+        timestamps=[
+            str(
+                row.get("date")
+                or ""
+            )
+            for row in rows
+        ],
+        window=training_window,
+    )
+
 
 
 def _decision_for_row(
     *,
-    previous_close: float | None,
-    current_close: float,
+    closes: list[float],
+    prefix_sums: list[float],
+    index: int,
+    training_candidate: dict[str, Any],
 ) -> str:
-    if previous_close is None:
-        return "HOLD"
-
-    if current_close > previous_close:
-        return "BUY_SIGNAL"
-
-    if current_close < previous_close:
-        return "SELL_SIGNAL"
-
-    return "HOLD"
+    return candidate_decision_from_prefix(
+        closes=closes,
+        prefix_sums=prefix_sums,
+        index=index,
+        candidate=training_candidate,
+    )
 
 
 def _contains_forbidden_key(
@@ -221,7 +247,36 @@ def build_bounded_training_confidence_summary(
     *,
     run_id: str,
     datasets: list[dict[str, Any]],
+    training_candidate: dict[str, Any] | None = None,
+    training_window: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    resolved_candidate = (
+        build_training_candidate_contract(
+            created_from="manual",
+        ).to_dict()
+        if training_candidate is None
+        else dict(training_candidate)
+    )
+
+    resolved_window = (
+        build_training_window_contract().to_dict()
+        if training_window is None
+        else dict(training_window)
+    )
+
+    if not validate_training_candidate_contract(
+        resolved_candidate
+    ):
+        raise ValueError(
+            "invalid confidence training candidate"
+        )
+
+    if not validate_training_window_contract(
+        resolved_window
+    ):
+        raise ValueError(
+            "invalid confidence training window"
+        )
     symbol_summaries: list[
         dict[str, Any]
     ] = []
@@ -252,7 +307,23 @@ def build_bounded_training_confidence_summary(
             continue
 
         rows = _read_full_ohlcv_rows(
-            path
+            path,
+            training_window=(
+                resolved_window
+            ),
+        )
+
+        closes = [
+            float(
+                row["close"]
+            )
+            for row in rows
+        ]
+
+        prefix_sums = (
+            build_close_prefix_sums(
+                closes
+            )
         )
 
         if len(rows) < 2:
@@ -286,8 +357,12 @@ def build_bounded_training_confidence_summary(
             )
 
             decision = _decision_for_row(
-                previous_close=previous_close,
-                current_close=current_close,
+                closes=closes,
+                prefix_sums=prefix_sums,
+                index=index,
+                training_candidate=(
+                    resolved_candidate
+                ),
             )
 
             artifact = build_learning_artifact(
@@ -451,6 +526,56 @@ def build_bounded_training_confidence_summary(
                 "feature_reward_artifact_"
                 "knowledge_profile"
             ),
+
+        "candidate_id":
+            resolved_candidate[
+                "candidate_id"
+            ],
+
+        "training_candidate":
+            dict(
+                resolved_candidate
+            ),
+
+        "training_window_id":
+            resolved_window[
+                "training_window_id"
+            ],
+
+        "training_window":
+            dict(
+                resolved_window
+            ),
+
+        "window_start":
+            resolved_window[
+                "window_start"
+            ],
+
+        "window_end":
+            resolved_window[
+                "window_end"
+            ],
+
+        "lookback_rows":
+            resolved_window[
+                "lookback_rows"
+            ],
+
+        "row_offset":
+            resolved_window[
+                "row_offset"
+            ],
+
+        "round_number":
+            resolved_window[
+                "round_number"
+            ],
+
+        "maximum_rounds":
+            resolved_window[
+                "maximum_rounds"
+            ],
 
         "valid_learning_artifacts":
             total_artifacts,

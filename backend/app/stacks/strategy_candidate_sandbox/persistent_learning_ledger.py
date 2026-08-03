@@ -10,6 +10,13 @@ application database, or enable any trading path.
 
 from __future__ import annotations
 
+from backend.app.stacks.strategy_candidate_sandbox.training_candidate_contract import (
+    validate_training_candidate_contract,
+)
+from backend.app.stacks.strategy_candidate_sandbox.training_window_contract import (
+    validate_training_window_contract,
+)
+
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
@@ -38,44 +45,54 @@ _LOCK = Lock()
 _LEDGER_VERSION = 1
 
 _ALLOWED_TOP_LEVEL_KEYS = {
-    "contribution_id",
-    "source_scope",
-    "universe",
+    "all_compared_symbols_improved",
+    "average_confidence",
+    "average_confidence_delta",
+    "average_reward",
+    "baseline_average_confidence",
+    "baseline_contribution_id",
+    "candidate_id",
     "completed",
+    "confidence_baseline_available",
+    "confidence_baseline_version",
+    "confidence_improved",
+    "confidence_safety",
+    "contribution_id",
+    "current_average_confidence",
+    "cycles",
     "duration_seconds",
     "elapsed_seconds",
-    "symbols_evaluated",
-    "rows_evaluated",
-    "cycles",
-    "signal_totals",
-    "safety",
-    "learning_pipeline_version",
-    "learning_pipeline",
-    "valid_learning_artifacts",
-    "learning_observations",
-    "average_reward",
-    "average_confidence",
-    "minimum_symbol_confidence",
-    "maximum_symbol_confidence",
-    "symbols_with_valid_confidence",
     "invalid_confidence_datasets",
+    "learning_observations",
+    "learning_pipeline",
+    "learning_pipeline_version",
+    "lookback_rows",
+    "maximum_rounds",
+    "maximum_symbol_confidence",
+    "maximum_symbol_confidence_delta",
+    "minimum_symbol_confidence",
+    "minimum_symbol_confidence_delta",
+    "round_number",
+    "row_offset",
+    "rows_evaluated",
+    "safety",
+    "signal_totals",
+    "source_scope",
     "symbol_confidence",
-    "confidence_safety",
-    "confidence_baseline_version",
-    "confidence_baseline_available",
-    "baseline_contribution_id",
-    "baseline_average_confidence",
-    "current_average_confidence",
-    "average_confidence_delta",
+    "symbol_confidence_delta",
     "symbols_compared",
+    "symbols_declined",
+    "symbols_evaluated",
     "symbols_improved",
     "symbols_unchanged",
-    "symbols_declined",
-    "minimum_symbol_confidence_delta",
-    "maximum_symbol_confidence_delta",
-    "all_compared_symbols_improved",
-    "confidence_improved",
-    "symbol_confidence_delta",
+    "symbols_with_valid_confidence",
+    "training_candidate",
+    "training_window",
+    "training_window_id",
+    "universe",
+    "valid_learning_artifacts",
+    "window_end",
+    "window_start",
 }
 
 _REQUIRED_TOP_LEVEL_KEYS = {
@@ -619,6 +636,82 @@ def validate_sanitized_contribution(
                 "unchanged",
                 "declined",
             }:
+                return False
+
+    provenance_keys = {
+        "candidate_id",
+        "training_candidate",
+        "training_window_id",
+        "training_window",
+        "window_start",
+        "window_end",
+        "lookback_rows",
+        "row_offset",
+        "round_number",
+        "maximum_rounds",
+    }
+
+    present_provenance_keys = (
+        set(contribution)
+        & provenance_keys
+    )
+
+    if present_provenance_keys:
+        if (
+            present_provenance_keys
+            != provenance_keys
+        ):
+            return False
+
+        training_candidate = (
+            contribution.get(
+                "training_candidate"
+            )
+        )
+
+        training_window = (
+            contribution.get(
+                "training_window"
+            )
+        )
+
+        if not validate_training_candidate_contract(
+            training_candidate
+        ):
+            return False
+
+        if not validate_training_window_contract(
+            training_window
+        ):
+            return False
+
+        if contribution.get(
+            "candidate_id"
+        ) != training_candidate.get(
+            "candidate_id"
+        ):
+            return False
+
+        if contribution.get(
+            "training_window_id"
+        ) != training_window.get(
+            "training_window_id"
+        ):
+            return False
+
+        for key in (
+            "window_start",
+            "window_end",
+            "lookback_rows",
+            "row_offset",
+            "round_number",
+            "maximum_rounds",
+        ):
+            if contribution.get(
+                key
+            ) != training_window.get(
+                key
+            ):
                 return False
 
     safety = contribution.get(
