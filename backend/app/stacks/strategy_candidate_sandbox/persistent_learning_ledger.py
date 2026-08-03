@@ -61,6 +61,21 @@ _ALLOWED_TOP_LEVEL_KEYS = {
     "invalid_confidence_datasets",
     "symbol_confidence",
     "confidence_safety",
+    "confidence_baseline_version",
+    "confidence_baseline_available",
+    "baseline_contribution_id",
+    "baseline_average_confidence",
+    "current_average_confidence",
+    "average_confidence_delta",
+    "symbols_compared",
+    "symbols_improved",
+    "symbols_unchanged",
+    "symbols_declined",
+    "minimum_symbol_confidence_delta",
+    "maximum_symbol_confidence_delta",
+    "all_compared_symbols_improved",
+    "confidence_improved",
+    "symbol_confidence_delta",
 }
 
 _REQUIRED_TOP_LEVEL_KEYS = {
@@ -413,6 +428,198 @@ def validate_sanitized_contribution(
 
         if value < 0:
             return False
+
+    baseline_available = contribution.get(
+        "confidence_baseline_available"
+    )
+
+    if baseline_available is not None:
+        if not isinstance(
+            baseline_available,
+            bool,
+        ):
+            return False
+
+    for key in (
+        "symbols_compared",
+        "symbols_improved",
+        "symbols_unchanged",
+        "symbols_declined",
+    ):
+        value = contribution.get(
+            key
+        )
+
+        if value is None:
+            continue
+
+        if not isinstance(
+            value,
+            int,
+        ):
+            return False
+
+        if value < 0:
+            return False
+
+    for key in (
+        "baseline_average_confidence",
+        "current_average_confidence",
+    ):
+        value = contribution.get(
+            key
+        )
+
+        if value is None:
+            continue
+
+        if not isinstance(
+            value,
+            (
+                int,
+                float,
+            ),
+        ):
+            return False
+
+        if not (
+            0.0
+            <= float(value)
+            <= 1.0
+        ):
+            return False
+
+    for key in (
+        "average_confidence_delta",
+        "minimum_symbol_confidence_delta",
+        "maximum_symbol_confidence_delta",
+    ):
+        value = contribution.get(
+            key
+        )
+
+        if value is None:
+            continue
+
+        if not isinstance(
+            value,
+            (
+                int,
+                float,
+            ),
+        ):
+            return False
+
+        if not (
+            -1.0
+            <= float(value)
+            <= 1.0
+        ):
+            return False
+
+    symbol_delta = contribution.get(
+        "symbol_confidence_delta"
+    )
+
+    if symbol_delta is not None:
+        if not isinstance(
+            symbol_delta,
+            list,
+        ):
+            return False
+
+        observed_symbols: set[str] = set()
+
+        for item in symbol_delta:
+            if not isinstance(
+                item,
+                dict,
+            ):
+                return False
+
+            if set(item) != {
+                "symbol",
+                "baseline_confidence",
+                "current_confidence",
+                "confidence_delta",
+                "state",
+            }:
+                return False
+
+            symbol = str(
+                item.get(
+                    "symbol"
+                )
+                or ""
+            ).strip().upper()
+
+            if (
+                not symbol
+                or symbol in observed_symbols
+            ):
+                return False
+
+            observed_symbols.add(
+                symbol
+            )
+
+            before = item.get(
+                "baseline_confidence"
+            )
+
+            after = item.get(
+                "current_confidence"
+            )
+
+            delta = item.get(
+                "confidence_delta"
+            )
+
+            if not all(
+                isinstance(
+                    value,
+                    (
+                        int,
+                        float,
+                    ),
+                )
+                for value in (
+                    before,
+                    after,
+                    delta,
+                )
+            ):
+                return False
+
+            if not (
+                0.0
+                <= float(before)
+                <= 1.0
+            ):
+                return False
+
+            if not (
+                0.0
+                <= float(after)
+                <= 1.0
+            ):
+                return False
+
+            if not (
+                -1.0
+                <= float(delta)
+                <= 1.0
+            ):
+                return False
+
+            if item.get(
+                "state"
+            ) not in {
+                "improved",
+                "unchanged",
+                "declined",
+            }:
+                return False
 
     safety = contribution.get(
         "safety"
