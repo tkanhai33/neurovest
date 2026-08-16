@@ -16,9 +16,9 @@ from backend.app.stacks.snaptrade.application.live_portfolio_snapshot_service im
     SnapTradeLivePortfolioSnapshotService,
 )
 
-from backend.app.stacks.snaptrade.application.portfolio_inventory_persistence import (
-    PortfolioPersistenceSummary,
-    persist_owned_snaptrade_snapshot,
+from backend.app.stacks.snaptrade.application.external_portfolio_inventory import (
+    ExternalPortfolioReconciliationSummary,
+    reconcile_external_snaptrade_portfolio,
 )
 
 
@@ -31,7 +31,7 @@ class SnapTradeLivePortfolioSyncError(
 @dataclass(frozen=True)
 class SnapTradeLivePortfolioSyncResult:
     snapshot: ReadOnlyPortfolioSnapshot
-    persistence: PortfolioPersistenceSummary
+    persistence: ExternalPortfolioReconciliationSummary
 
 
 SnapshotServiceFactory = Callable[
@@ -43,7 +43,7 @@ SnapshotServiceFactory = Callable[
 PersistenceFunction = Callable[
     ...,
     Awaitable[
-        PortfolioPersistenceSummary
+        ExternalPortfolioReconciliationSummary
     ],
 ]
 
@@ -74,7 +74,7 @@ class SnapTradeLivePortfolioSyncService:
         *,
         snapshot_service_factory: SnapshotServiceFactory | None = None,
         persistence_function: PersistenceFunction = (
-            persist_owned_snaptrade_snapshot
+            reconcile_external_snaptrade_portfolio
         ),
     ) -> None:
 
@@ -165,7 +165,7 @@ class SnapTradeLivePortfolioSyncService:
         )
 
 
-        if persistence.user_id != owner:
+        if persistence.neurovest_user_id != owner:
 
             raise SnapTradeLivePortfolioSyncError(
                 "Persistence owner does not match authenticated owner."

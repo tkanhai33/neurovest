@@ -30,6 +30,10 @@ from backend.app.stacks.journal_ledger.decision_event_model import (  # noqa: F4
     DecisionEventRecord,
 )
 
+from backend.app.stacks.snaptrade.persistence.external_portfolio_models import (  # noqa: F401
+    SnapTradeExternalPortfolioPosition,
+)
+
 
 config = context.config
 

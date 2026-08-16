@@ -29,6 +29,10 @@ from backend.app.stacks.snaptrade.application.live_portfolio_sync_service import
     SnapTradeLivePortfolioSyncService,
 )
 
+from backend.app.stacks.snaptrade.application.external_portfolio_inventory import (
+    get_external_snaptrade_portfolio,
+)
+
 
 
 router = APIRouter(
@@ -303,6 +307,12 @@ async def synchronize_snaptrade_status(
 
                 "updated":
                     synchronized.persistence.updated,
+
+                "removed":
+                    synchronized.persistence.removed,
+
+                "external_inventory":
+                    True,
             }
 
             return response
@@ -314,3 +324,31 @@ async def synchronize_snaptrade_status(
         raise provider_error(
             exc
         ) from exc
+
+@router.get(
+    "/portfolio",
+)
+async def get_snaptrade_external_portfolio(
+    principal=Depends(
+        require_authenticated_principal
+    ),
+) -> dict[str, object]:
+    """
+    Return the authenticated owner's durable external SnapTrade
+    portfolio inventory.
+
+    This endpoint performs no provider call and has no order or
+    execution capability.
+    """
+
+    owner = principal_subject(
+        principal
+    )
+
+    async with async_session() as session:
+
+        return await get_external_snaptrade_portfolio(
+            session=session,
+            neurovest_user_id=owner,
+        )
+

@@ -15,6 +15,13 @@ def register_runtime_models() -> tuple[
     ModuleType,
     ModuleType,
 ]:
+
+    from backend.app.stacks.snaptrade.persistence.external_portfolio_models import (
+        SnapTradeExternalPortfolioPosition,
+    )
+
+    _ = SnapTradeExternalPortfolioPosition
+
     from backend.app.stacks.chat_public.persistence import (
         chat_models,
     )

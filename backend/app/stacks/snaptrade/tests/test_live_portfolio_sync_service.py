@@ -7,8 +7,8 @@ from backend.app.stacks.snaptrade.application.live_portfolio_sync_service import
     SnapTradeLivePortfolioSyncService,
 )
 
-from backend.app.stacks.snaptrade.application.portfolio_inventory_persistence import (
-    PortfolioPersistenceSummary,
+from backend.app.stacks.snaptrade.application.external_portfolio_inventory import (
+    ExternalPortfolioReconciliationSummary,
 )
 
 
@@ -82,10 +82,12 @@ async def test_sync_calls_snapshot_then_persistence():
         )
 
 
-        return PortfolioPersistenceSummary(
-            user_id=neurovest_user_id,
+        return ExternalPortfolioReconciliationSummary(
+            neurovest_user_id=neurovest_user_id,
             inserted=0,
             updated=3,
+            removed=0,
+            position_count=3,
             symbols=(
                 "BTE.TO",
                 "TD.TO",
@@ -315,10 +317,12 @@ async def test_persistence_owner_mismatch_fails_closed():
         **kwargs,
     ):
 
-        return PortfolioPersistenceSummary(
-            user_id="wrong-owner",
+        return ExternalPortfolioReconciliationSummary(
+            neurovest_user_id="wrong-owner",
             inserted=0,
             updated=3,
+            removed=0,
+            position_count=3,
             symbols=(
                 "BTE.TO",
                 "TD.TO",

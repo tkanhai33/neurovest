@@ -140,6 +140,7 @@ class FakePortfolioSyncService:
                 ),
                 inserted=0,
                 updated=3,
+                removed=0,
             ),
         )
 
@@ -262,6 +263,14 @@ async def test_authenticated_route_runs_both_sync_paths_and_commits(
     assert portfolio[
         "updated"
     ] == 3
+
+    assert portfolio[
+        "removed"
+    ] == 0
+
+    assert portfolio[
+        "external_inventory"
+    ] is True
 
 
 @pytest.mark.asyncio
