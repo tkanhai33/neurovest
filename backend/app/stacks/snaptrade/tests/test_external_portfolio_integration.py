@@ -401,7 +401,7 @@ def test_external_inventory_migration_contract() -> None:
     )
 
     assert (
-        'down_revision = "objective4gd_display_name"'
+        'down_revision = "portfolio_decimal_20260816"'
         in text
     )
 

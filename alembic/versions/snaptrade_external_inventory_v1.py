@@ -1,7 +1,7 @@
 """Create owner-scoped SnapTrade external portfolio inventory.
 
 Revision ID: snaptrade_external_inventory_v1
-Revises: objective4gd_display_name
+Revises: portfolio_decimal_20260816
 Create Date: 2026-08-16
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 revision = "snaptrade_external_inventory_v1"
 
-down_revision = "objective4gd_display_name"
+down_revision = "portfolio_decimal_20260816"
 
 branch_labels = None
 
