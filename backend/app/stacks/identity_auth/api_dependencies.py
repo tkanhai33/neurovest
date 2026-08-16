@@ -5,6 +5,16 @@ from collections.abc import (
 )
 from typing import Any
 
+import os
+from fastapi import Request
+
+from backend.app.stacks.chat_public import public_controls as public_controls_module
+from backend.app.stacks.chat_public.public_controls import (
+    AnonymousSlidingWindowLimiter,
+    PublicChatRateLimited,
+)
+
+
 from fastapi import (
     Depends,
     HTTPException,
@@ -53,6 +63,78 @@ from backend.app.stacks.identity_auth.runtime_adapter import (
     authentication_runtime,
     session_lifecycle_runtime,
 )
+
+
+
+
+_AUTH_LIMITER = AnonymousSlidingWindowLimiter(
+    limit=int(
+        os.getenv(
+            "NEUROVEST_AUTH_RATE_LIMIT",
+            "10",
+        )
+    ),
+    window_seconds=float(
+        os.getenv(
+            "NEUROVEST_AUTH_RATE_WINDOW_SECONDS",
+            "60",
+        )
+    ),
+)
+
+
+async def enforce_auth_rate_limit(
+    request: Request,
+) -> None:
+    """
+    Apply the authentication request limit by normalized client IP.
+
+    The exception type is resolved through the public-controls module
+    at runtime so test or development module reloads cannot produce a
+    stale exception-class reference.
+    """
+
+    client = "anonymous"
+
+    if (
+        request.client is not None
+        and request.client.host
+    ):
+        client = (
+            str(
+                request.client.host
+            ).strip()
+            or "anonymous"
+        )
+
+    try:
+        _AUTH_LIMITER.check(
+            client
+        )
+
+    except (
+        public_controls_module
+        .PublicChatRateLimited
+    ) as exc:
+        raise HTTPException(
+            status_code=(
+                status.HTTP_429_TOO_MANY_REQUESTS
+            ),
+            detail=(
+                "Too many authentication requests"
+            ),
+            headers={
+                "Retry-After": "60",
+            },
+        ) from exc
+
+
+
+def reset_auth_rate_limiter() -> None:
+    """Clear process-local authentication limiter state for tests."""
+
+    _AUTH_LIMITER.reset()
+
 
 
 bearer_scheme = HTTPBearer(

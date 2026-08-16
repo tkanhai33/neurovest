@@ -48,6 +48,22 @@ class SnapTradeReadOnlySdkClient:
         self.__auth_mode = auth_mode
 
     @property
+    def _client(
+        self,
+    ) -> SnapTrade:
+        """
+        Internal application-service bridge to the raw SnapTrade SDK.
+
+        This remains an underscore-prefixed implementation detail.
+        The public wrapper still exposes no trading namespace or
+        order method.
+
+        SnapTradeConnectionService uses this bridge only for the
+        qualified authentication / connection / account namespaces.
+        """
+        return self.__client
+
+    @property
     def descriptor(
         self,
     ) -> SnapTradeSdkDescriptor:
@@ -99,6 +115,61 @@ class SnapTradeReadOnlySdkClient:
             self.__client
             .api_status
             .check()
+        )
+
+    def list_user_accounts(
+        self,
+        *,
+        user_id: str,
+        user_secret: str,
+    ) -> Any:
+        self._require_external_readonly_access()
+
+        return (
+            self.__client
+            .account_information
+            .list_user_accounts(
+                user_id=user_id,
+                user_secret=user_secret,
+            )
+        )
+
+    def get_all_account_positions(
+        self,
+        *,
+        account_id: str,
+        user_id: str,
+        user_secret: str,
+    ) -> Any:
+        self._require_external_readonly_access()
+
+        return (
+            self.__client
+            .account_information
+            .get_all_account_positions(
+                account_id=account_id,
+                user_id=user_id,
+                user_secret=user_secret,
+            )
+        )
+
+    def get_user_account_balance(
+        self,
+        *,
+        account_id: str,
+        user_id: str,
+        user_secret: str,
+    ) -> Any:
+        self._require_external_readonly_access()
+
+        return (
+            self.__client
+            .account_information
+            .get_user_account_balance(
+                account_id=account_id,
+                user_id=user_id,
+                user_secret=user_secret,
+            )
         )
 
 

@@ -25,6 +25,11 @@ from backend.app.stacks.snaptrade.application.connection_service import (
     SnapTradeProviderUnavailableError,
 )
 
+from backend.app.stacks.snaptrade.application.live_portfolio_sync_service import (
+    SnapTradeLivePortfolioSyncService,
+)
+
+
 
 router = APIRouter(
     prefix="/api/v1/snaptrade",
@@ -223,18 +228,84 @@ async def synchronize_snaptrade_status(
 
     try:
         async with async_session() as session:
-            service = (
-                SnapTradeConnectionService(
-                    session
+
+            try:
+                connection_service = (
+                    SnapTradeConnectionService(
+                        session
+                    )
                 )
+
+                connection_state = (
+                    await connection_service
+                    .synchronize_status(
+                        neurovest_user_id=owner
+                    )
+                )
+
+                portfolio_service = (
+                    SnapTradeLivePortfolioSyncService(
+                        session
+                    )
+                )
+
+                synchronized = (
+                    await portfolio_service
+                    .synchronize(
+                        neurovest_user_id=owner
+                    )
+                )
+
+                await session.commit()
+
+            except Exception:
+                await session.rollback()
+                raise
+
+            response = dict(
+                connection_state
             )
 
-            return (
-                await service
-                .synchronize_status(
-                    neurovest_user_id=owner
-                )
-            )
+            response[
+                "portfolio_sync"
+            ] = {
+                "status":
+                    "synchronized",
+
+                "read_only":
+                    synchronized.snapshot.read_only,
+
+                "trading_enabled":
+                    synchronized.snapshot.trading_enabled,
+
+                "order_operations_enabled":
+                    synchronized.snapshot.order_operations_enabled,
+
+                "account_count":
+                    synchronized.snapshot.account_count,
+
+                "position_count":
+                    synchronized.snapshot.position_count,
+
+                "balance_record_count":
+                    synchronized.snapshot.balance_record_count,
+
+                "network_request_count":
+                    synchronized.snapshot.network_request_count,
+
+                "symbols":
+                    list(
+                        synchronized.snapshot.symbols
+                    ),
+
+                "inserted":
+                    synchronized.persistence.inserted,
+
+                "updated":
+                    synchronized.persistence.updated,
+            }
+
+            return response
 
     except (
         SnapTradeConnectionRejectedError,

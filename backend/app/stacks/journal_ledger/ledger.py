@@ -1,6 +1,7 @@
 import datetime
+from decimal import Decimal
 
-from sqlalchemy import ForeignKey, UniqueConstraint, func, select
+from sqlalchemy import ForeignKey, UniqueConstraint, func, select, Numeric
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.app.stacks.db_runtime.database import (
@@ -48,10 +49,22 @@ class PortfolioInventory(Base):
         index=True,
     )
     symbol: Mapped[str] = mapped_column(nullable=False)
-    shares_quantity: Mapped[float] = mapped_column(default=0.0)
-    average_entry_price: Mapped[float] = mapped_column(default=0.0)
-    total_cost_basis: Mapped[float] = mapped_column(default=0.0)
-    realized_pnl: Mapped[float] = mapped_column(default=0.0)
+    shares_quantity: Mapped[Decimal] = mapped_column(
+        Numeric(46, 28),
+        default=Decimal("0"),
+    )
+    average_entry_price: Mapped[Decimal] = mapped_column(
+        Numeric(46, 28),
+        default=Decimal("0"),
+    )
+    total_cost_basis: Mapped[Decimal] = mapped_column(
+        Numeric(46, 28),
+        default=Decimal("0"),
+    )
+    realized_pnl: Mapped[Decimal] = mapped_column(
+        Numeric(46, 28),
+        default=Decimal("0"),
+    )
     last_updated: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
 async def save_log(
@@ -107,35 +120,80 @@ async def save_log(
                 res = await session.execute(stmt)
                 position = res.scalar()
 
-                shares_filled = float(allocated_capital) / float(slippage_price)
+                allocated_capital_decimal = Decimal(
+                    str(allocated_capital)
+                )
+                slippage_price_decimal = Decimal(
+                    str(slippage_price)
+                )
+
+                if slippage_price_decimal == 0:
+                    raise ValueError(
+                        "slippage_price cannot be zero"
+                    )
+
+                shares_filled = (
+                    allocated_capital_decimal
+                    /
+                    slippage_price_decimal
+                )
 
                 if not position:
                     position = PortfolioInventory(
                         user_id=normalized_user_id,
                         symbol=symbol,
                         shares_quantity=shares_filled,
-                        average_entry_price=float(
-                            slippage_price
+                        average_entry_price=(
+                            slippage_price_decimal
                         ),
-                        total_cost_basis=float(
-                            allocated_capital
+                        total_cost_basis=(
+                            allocated_capital_decimal
                         ),
                     )
                     session.add(position)
                 else:
                     if signal_str.lower() in ["buy", "long"]:
-                        new_total_capital = float(position.total_cost_basis) + float(allocated_capital)
-                        new_total_shares = float(position.shares_quantity) + shares_filled
+                        new_total_capital = (
+                            position.total_cost_basis
+                            +
+                            allocated_capital_decimal
+                        )
+                        new_total_shares = (
+                            position.shares_quantity
+                            +
+                            shares_filled
+                        )
                         position.shares_quantity = new_total_shares
                         position.total_cost_basis = new_total_capital
                         position.average_entry_price = new_total_capital / new_total_shares
                     elif signal_str.lower() in ["sell", "short"]:
                         # Calculate profit differences based on entry pricing vs current slippage fill prices
-                        pnl_delta = shares_filled * (float(slippage_price) - float(position.average_entry_price))
-                        position.realized_pnl = float(position.realized_pnl) + pnl_delta
+                        pnl_delta = (
+                            shares_filled
+                            *
+                            (
+                                slippage_price_decimal
+                                -
+                                position.average_entry_price
+                            )
+                        )
+                        position.realized_pnl = (
+                            position.realized_pnl
+                            +
+                            pnl_delta
+                        )
 
-                        position.shares_quantity = max(0.0, float(position.shares_quantity) - shares_filled)
-                        position.total_cost_basis = float(position.shares_quantity) * float(position.average_entry_price)
+                        position.shares_quantity = max(
+                            Decimal("0"),
+                            position.shares_quantity
+                            -
+                            shares_filled,
+                        )
+                        position.total_cost_basis = (
+                            position.shares_quantity
+                            *
+                            position.average_entry_price
+                        )
 
             # Explicit flush forces SQLAlchemy to commit state updates directly to columns rows immediately
             await session.flush()
