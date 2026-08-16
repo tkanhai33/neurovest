@@ -877,6 +877,10 @@ from backend.app.spine.L5_api.owned_readonly_portfolio_service import (
     serialize_totals,
 )
 
+from backend.app.stacks.portfolio.portfolio_service import (
+    get_portfolio_positions_for_api,
+)
+
 
 def _owned_portfolio_facade_for_principal(
     principal,
@@ -973,15 +977,16 @@ async def authenticated_owned_portfolio_balances(
 async def authenticated_owned_portfolio_positions(
     principal: AuthenticatedPrincipal = Depends(require_authenticated_principal),
 ):
-    facade = _owned_portfolio_facade_for_principal(
+    result = await get_portfolio_positions_for_api(
         principal
     )
 
     return {
         "status": "ok",
         "read_only": True,
-        "positions": serialize_positions(
-            facade
+        "positions": result.get(
+            "positions",
+            [],
         ),
     }
 
