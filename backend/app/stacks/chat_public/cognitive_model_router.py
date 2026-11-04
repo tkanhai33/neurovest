@@ -155,7 +155,10 @@ _RETRIEVAL_PATTERNS = (
         (
             r"\b("
             r"local research library|research library|"
-            r"academic research|research paper|research papers|"
+            r"research|investigate|look up|"
+            r"find sources?|find papers?|find evidence|"
+            r"scientific papers?|academic research|"
+            r"research paper|research papers|"
             r"source citation|source citations|"
             r"approved citation|approved citations"
             r")\b"
