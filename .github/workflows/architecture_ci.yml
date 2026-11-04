@@ -11,12 +11,37 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Run Architecture Guard
+      - name: Resolve comparison baseline
+        id: baseline
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
         run: |
-          python3 scripts/ci/architecture_ci_guard_v1.py
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            baseline="$PR_BASE_SHA"
+          else
+            baseline="$PUSH_BEFORE_SHA"
+            if [[ "$baseline" =~ ^0+$ ]]; then
+              baseline="$(git rev-parse HEAD^)"
+            fi
+          fi
+          git cat-file -e "${baseline}^{commit}"
+          echo "ref=$baseline" >> "$GITHUB_OUTPUT"
+
+      - name: Run Architecture Guard
+        env:
+          BASELINE_REF: ${{ steps.baseline.outputs.ref }}
+        run: |
+          python3 scripts/ci/architecture_ci_guard_v1.py \
+            --baseline-ref "$BASELINE_REF"
