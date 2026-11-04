@@ -1173,6 +1173,38 @@ async def run_chat_turn(
 
     model_input = assembled_context.prompt
 
+    # NEURO_ARXIV_DEPLOY_CANDIDATE
+    # Retrieve bounded public abstracts only for explicit general research.
+    _arxiv_prompt_section = ""
+    if routing_decision.retrieval_required:
+        try:
+            import asyncio as _arxiv_asyncio
+            from backend.app.stacks.chat_public.arxiv_research import (
+                build_arxiv_prompt as _arxiv_build_prompt,
+                is_explicit_general_research as _arxiv_is_general,
+                merge_arxiv_citations as _arxiv_merge,
+                retrieve_arxiv_results as _arxiv_retrieve,
+            )
+            if _arxiv_is_general(request.message):
+                _arxiv_results = await _arxiv_asyncio.wait_for(
+                    _arxiv_asyncio.to_thread(
+                        _arxiv_retrieve,
+                        request.message,
+                    ),
+                    timeout=7.0,
+                )
+                if _arxiv_results:
+                    retrieval_bundle = _arxiv_merge(
+                        retrieval_bundle,
+                        _arxiv_results,
+                    )
+                    _arxiv_prompt_section = _arxiv_build_prompt(
+                        _arxiv_results,
+                    )
+        except Exception:
+            # Empty evidence is handled by the honest fallback below.
+            pass
+
     if retrieval_bundle.prompt_section:
         model_input = (
             model_input
@@ -1218,6 +1250,9 @@ async def run_chat_turn(
                     approved_citation_tokens
                 )
             )
+
+    if _arxiv_prompt_section:
+        model_input = model_input + "\n\n" + _arxiv_prompt_section
 
     if math_bundle.prompt_section:
         model_input = (
@@ -1365,6 +1400,34 @@ async def run_chat_turn(
     assistant_content = (
         verification_result.final_response
     )
+
+    # Avoid presenting an ungrounded answer as researched.
+    try:
+        from backend.app.stacks.chat_public.arxiv_research import (
+            is_explicit_general_research as _arxiv_is_general_final,
+        )
+        if (
+            _arxiv_is_general_final(request.message)
+            and routing_decision.retrieval_required
+            and retrieval_bundle.requested
+            and not retrieval_bundle.grounded
+            and runtime_result.get("provider") == OLLAMA_PROVIDER
+        ):
+            assistant_content = (
+                "I couldn't retrieve usable sources from NeuroVest's "
+                "local research index or arXiv for this request, so I "
+                "can't present an answer as researched or source-verified."
+            )
+            verification_result = verify_response(
+                assistant_content,
+                math_bundle=math_bundle,
+                retrieval_bundle=retrieval_bundle,
+            )
+            assistant_content = verification_result.final_response
+            if isinstance(runtime_result.get("response"), dict):
+                runtime_result["response"]["message"] = assistant_content
+    except Exception:
+        pass
 
     runtime_result[
         "response_verification"
