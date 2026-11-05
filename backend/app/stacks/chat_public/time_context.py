@@ -17,9 +17,11 @@ def get_chat_time_context() -> str:
     tsx_regular_open = weekday < 5 and open_time <= tsx_now <= close_time
 
     return (
-        f"User local time: {user_now.strftime('%Y-%m-%d %I:%M %p %Z')}\n"
-        f"TSX exchange time: {tsx_now.strftime('%Y-%m-%d %I:%M %p %Z')}\n"
+        f"User local time: {user_now.strftime('%A, %Y-%m-%d %I:%M %p %Z')}\n"
+        f"TSX exchange time: {tsx_now.strftime('%A, %Y-%m-%d %I:%M %p %Z')}\n"
         f"TSX regular session open right now: {tsx_regular_open}\n"
         "TSX regular hours: Monday-Friday, 9:30 AM-4:00 PM America/Toronto.\n"
+        "Use the supplied weekday and date exactly for current-time claims. "
+        "Do not recalculate or shift that weekday/date pair.\n"
         "Do not guess current market hours. Use this time context."
     )

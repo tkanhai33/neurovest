@@ -163,65 +163,100 @@ def _response_items(
 
 
 def _provider_sync_status(
-    accounts: list[Any],
-    authorizations: list[Any],
+    accounts: list[object],
+    authorizations: list[object],
 ) -> str:
-    statuses: list[str] = []
+    """
+    Normalize SnapTrade's read-only connection state.
 
-    for item in [
-        *accounts,
-        *authorizations,
-    ]:
-        status = _extract_value(
-            item,
-            "sync_status",
-            "syncStatus",
-            "status",
-        )
+    SnapTrade account synchronization state is nested under:
 
-        if status is None:
-            continue
+        account.sync_status.holdings.initial_sync_completed
+        account.sync_status.transactions.initial_sync_completed
 
-        rendered = str(
-            status
-        ).strip()
+    A connection is considered connected only when:
 
-        if rendered:
-            statuses.append(
-                rendered
-            )
+      * at least one brokerage authorization exists,
+      * at least one authorization is active,
+      * accounts exist,
+      * every discovered holdings/transactions initial-sync signal
+        is explicitly complete.
 
-    if not accounts and not authorizations:
+    Closed brokerage accounts are valid historical accounts and do
+    not make the provider connection unhealthy.
+    """
+
+    if not authorizations:
         return "not_connected"
 
-    if not statuses:
-        return "available"
+    active_authorizations = []
 
-    lowered = {
-        status.lower()
-        for status in statuses
-    }
+    for authorization in authorizations:
 
-    if any(
-        token in status
-        for status in lowered
-        for token in (
-            "error",
-            "failed",
+        disabled = _extract_value(
+            authorization,
             "disabled",
         )
-    ):
+
+        if disabled is True:
+            continue
+
+        active_authorizations.append(
+            authorization
+        )
+
+    if not active_authorizations:
         return "provider_error"
 
-    if any(
-        token in status
-        for status in lowered
-        for token in (
-            "sync",
-            "refresh",
-            "pending",
+    if not accounts:
+        return "synchronizing"
+
+    saw_sync_signal = False
+    incomplete_sync = False
+
+    for account in accounts:
+
+        sync_status = _extract_value(
+            account,
+            "syncStatus",
+            "sync_status",
         )
-    ):
+
+        if sync_status is None:
+            incomplete_sync = True
+            continue
+
+        for domain_name in (
+            "holdings",
+            "transactions",
+        ):
+
+            domain = _extract_value(
+                sync_status,
+                domain_name,
+            )
+
+            if domain is None:
+                continue
+
+            initial_complete = _extract_value(
+                domain,
+                "initialSyncCompleted",
+                "initial_sync_completed",
+            )
+
+            if initial_complete is None:
+                continue
+
+            saw_sync_signal = True
+
+            if initial_complete is not True:
+                incomplete_sync = True
+
+    if incomplete_sync:
+        return "synchronizing"
+
+    if not saw_sync_signal:
         return "synchronizing"
 
     return "connected"

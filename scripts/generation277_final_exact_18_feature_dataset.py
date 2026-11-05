@@ -1,0 +1,2146 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+
+import argparse
+import hashlib
+import json
+import math
+import os
+import runpy
+import sys
+
+import numpy as np
+import pandas as pd
+
+
+BASE_FEATURES = (
+    "return_1d",
+    "return_5d",
+    "return_10d",
+    "return_20d",
+    "volatility_5d",
+    "volatility_20d",
+    "range_fraction",
+    "close_to_sma_5",
+    "close_to_sma_20",
+    "close_to_sma_50",
+    "volume_change_1d",
+    "volume_ratio_20d",
+)
+
+RESEARCH_FEATURES = (
+    "research_053_cumulative_momentum_12m_skip_1m",
+    "research_053_cumulative_rank",
+    "research_053_mean_momentum_12m_skip_1m",
+    "research_053_risk_adjusted_momentum_12m_skip_1m",
+    "research_053_risk_adjusted_rank",
+    "research_053_volatility_12m_skip_1m",
+)
+
+FEATURES = (
+    *BASE_FEATURES,
+    *RESEARCH_FEATURES,
+)
+
+TARGET = "target_next_up"
+
+FUTURE_RETURN = "future_return_1d"
+
+RAW_COLUMNS = (
+    "timestamp",
+    "provider_symbol",
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+)
+
+
+def sha256_file(
+    path: Path,
+) -> str:
+    digest = hashlib.sha256()
+
+    with path.open("rb") as handle:
+        for block in iter(
+            lambda: handle.read(
+                1024 * 1024
+            ),
+            b"",
+        ):
+            digest.update(block)
+
+    return digest.hexdigest()
+
+
+def finite_json(
+    value: Any,
+) -> Any:
+    if isinstance(value, dict):
+        return {
+            str(key):
+                finite_json(child)
+            for key, child
+            in value.items()
+        }
+
+    if isinstance(value, (list, tuple)):
+        return [
+            finite_json(child)
+            for child in value
+        ]
+
+    if isinstance(value, np.generic):
+        value = value.item()
+
+    if (
+        isinstance(value, float)
+        and not math.isfinite(value)
+    ):
+        return None
+
+    return value
+
+
+def write_json(
+    path: Path,
+    value: Any,
+) -> None:
+    path.write_text(
+        json.dumps(
+            finite_json(value),
+            indent=2,
+            sort_keys=True,
+            default=str,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument(
+    "--raw",
+    required=True,
+)
+
+parser.add_argument(
+    "--reference",
+    required=True,
+)
+
+parser.add_argument(
+    "--dynamic-result",
+    required=True,
+)
+
+parser.add_argument(
+    "--literal-result",
+    required=True,
+)
+
+parser.add_argument(
+    "--research-builder",
+    required=True,
+)
+
+parser.add_argument(
+    "--generation276-contract",
+    required=True,
+)
+
+parser.add_argument(
+    "--output-root",
+    required=True,
+)
+
+args = parser.parse_args()
+
+raw_path = Path(
+    args.raw
+)
+
+reference_path = Path(
+    args.reference
+)
+
+dynamic_result_path = Path(
+    args.dynamic_result
+)
+
+literal_result_path = Path(
+    args.literal_result
+)
+
+research_builder_path = Path(
+    args.research_builder
+)
+
+contract_path = Path(
+    args.generation276_contract
+)
+
+output_root = Path(
+    args.output_root
+)
+
+output_root.mkdir(
+    parents=True,
+    exist_ok=True,
+)
+
+dataset_path = (
+    output_root
+    / "generation277_model_ready_20y.csv"
+)
+
+parquet_path = (
+    output_root
+    / "generation277_model_ready_20y.parquet"
+)
+
+base_validation_path = (
+    output_root
+    / "base_feature_overlap_validation.json"
+)
+
+research_validation_path = (
+    output_root
+    / "research_feature_overlap_validation.json"
+)
+
+profile_path = (
+    output_root
+    / "dataset_profile.json"
+)
+
+symbol_coverage_path = (
+    output_root
+    / "symbol_coverage.csv"
+)
+
+result_path = (
+    output_root
+    / "result.json"
+)
+
+report_path = (
+    output_root
+    / "report.txt"
+)
+
+manifest_path = (
+    output_root
+    / "evidence_manifest.json"
+)
+
+
+dynamic_result = json.loads(
+    dynamic_result_path.read_text(
+        encoding="utf-8"
+    )
+)
+
+literal_result = json.loads(
+    literal_result_path.read_text(
+        encoding="utf-8"
+    )
+)
+
+contract = json.loads(
+    contract_path.read_text(
+        encoding="utf-8"
+    )
+)
+
+
+preflight = {
+    "dynamic_resolution_passed":
+        dynamic_result.get(
+            "passed"
+        ) is True,
+
+    "all_6_dynamic_fields_resolved":
+        dynamic_result.get(
+            "strong_dynamic_resolution"
+        ) is True,
+
+    "literal_discovery_completed":
+        literal_result.get(
+            "producer_discovery_completed"
+        ) is True,
+
+    "literal_fields_resolved_7_of_13":
+        int(
+            literal_result.get(
+                "resolved_count",
+                0,
+            )
+        )
+        == 7,
+
+    "generation276_contract_qualified":
+        contract.get(
+            "qualified"
+        ) is True,
+
+    "generation276_18_feature_contract":
+        list(
+            contract.get(
+                "produced_features",
+                [],
+            )
+        )
+        == list(
+            FEATURES
+        ),
+
+    "generation276_target_contract":
+        contract.get(
+            "produced_target"
+        )
+        == TARGET,
+}
+
+
+print()
+print("=" * 110)
+print(
+    "GENERATION 277 FINAL DATASET PREFLIGHT"
+)
+print("=" * 110)
+
+for name, passed in preflight.items():
+    print(
+        (
+            "PASS"
+            if passed
+            else "BLOCKED"
+        )
+        + " — "
+        + name
+    )
+
+if not all(
+    preflight.values()
+):
+    raise SystemExit(
+        "BLOCKED: Generation 277 producer/contract preflight failed."
+    )
+
+
+raw_hash_before = sha256_file(
+    raw_path
+)
+
+reference_hash_before = sha256_file(
+    reference_path
+)
+
+
+print()
+print("Loading Generation 277 raw history...")
+
+frame = pd.read_csv(
+    raw_path,
+    low_memory=False,
+)
+
+missing_raw = sorted(
+    set(
+        RAW_COLUMNS
+    )
+    - set(
+        frame.columns
+    )
+)
+
+if missing_raw:
+    raise SystemExit(
+        "BLOCKED: raw OHLCV missing columns: "
+        + ", ".join(
+            missing_raw
+        )
+    )
+
+frame = frame[
+    list(
+        RAW_COLUMNS
+    )
+].copy()
+
+frame[
+    "timestamp"
+] = pd.to_datetime(
+    frame[
+        "timestamp"
+    ],
+    errors="coerce",
+    utc=True,
+)
+
+frame[
+    "provider_symbol"
+] = (
+    frame[
+        "provider_symbol"
+    ]
+    .astype(str)
+    .str.strip()
+    .str.upper()
+)
+
+for column in (
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+):
+    frame[
+        column
+    ] = pd.to_numeric(
+        frame[
+            column
+        ],
+        errors="coerce",
+    )
+
+frame = (
+    frame
+    .replace(
+        [np.inf, -np.inf],
+        np.nan,
+    )
+    .dropna(
+        subset=list(
+            RAW_COLUMNS
+        )
+    )
+    .drop_duplicates(
+        subset=[
+            "provider_symbol",
+            "timestamp",
+        ],
+        keep="last",
+    )
+    .sort_values(
+        [
+            "provider_symbol",
+            "timestamp",
+        ],
+        kind="stable",
+    )
+    .reset_index(
+        drop=True
+    )
+)
+
+
+print(
+    "Raw rows:",
+    len(frame),
+)
+
+print(
+    "Raw symbols:",
+    frame[
+        "provider_symbol"
+    ].nunique(),
+)
+
+
+if (
+    frame[
+        "provider_symbol"
+    ].nunique()
+    != 370
+):
+    raise SystemExit(
+        "BLOCKED: Generation 277 raw universe is not 370 symbols."
+    )
+
+
+# ==================================================================
+# Exact base feature construction.
+#
+# These equations are not newly invented here. They are the canonical
+# market-feature family implied by the recovered repository producer
+# contract, and every field is qualification-gated below against the
+# frozen Generation 276 dataset before Generation 277 is authorized.
+# ==================================================================
+
+group = frame.groupby(
+    "provider_symbol",
+    sort=False,
+    group_keys=False,
+)
+
+close = frame[
+    "close"
+]
+
+volume = frame[
+    "volume"
+]
+
+previous_close = group[
+    "close"
+].shift(1)
+
+frame[
+    "return_1d"
+] = (
+    close
+    / previous_close
+    - 1.0
+)
+
+for window in (
+    5,
+    10,
+    20,
+):
+    frame[
+        f"return_{window}d"
+    ] = (
+        close
+        / group[
+            "close"
+        ].shift(
+            window
+        )
+        - 1.0
+    )
+
+frame[
+    "volatility_5d"
+] = (
+    frame.groupby(
+        "provider_symbol",
+        sort=False,
+    )[
+        "return_1d"
+    ]
+    .transform(
+        lambda values:
+            values.rolling(
+                5
+            ).std()
+    )
+)
+
+frame[
+    "volatility_20d"
+] = (
+    frame.groupby(
+        "provider_symbol",
+        sort=False,
+    )[
+        "return_1d"
+    ]
+    .transform(
+        lambda values:
+            values.rolling(
+                20
+            ).std()
+    )
+)
+
+frame[
+    "range_fraction"
+] = (
+    (
+        frame[
+            "high"
+        ]
+        - frame[
+            "low"
+        ]
+    )
+    / frame[
+        "close"
+    ]
+)
+
+for window in (
+    5,
+    20,
+    50,
+):
+    sma = (
+        frame.groupby(
+            "provider_symbol",
+            sort=False,
+        )[
+            "close"
+        ]
+        .transform(
+            lambda values,
+            w=window:
+                values.rolling(
+                    w
+                ).mean()
+        )
+    )
+
+    frame[
+        f"close_to_sma_{window}"
+    ] = (
+        frame[
+            "close"
+        ]
+        / sma
+        - 1.0
+    )
+
+frame[
+    "volume_change_1d"
+] = (
+    volume
+    / group[
+        "volume"
+    ].shift(1)
+    - 1.0
+)
+
+volume_mean_20 = (
+    frame.groupby(
+        "provider_symbol",
+        sort=False,
+    )[
+        "volume"
+    ]
+    .transform(
+        lambda values:
+            values.rolling(
+                20
+            ).mean()
+    )
+)
+
+frame[
+    "volume_ratio_20d"
+] = (
+    frame[
+        "volume"
+    ]
+    / volume_mean_20
+)
+
+frame[
+    FUTURE_RETURN
+] = (
+    group[
+        "close"
+    ].shift(-1)
+    / frame[
+        "close"
+    ]
+    - 1.0
+)
+
+frame[
+    TARGET
+] = (
+    frame[
+        FUTURE_RETURN
+    ]
+    > 0.0
+).astype(
+    "Int64"
+)
+
+
+# ==================================================================
+# Validate base features against Generation 276 frozen overlap.
+# ==================================================================
+
+reference_header = list(
+    pd.read_csv(
+        reference_path,
+        nrows=0,
+    ).columns
+)
+
+needed_reference = [
+    "timestamp",
+    "provider_symbol",
+    *BASE_FEATURES,
+    TARGET,
+]
+
+missing_reference = sorted(
+    set(
+        needed_reference
+    )
+    - set(
+        reference_header
+    )
+)
+
+if missing_reference:
+    raise SystemExit(
+        "BLOCKED: Generation 276 reference missing fields: "
+        + ", ".join(
+            missing_reference
+        )
+    )
+
+reference = pd.read_csv(
+    reference_path,
+    usecols=needed_reference,
+    low_memory=False,
+)
+
+reference[
+    "timestamp"
+] = pd.to_datetime(
+    reference[
+        "timestamp"
+    ],
+    errors="coerce",
+    utc=True,
+)
+
+reference[
+    "provider_symbol"
+] = (
+    reference[
+        "provider_symbol"
+    ]
+    .astype(str)
+    .str.strip()
+    .str.upper()
+)
+
+overlap = reference.merge(
+    frame[
+        [
+            "timestamp",
+            "provider_symbol",
+            *BASE_FEATURES,
+            TARGET,
+        ]
+    ],
+    on=[
+        "timestamp",
+        "provider_symbol",
+    ],
+    how="inner",
+    suffixes=(
+        "_reference",
+        "_candidate",
+    ),
+)
+
+if overlap.empty:
+    raise SystemExit(
+        "BLOCKED: no Generation 276 / Generation 277 overlap rows."
+    )
+
+
+base_comparison = {}
+
+base_exact_enough = True
+
+for feature in BASE_FEATURES:
+    left = pd.to_numeric(
+        overlap[
+            feature
+            + "_reference"
+        ],
+        errors="coerce",
+    )
+
+    right = pd.to_numeric(
+        overlap[
+            feature
+            + "_candidate"
+        ],
+        errors="coerce",
+    )
+
+    valid = (
+        left.notna()
+        & right.notna()
+    )
+
+    if not valid.any():
+        record = {
+            "rows":
+                0,
+
+            "fraction_within_1e_8":
+                0.0,
+
+            "fraction_within_1e_6":
+                0.0,
+
+            "mean_absolute_difference":
+                None,
+
+            "maximum_absolute_difference":
+                None,
+        }
+
+        base_exact_enough = False
+
+    else:
+        difference = (
+            left[
+                valid
+            ]
+            - right[
+                valid
+            ]
+        ).abs()
+
+        within_1e8 = float(
+            (
+                difference
+                <= 1e-8
+            ).mean()
+        )
+
+        within_1e6 = float(
+            (
+                difference
+                <= 1e-6
+            ).mean()
+        )
+
+        record = {
+            "rows":
+                int(
+                    valid.sum()
+                ),
+
+            "fraction_within_1e_8":
+                within_1e8,
+
+            "fraction_within_1e_6":
+                within_1e6,
+
+            "mean_absolute_difference":
+                float(
+                    difference.mean()
+                ),
+
+            "maximum_absolute_difference":
+                float(
+                    difference.max()
+                ),
+        }
+
+        if within_1e6 < 0.995:
+            base_exact_enough = False
+
+    base_comparison[
+        feature
+    ] = record
+
+
+target_left = (
+    overlap[
+        TARGET
+        + "_reference"
+    ]
+    .astype(str)
+)
+
+target_right = (
+    overlap[
+        TARGET
+        + "_candidate"
+    ]
+    .astype(str)
+)
+
+target_match = float(
+    (
+        target_left
+        == target_right
+    ).mean()
+)
+
+if target_match < 0.995:
+    base_exact_enough = False
+
+
+base_validation = {
+    "classification":
+        "generation277_base_feature_generation276_overlap_validation",
+
+    "overlap_rows":
+        int(
+            len(
+                overlap
+            )
+        ),
+
+    "features":
+        base_comparison,
+
+    "target_match_fraction":
+        target_match,
+
+    "qualified":
+        base_exact_enough,
+}
+
+write_json(
+    base_validation_path,
+    base_validation,
+)
+
+
+print()
+print("=" * 110)
+print("BASE FEATURE OVERLAP QUALIFICATION")
+print("=" * 110)
+
+for feature in BASE_FEATURES:
+    record = base_comparison[
+        feature
+    ]
+
+    print(
+        feature,
+        "rows=",
+        record[
+            "rows"
+        ],
+        "within_1e-6=",
+        record[
+            "fraction_within_1e_6"
+        ],
+    )
+
+print(
+    "target match:",
+    target_match,
+)
+
+print(
+    "BASE CONTRACT QUALIFIED:",
+    base_exact_enough,
+)
+
+
+if not base_exact_enough:
+    raise SystemExit(
+        "BLOCKED: candidate base-feature equations do not "
+        "reproduce the Generation 276 frozen feature contract."
+    )
+
+
+# ==================================================================
+# Research 053 features.
+#
+# Run the canonical preserved builder against an isolated temporary
+# base-feature dataset.
+# ==================================================================
+
+research_input = (
+    output_root
+    / "_research_input.csv"
+)
+
+research_output = (
+    output_root
+    / "_research_output.csv"
+)
+
+research_lineage = (
+    output_root
+    / "_research_lineage.json"
+)
+
+research_frame = frame[
+    [
+        "timestamp",
+        "provider_symbol",
+        "return_1d",
+        FUTURE_RETURN,
+        TARGET,
+        *BASE_FEATURES,
+    ]
+].copy()
+
+# Existing canonical Research 053 builder requires country.
+# Preserve universe rows and provide only the country field required
+# by the builder from the Generation 276 overlap where available.
+if (
+    "country"
+    in reference_header
+):
+    country_reference = pd.read_csv(
+        reference_path,
+        usecols=[
+            "provider_symbol",
+            "country",
+        ],
+        low_memory=False,
+    )
+
+    country_reference[
+        "provider_symbol"
+    ] = (
+        country_reference[
+            "provider_symbol"
+        ]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+
+    country_map = (
+        country_reference
+        .dropna(
+            subset=[
+                "provider_symbol",
+                "country",
+            ]
+        )
+        .drop_duplicates(
+            subset=[
+                "provider_symbol",
+            ]
+        )
+        .set_index(
+            "provider_symbol"
+        )[
+            "country"
+        ]
+        .to_dict()
+    )
+
+    research_frame[
+        "country"
+    ] = research_frame[
+        "provider_symbol"
+    ].map(
+        country_map
+    )
+
+else:
+    raise SystemExit(
+        "BLOCKED: canonical Research 053 builder requires "
+        "country but Generation 276 reference has no country field."
+    )
+
+
+research_frame[
+    "timestamp"
+] = research_frame[
+    "timestamp"
+].map(
+    lambda value:
+        value.isoformat()
+        if not pd.isna(
+            value
+        )
+        else None
+)
+
+research_frame.to_csv(
+    research_input,
+    index=False,
+)
+
+
+# We deliberately invoke the existing preserved builder rather than
+# reimplementing Research 053.
+research_validation_input = Path(
+    os.environ[
+        "GEN277_RESEARCH053_VALIDATION"
+    ]
+)
+
+research_rules_input = Path(
+    os.environ[
+        "GEN277_RESEARCH053_RULES"
+    ]
+)
+
+research_builder_result = (
+    output_root
+    / "_research_builder_result.json"
+)
+
+research_builder_report = (
+    output_root
+    / "_research_builder_report.txt"
+)
+
+for required_research_input in (
+    research_validation_input,
+    research_rules_input,
+):
+    if not required_research_input.is_file():
+        raise SystemExit(
+            "BLOCKED: Research 053 positional input missing: "
+            + str(
+                required_research_input
+            )
+        )
+
+original_argv = list(
+    sys.argv
+)
+
+try:
+    sys.argv = [
+        str(
+            research_builder_path
+        ),
+        str(
+            research_input
+        ),
+        str(
+            research_validation_input
+        ),
+        str(
+            research_rules_input
+        ),
+        str(
+            research_output
+        ),
+        str(
+            research_lineage
+        ),
+        str(
+            research_builder_result
+        ),
+        str(
+            research_builder_report
+        ),
+    ]
+
+    runpy.run_path(
+        str(
+            research_builder_path
+        ),
+        run_name="__main__",
+    )
+
+except SystemExit as exc:
+    code = (
+        int(
+            exc.code
+        )
+        if isinstance(
+            exc.code,
+            int
+        )
+        else 0
+    )
+
+    if code != 0:
+        raise
+
+finally:
+    sys.argv = (
+        original_argv
+    )
+
+if not research_builder_result.is_file():
+    raise SystemExit(
+        "BLOCKED: Research 053 builder did not write its result artifact."
+    )
+
+research_builder_result_value = json.loads(
+    research_builder_result.read_text(
+        encoding="utf-8"
+    )
+)
+
+if research_builder_result_value.get(
+    "passed"
+) is not True:
+    raise SystemExit(
+        "BLOCKED: Research 053 canonical builder did not qualify."
+    )
+
+
+if not research_output.is_file():
+    raise SystemExit(
+        "BLOCKED: canonical Research 053 builder "
+        "did not create an output dataset."
+    )
+
+enriched = pd.read_csv(
+    research_output,
+    low_memory=False,
+)
+
+missing_research = sorted(
+    set(
+        RESEARCH_FEATURES
+    )
+    - set(
+        enriched.columns
+    )
+)
+
+if missing_research:
+    raise SystemExit(
+        "BLOCKED: Research 053 builder missing fields: "
+        + ", ".join(
+            missing_research
+        )
+    )
+
+
+enriched[
+    "timestamp"
+] = pd.to_datetime(
+    enriched[
+        "timestamp"
+    ],
+    errors="coerce",
+    utc=True,
+)
+
+enriched[
+    "provider_symbol"
+] = (
+    enriched[
+        "provider_symbol"
+    ]
+    .astype(str)
+    .str.strip()
+    .str.upper()
+)
+
+
+# ==================================================================
+# Final model-ready 18-feature frame.
+# ==================================================================
+
+model = enriched[
+    [
+        "timestamp",
+        "provider_symbol",
+        *FEATURES,
+        TARGET,
+    ]
+].copy()
+
+for feature in FEATURES:
+    model[
+        feature
+    ] = pd.to_numeric(
+        model[
+            feature
+        ],
+        errors="coerce",
+    )
+
+model[
+    TARGET
+] = pd.to_numeric(
+    model[
+        TARGET
+    ],
+    errors="coerce",
+)
+
+model = (
+    model
+    .replace(
+        [np.inf, -np.inf],
+        np.nan,
+    )
+    .dropna(
+        subset=[
+            "timestamp",
+            "provider_symbol",
+            *FEATURES,
+            TARGET,
+        ]
+    )
+    .drop_duplicates(
+        subset=[
+            "provider_symbol",
+            "timestamp",
+        ],
+        keep="last",
+    )
+    .sort_values(
+        [
+            "timestamp",
+            "provider_symbol",
+        ],
+        kind="stable",
+    )
+    .reset_index(
+        drop=True
+    )
+)
+
+model[
+    TARGET
+] = model[
+    TARGET
+].astype(
+    int
+)
+
+
+# ==================================================================
+# Research overlap validation.
+# ==================================================================
+
+research_reference_fields = [
+    "timestamp",
+    "provider_symbol",
+    *RESEARCH_FEATURES,
+]
+
+if all(
+    field
+    in reference_header
+    for field
+    in research_reference_fields
+):
+    research_reference = pd.read_csv(
+        reference_path,
+        usecols=research_reference_fields,
+        low_memory=False,
+    )
+
+    research_reference[
+        "timestamp"
+    ] = pd.to_datetime(
+        research_reference[
+            "timestamp"
+        ],
+        errors="coerce",
+        utc=True,
+    )
+
+    research_reference[
+        "provider_symbol"
+    ] = (
+        research_reference[
+            "provider_symbol"
+        ]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+
+    research_overlap = (
+        research_reference.merge(
+            model[
+                research_reference_fields
+            ],
+            on=[
+                "timestamp",
+                "provider_symbol",
+            ],
+            how="inner",
+            suffixes=(
+                "_reference",
+                "_candidate",
+            ),
+        )
+    )
+
+    research_comparison = {}
+
+    research_qualified = bool(
+        len(
+            research_overlap
+        )
+        > 0
+    )
+
+    for feature in RESEARCH_FEATURES:
+        left = pd.to_numeric(
+            research_overlap[
+                feature
+                + "_reference"
+            ],
+            errors="coerce",
+        )
+
+        right = pd.to_numeric(
+            research_overlap[
+                feature
+                + "_candidate"
+            ],
+            errors="coerce",
+        )
+
+        valid = (
+            left.notna()
+            & right.notna()
+        )
+
+        if not valid.any():
+            research_comparison[
+                feature
+            ] = {
+                "rows":
+                    0,
+
+                "fraction_within_1e_6":
+                    0.0,
+            }
+
+            research_qualified = False
+            continue
+
+        difference = (
+            left[
+                valid
+            ]
+            - right[
+                valid
+            ]
+        ).abs()
+
+        fraction = float(
+            (
+                difference
+                <= 1e-6
+            ).mean()
+        )
+
+        research_comparison[
+            feature
+        ] = {
+            "rows":
+                int(
+                    valid.sum()
+                ),
+
+            "fraction_within_1e_6":
+                fraction,
+
+            "mean_absolute_difference":
+                float(
+                    difference.mean()
+                ),
+
+            "maximum_absolute_difference":
+                float(
+                    difference.max()
+                ),
+        }
+
+        if fraction < 0.995:
+            research_qualified = False
+
+else:
+    research_overlap = pd.DataFrame()
+
+    research_comparison = {}
+
+    research_qualified = False
+
+
+research_validation = {
+    "classification":
+        "generation277_research053_generation276_overlap_validation",
+
+    "overlap_rows":
+        int(
+            len(
+                research_overlap
+            )
+        ),
+
+    "features":
+        research_comparison,
+
+    "qualified":
+        research_qualified,
+}
+
+write_json(
+    research_validation_path,
+    research_validation,
+)
+
+
+if not research_qualified:
+    raise SystemExit(
+        "BLOCKED: Research 053 overlap validation failed."
+    )
+
+
+# ==================================================================
+# Qualification/profile.
+# ==================================================================
+
+model_rows = int(
+    len(
+        model
+    )
+)
+
+model_symbols = int(
+    model[
+        "provider_symbol"
+    ].nunique()
+)
+
+duplicates = int(
+    model.duplicated(
+        subset=[
+            "provider_symbol",
+            "timestamp",
+        ]
+    ).sum()
+)
+
+finite_features = {}
+
+for feature in FEATURES:
+    values = (
+        model[
+            feature
+        ]
+        .to_numpy(
+            dtype=float
+        )
+    )
+
+    finite_features[
+        feature
+    ] = bool(
+        len(
+            values
+        )
+        > 0
+        and np.isfinite(
+            values
+        ).all()
+    )
+
+
+symbol_records = []
+
+for symbol, group_frame in model.groupby(
+    "provider_symbol",
+    sort=True,
+):
+    first = group_frame[
+        "timestamp"
+    ].min()
+
+    final = group_frame[
+        "timestamp"
+    ].max()
+
+    years = float(
+        (
+            final
+            - first
+        ).total_seconds()
+        / (
+            365.25
+            * 24
+            * 3600
+        )
+    )
+
+    symbol_records.append(
+        {
+            "provider_symbol":
+                symbol,
+
+            "rows":
+                int(
+                    len(
+                        group_frame
+                    )
+                ),
+
+            "first_timestamp":
+                first.isoformat(),
+
+            "final_timestamp":
+                final.isoformat(),
+
+            "usable_history_years":
+                years,
+        }
+    )
+
+coverage = pd.DataFrame(
+    symbol_records
+)
+
+coverage.to_csv(
+    symbol_coverage_path,
+    index=False,
+)
+
+
+symbols_15 = int(
+    (
+        coverage[
+            "usable_history_years"
+        ]
+        >= 14.5
+    ).sum()
+)
+
+symbols_10 = int(
+    (
+        coverage[
+            "usable_history_years"
+        ]
+        >= 9.5
+    ).sum()
+)
+
+symbols_5 = int(
+    (
+        coverage[
+            "usable_history_years"
+        ]
+        >= 4.5
+    ).sum()
+)
+
+
+raw_hash_after = sha256_file(
+    raw_path
+)
+
+reference_hash_after = sha256_file(
+    reference_path
+)
+
+
+checks = {
+    **preflight,
+
+    "base_generation276_overlap_qualified":
+        base_exact_enough,
+
+    "research053_generation276_overlap_qualified":
+        research_qualified,
+
+    "18_features_present":
+        all(
+            feature
+            in model.columns
+            for feature
+            in FEATURES
+        ),
+
+    "18_features_finite":
+        all(
+            finite_features.values()
+        ),
+
+    "target_present":
+        TARGET
+        in model.columns,
+
+    "model_dataset_not_empty":
+        model_rows > 0,
+
+    "model_symbols_present":
+        model_symbols > 0,
+
+    "zero_symbol_timestamp_duplicates":
+        duplicates == 0,
+
+    "chronologically_sorted":
+        bool(
+            model[
+                "timestamp"
+            ].is_monotonic_increasing
+        ),
+
+    "raw_input_preserved":
+        raw_hash_before
+        == raw_hash_after,
+
+    "generation276_reference_preserved":
+        reference_hash_before
+        == reference_hash_after,
+
+    "training_not_started":
+        True,
+
+    "registration_not_started":
+        True,
+
+    "promotion_not_started":
+        True,
+
+    "runtime_activation_not_started":
+        True,
+}
+
+
+qualified = all(
+    checks.values()
+)
+
+
+csv_frame = model.copy()
+
+csv_frame[
+    "timestamp"
+] = csv_frame[
+    "timestamp"
+].map(
+    lambda value:
+        value.isoformat()
+)
+
+csv_frame.to_csv(
+    dataset_path,
+    index=False,
+)
+
+try:
+    model.to_parquet(
+        parquet_path,
+        index=False,
+    )
+
+    parquet_written = True
+
+except Exception:
+    parquet_written = False
+
+
+profile = {
+    "classification":
+        "generation277_exact_18_feature_20y_dataset_profile",
+
+    "qualified":
+        qualified,
+
+    "rows":
+        model_rows,
+
+    "symbols":
+        model_symbols,
+
+    "first_timestamp":
+        model[
+            "timestamp"
+        ].min().isoformat(),
+
+    "final_timestamp":
+        model[
+            "timestamp"
+        ].max().isoformat(),
+
+    "symbols_with_at_least_15_years":
+        symbols_15,
+
+    "symbols_with_at_least_10_years":
+        symbols_10,
+
+    "symbols_with_at_least_5_years":
+        symbols_5,
+
+    "features":
+        list(
+            FEATURES
+        ),
+
+    "feature_count":
+        len(
+            FEATURES
+        ),
+
+    "target":
+        TARGET,
+
+    "duplicates":
+        duplicates,
+
+    "finite_features":
+        finite_features,
+}
+
+write_json(
+    profile_path,
+    profile,
+)
+
+
+result = {
+    "classification":
+        (
+            "generation277_exact_18_feature_20y_dataset_qualified"
+            if qualified
+            else
+            "generation277_exact_18_feature_20y_dataset_blocked"
+        ),
+
+    "passed":
+        qualified,
+
+    "qualified":
+        qualified,
+
+    "rows":
+        model_rows,
+
+    "symbols":
+        model_symbols,
+
+    "features":
+        list(
+            FEATURES
+        ),
+
+    "feature_count":
+        18,
+
+    "target":
+        TARGET,
+
+    "base_overlap_rows":
+        int(
+            len(
+                overlap
+            )
+        ),
+
+    "research_overlap_rows":
+        int(
+            len(
+                research_overlap
+            )
+        ),
+
+    "symbols_with_at_least_15_years":
+        symbols_15,
+
+    "symbols_with_at_least_10_years":
+        symbols_10,
+
+    "symbols_with_at_least_5_years":
+        symbols_5,
+
+    "checks":
+        checks,
+
+    "authorization": {
+        "launch_generation277_24h_training":
+            qualified,
+
+        "construct_walk_forward_test":
+            qualified,
+
+        "run_walk_forward_test":
+            False,
+
+        "register_candidate":
+            False,
+
+        "promote_candidate":
+            False,
+
+        "replace_parent_model":
+            False,
+
+        "runtime_activation":
+            False,
+
+        "paper_execution":
+            False,
+
+        "broker_execution":
+            False,
+
+        "snaptrade_execution":
+            False,
+
+        "live_execution":
+            False,
+    },
+
+    "safety": {
+        "training_started":
+            False,
+
+        "generation276_artifacts_modified":
+            False,
+
+        "generation277_raw_input_modified":
+            False,
+
+        "candidate_registered":
+            False,
+
+        "candidate_promoted":
+            False,
+
+        "runtime_activated":
+            False,
+
+        "orders_submitted":
+            0,
+    },
+}
+
+write_json(
+    result_path,
+    result,
+)
+
+
+manifest = {
+    "classification":
+        "generation277_exact_18_feature_dataset_manifest",
+
+    "created_at":
+        datetime.now(
+            UTC
+        ).isoformat(),
+
+    "raw_input": {
+        "path":
+            str(
+                raw_path
+            ),
+
+        "sha256":
+            raw_hash_before,
+    },
+
+    "generation276_reference": {
+        "path":
+            str(
+                reference_path
+            ),
+
+        "sha256":
+            reference_hash_before,
+    },
+
+    "research053_builder": {
+        "path":
+            str(
+                research_builder_path
+            ),
+
+        "sha256":
+            sha256_file(
+                research_builder_path
+            ),
+    },
+
+    "output_dataset": {
+        "path":
+            str(
+                dataset_path
+            ),
+
+        "sha256":
+            sha256_file(
+                dataset_path
+            ),
+    },
+
+    "parquet_written":
+        parquet_written,
+
+    "features":
+        list(
+            FEATURES
+        ),
+
+    "target":
+        TARGET,
+}
+
+write_json(
+    manifest_path,
+    manifest,
+)
+
+
+report_lines = [
+    "=" * 110,
+    "NEUROVEST — GENERATION 277",
+    "FINAL EXACT 18-FEATURE 20-YEAR DATASET QUALIFICATION",
+    "=" * 110,
+    "",
+    "Qualification:                     "
+    + (
+        "PASS"
+        if qualified
+        else "BLOCKED"
+    ),
+    "",
+    "MODEL-READY DATASET",
+    "  Rows:                            "
+    + str(
+        model_rows
+    ),
+    "  Symbols:                         "
+    + str(
+        model_symbols
+    ),
+    "  Features:                        18/18",
+    "  Target:                          "
+    + TARGET,
+    "  First timestamp:                 "
+    + model[
+        "timestamp"
+    ].min().isoformat(),
+    "  Final timestamp:                 "
+    + model[
+        "timestamp"
+    ].max().isoformat(),
+    "",
+    "HISTORICAL DEPTH",
+    "  >=15 years:                      "
+    + str(
+        symbols_15
+    ),
+    "  >=10 years:                      "
+    + str(
+        symbols_10
+    ),
+    "  >=5 years:                       "
+    + str(
+        symbols_5
+    ),
+    "",
+    "GENERATION 276 CONTRACT VALIDATION",
+    "  Base overlap rows:               "
+    + str(
+        len(
+            overlap
+        )
+    ),
+    "  Base contract qualified:         "
+    + str(
+        base_exact_enough
+    ),
+    "  Research overlap rows:           "
+    + str(
+        len(
+            research_overlap
+        )
+    ),
+    "  Research 053 qualified:          "
+    + str(
+        research_qualified
+    ),
+    "",
+    "CHECKS",
+]
+
+for name, passed in checks.items():
+    report_lines.append(
+        "  "
+        + (
+            "PASS"
+            if passed
+            else "BLOCKED"
+        )
+        + " — "
+        + name
+    )
+
+report_lines.extend(
+    [
+        "",
+        "FINAL DISPOSITION",
+        "  Generation 277 dataset qualified: "
+        + str(
+            qualified
+        ),
+
+        "  24-hour training authorized:      "
+        + str(
+            qualified
+        ),
+
+        "  Walk-forward construction:        "
+        + str(
+            qualified
+        ),
+
+        "  Walk-forward execution:           False",
+        "  Candidate registration:           False",
+        "  Promotion:                        False",
+        "  Runtime activation:               False",
+        "",
+        "Dataset:",
+        "  "
+        + str(
+            dataset_path
+        ),
+        "",
+        "Dataset profile:",
+        "  "
+        + str(
+            profile_path
+        ),
+        "",
+        "Base overlap validation:",
+        "  "
+        + str(
+            base_validation_path
+        ),
+        "",
+        "Research overlap validation:",
+        "  "
+        + str(
+            research_validation_path
+        ),
+        "",
+        "Evidence manifest:",
+        "  "
+        + str(
+            manifest_path
+        ),
+        "",
+        "Structured result:",
+        "  "
+        + str(
+            result_path
+        ),
+        "",
+        "Training started: no",
+        "Registration: disabled",
+        "Promotion: disabled",
+        "Runtime activation: disabled",
+    ]
+)
+
+report_path.write_text(
+    "\n".join(
+        report_lines
+    )
+    + "\n",
+    encoding="utf-8",
+)
+
+print()
+print(
+    report_path.read_text(
+        encoding="utf-8"
+    )
+)
+
+if not qualified:
+    raise SystemExit(1)

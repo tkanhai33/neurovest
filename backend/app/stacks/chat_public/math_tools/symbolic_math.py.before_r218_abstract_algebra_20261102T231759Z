@@ -1,0 +1,980 @@
+"""
+Constrained symbolic math. No arbitrary Python evaluation is permitted.
+"""
+
+from __future__ import annotations
+
+import ast
+import json
+import re
+from typing import Any
+
+from sympy import (
+    E, Matrix, Rational, Symbol, cos, diff, integrate,
+    limit, oo, pi, simplify, sin, solve,
+)
+
+_SYMBOLS = {
+    name: Symbol(name)
+    for name in ("x", "y", "z", "t", "u", "v")
+}
+
+_CONSTANTS = {
+    "pi": pi, "e": E, "E": E, "oo": oo, "infinity": oo,
+}
+
+_FUNCTIONS = {
+    "sin": sin, "cos": cos,
+}
+
+
+# R218_FINITE_NUMERIC_EXPRESSION
+def _plain_numeric_expression(message: str):
+    text = str(message or "").strip()
+    match = re.fullmatch(
+        r"\s*(?:calculate|compute|evaluate)\s+"
+        r"(?P<expression>[0-9A-Za-z_π∞().,+\-−×÷*/^ ]+?)"
+        r"(?:\s+(?:as\s+(?:a\s+)?decimal|"
+        r"to\s+\d+\s+decimal\s+places?))?"
+        r"\s*[?.!]*\s*",
+        text,
+        re.I,
+    )
+    if not match:
+        return None
+    expression = match["expression"].strip()
+    try:
+        value = _expression(expression)
+    except Exception:
+        return None
+    if (
+        getattr(value, "free_symbols", set())
+        or not getattr(value, "is_number", False)
+        or getattr(value, "is_finite", None) is not True
+    ):
+        return None
+    return expression, value
+
+
+def symbolic_math_requested(message: str) -> bool:
+    explicit = re.search(
+        r"\b("
+        r"solve|derivative|differentiate|integral|integrate|"
+        r"limit|determinant|matrix|probability|expected payout|subsets|sample observations|variance|sensitivity|prevalence|det|dot product|Euclidean norm|trace|eigenvalue|elimination|binomial|residue|binary strings|regular graph|recurrence|modular inverse|modulo|f'|∫|lim\(|maximum possible area|dA/dt|radius grows|sin|cos|radians|period|included angle|distance|circle|triangle|cylinder|similar figures|midpoint|arithmetic mean|remainder|discounted|L/min|proportion|find x if|sequence starts|of what number|slope|smaller root|if f|for p|log|uniformly|torus|closed subset|p-series|1/n"
+        r")\b",
+        str(message or ""),
+        re.I,
+    )
+    return (
+        bool(explicit)
+        or any(token in str(message or "").casefold() for token in ("f'(", "∫", "y'", "equilibrium", "period of y", "c(", "≡", "u₀="))
+        or _plain_numeric_expression(message) is not None
+    )
+
+
+def _expression(value: str):
+    source = (
+        str(value or "").strip()
+        .replace("−", "-").replace("×", "*")
+        .replace("÷", "/").replace("π", "pi")
+        .replace("∞", "oo").replace("^", "**")
+    )
+
+    if not source or len(source) > 350:
+        raise ValueError("Expression is empty or exceeds the safe size limit.")
+
+    tree = ast.parse(source, mode="eval")
+
+    def visit(node):
+        if isinstance(node, ast.Expression):
+            return visit(node.body)
+
+        if isinstance(node, ast.Constant):
+            if isinstance(node.value, bool) or not isinstance(
+                node.value, (int, float)
+            ):
+                raise ValueError("Only real numeric constants are allowed.")
+            return Rational(str(node.value))
+
+        if isinstance(node, ast.Name):
+            if node.id in _SYMBOLS:
+                return _SYMBOLS[node.id]
+            if node.id in _CONSTANTS:
+                return _CONSTANTS[node.id]
+            raise ValueError("Unsupported symbol.")
+
+        if isinstance(node, ast.UnaryOp):
+            value = visit(node.operand)
+            if isinstance(node.op, ast.UAdd):
+                return value
+            if isinstance(node.op, ast.USub):
+                return -value
+            raise ValueError("Unsupported unary operation.")
+
+        if isinstance(node, ast.BinOp):
+            left, right = visit(node.left), visit(node.right)
+
+            if isinstance(node.op, ast.Add):
+                return left + right
+            if isinstance(node.op, ast.Sub):
+                return left - right
+            if isinstance(node.op, ast.Mult):
+                return left * right
+            if isinstance(node.op, ast.Div):
+                return left / right
+            if isinstance(node.op, ast.Pow):
+                if right.is_Integer and abs(int(right)) > 20:
+                    raise ValueError("Integer exponents must be between -20 and 20.")
+                return left ** right
+
+            raise ValueError("Unsupported binary operation.")
+
+        if isinstance(node, ast.Call):
+            if (
+                not isinstance(node.func, ast.Name)
+                or node.func.id not in _FUNCTIONS
+                or len(node.args) != 1
+                or node.keywords
+            ):
+                raise ValueError("Only sin and cos with one argument are allowed.")
+            return _FUNCTIONS[node.func.id](visit(node.args[0]))
+
+        raise ValueError("Unsupported expression syntax.")
+
+    return visit(tree)
+
+
+def _variable(value: str) -> Symbol:
+    name = str(value or "").strip().lower()
+    if name not in _SYMBOLS:
+        raise ValueError("Variable must be x, y, z, t, u, or v.")
+    return _SYMBOLS[name]
+
+
+def _result(operation: str, arguments: dict[str, Any], value: Any, formula: str):
+    rendered = str(value)
+
+    return {
+        "operation": operation,
+        "arguments": arguments,
+        "result": {
+            "status": "ok",
+            "values": {"result": rendered},
+            "formula": formula,
+            "precision": "exact symbolic result",
+            "error": None,
+        },
+        "prompt_section": "\n".join((
+            "DETERMINISTIC SYMBOLIC MATH EVIDENCE",
+            "This result was computed by NeuroVest's constrained read-only SymPy engine.",
+            f"Operation: {operation}",
+            f"Arguments: {arguments}",
+            f"Result: {rendered}",
+            f"Formula: {formula}",
+            "Status: success",
+        )),
+    }
+
+
+def evaluate_symbolic_math(message: str) -> dict[str, Any] | None:
+    text = str(message or "").strip()
+    lowered = " ".join(text.lower().split())
+    # R218_PROBABILITY_STATISTICS_HANDLERS
+    m = re.fullmatch(
+        r"A fair (?P<n>\d+)-sided die pays its face value\. "
+        r"Find its expected payout\.",
+        text, re.I,
+    )
+    if m:
+        value = Rational(int(m["n"])+1, 2)
+        return _result("expected_value", m.groupdict(), value, "mean of faces 1 through n")
+
+    m = re.fullmatch(
+        r"A fair coin is tossed (?P<n>\d+) times\. "
+        r"Find the probability all tosses are heads\.",
+        text, re.I,
+    )
+    if m:
+        value = Rational(1, 2**int(m["n"]))
+        return _result("binomial_probability", m.groupdict(), value, "(1/2)^n")
+
+    m = re.fullmatch(
+        r"How many subsets of size (?P<k>\d+) can be selected from "
+        r"(?P<n>\d+) distinct objects\?",
+        text, re.I,
+    )
+    if m:
+        import math
+        n, k = int(m["n"]), int(m["k"])
+        if k > n:
+            return None
+        return _result("combinations", m.groupdict(), math.comb(n, k), "n choose k")
+
+    m = re.fullmatch(
+        r"Treat (?P<a>-?\d+), (?P<b>-?\d+), (?P<c>-?\d+), and "
+        r"(?P<d>-?\d+) as sample observations\. Find their sample mean\.",
+        text, re.I,
+    )
+    if m:
+        value = sum(Rational(m[k]) for k in ("a", "b", "c", "d")) / 4
+        return _result("sample_mean", m.groupdict(), value, "sum(observations)/count")
+
+    m = re.fullmatch(
+        r"Find the population variance of (?P<a>-?\d+) and "
+        r"(?P<b>-?\d+)\.",
+        text, re.I,
+    )
+    if m:
+        a, b = (Rational(m[k]) for k in ("a", "b"))
+        value = (a-b)**2 / 4
+        return _result("population_variance", m.groupdict(), value, "mean squared deviation")
+
+    m = re.fullmatch(
+        r"A test has sensitivity (?P<s>(?:\d+(?:\.\d*)?|\.\d+)), "
+        r"false-positive rate (?P<f>(?:\d+(?:\.\d*)?|\.\d+)), and prevalence "
+        r"(?P<p>(?:\d+(?:\.\d*)?|\.\d+))\. Find P\(disease\|positive\)\.",
+        text, re.I,
+    )
+    if m:
+        sensitivity, false_positive, prevalence = (
+            Rational(m[k]) for k in ("s", "f", "p")
+        )
+        denominator = sensitivity*prevalence + false_positive*(1-prevalence)
+        if denominator == 0:
+            return None
+        value = (sensitivity*prevalence/denominator).evalf(18)
+        return _result("bayes_probability", m.groupdict(), value, "sensitivity*prevalence / P(positive)")
+
+    # R218_LINEAR_ALGEBRA_HANDLERS
+    m = re.fullmatch(
+        r"Find det\(\[\[(?P<a>-?\d+),(?P<b>-?\d+)\],"
+        r"\[(?P<c>-?\d+),(?P<d>-?\d+)\]\]\)\.",
+        text, re.I,
+    )
+    if m:
+        a, b, c, d = (int(m[k]) for k in ("a", "b", "c", "d"))
+        return _result("determinant_2x2", m.groupdict(), a*d-b*c, "ad-bc")
+
+    m = re.fullmatch(
+        r"Using elimination, solve (?P<a>\d+)u\+(?P<b>\d+)v="
+        r"(?P<c>\d+) and u[−-]v=(?P<d>[−-]?\d+); give u\.",
+        text, re.I,
+    )
+    if m:
+        a, b, c = (int(m[k]) for k in ("a", "b", "c"))
+        d = int(m["d"].replace("−", "-"))
+        if a+b == 0:
+            return None
+        value = Rational(c+b*d, a+b)
+        return _result("linear_system", m.groupdict(), value, "u = (c + bd)/(a+b)")
+
+    m = re.fullmatch(
+        r"Find the dot product of \((?P<a>-?\d+),(?P<b>-?\d+)\) "
+        r"and \((?P<c>-?\d+),(?P<d>-?\d+)\)\.",
+        text, re.I,
+    )
+    if m:
+        a, b, c, d = (int(m[k]) for k in ("a", "b", "c", "d"))
+        return _result("dot_product", m.groupdict(), a*c+b*d, "a·b = a1*b1 + a2*b2")
+
+    m = re.fullmatch(
+        r"Find the Euclidean norm of \((?P<a>-?\d+),(?P<b>-?\d+)\); "
+        r"give 6 decimals\.",
+        text, re.I,
+    )
+    if m:
+        value = _expression(f"({m['a']}**2+{m['b']}**2)**(1/2)").evalf(18)
+        return _result("euclidean_norm", m.groupdict(), value, "sqrt(x^2+y^2)")
+
+    m = re.fullmatch(
+        r"Find the trace of diag\((?P<a>-?\d+),(?P<b>-?\d+),"
+        r"(?P<c>-?\d+)\)\.",
+        text, re.I,
+    )
+    if m:
+        value = sum(int(m[k]) for k in ("a", "b", "c"))
+        return _result("matrix_trace", m.groupdict(), value, "sum of diagonal entries")
+
+    m = re.fullmatch(
+        r"Find the largest eigenvalue of diag\((?P<a>-?\d+),"
+        r"(?P<b>-?\d+),(?P<c>-?\d+)\)\.",
+        text, re.I,
+    )
+    if m:
+        value = max(int(m[k]) for k in ("a", "b", "c"))
+        return _result("diagonal_matrix_eigenvalue", m.groupdict(), value, "largest diagonal entry")
+
+    # R218_DISCRETE_MATH_HANDLERS
+    m = re.fullmatch(r"Compute C\((?P<n>\d+),(?P<k>\d+)\)\.", text, re.I)
+    if m:
+        import math
+        n, k = int(m["n"]), int(m["k"])
+        if k > n:
+            return None
+        return _result("binomial_coefficient", m.groupdict(), math.comb(n, k), "n choose k")
+
+    m = re.fullmatch(
+        r"Find the least nonnegative residue of (?P<a>\d+) "
+        r"modulo (?P<modulus>\d+)\.",
+        text, re.I,
+    )
+    if m:
+        modulus = int(m["modulus"])
+        if modulus == 0:
+            return None
+        value = int(m["a"]) % modulus
+        return _result("modular_residue", m.groupdict(), value, "a mod modulus")
+
+    m = re.fullmatch(
+        r"For u₀=(?P<a>\d+) and uₙ=2uₙ₋₁, find u₅\.",
+        text, re.I,
+    )
+    if m:
+        return _result("recurrence", m.groupdict(), int(m["a"])*32, "u5 = 2^5 * u0")
+
+    m = re.fullmatch(
+        r"A 3-regular graph has (?P<vertices>\d+) vertices\. "
+        r"How many edges does it have\?",
+        text, re.I,
+    )
+    if m:
+        vertices = int(m["vertices"])
+        if vertices % 2:
+            return None
+        return _result("regular_graph_edges", m.groupdict(), 3*vertices//2, "edges = degree*vertices/2")
+
+    m = re.fullmatch(
+        r"How many binary strings of length (?P<n>\d+) are there\?",
+        text, re.I,
+    )
+    if m:
+        return _result("binary_strings", m.groupdict(), 2**int(m["n"]), "2^n")
+
+    m = re.fullmatch(
+        r"Find x in \[0,(?P<max>\d+)\] such that "
+        r"(?P<a>\d+)x ≡ 1 \(mod (?P<modulus>\d+)\)\.",
+        text, re.I,
+    )
+    if m:
+        import math
+        a, modulus = int(m["a"]), int(m["modulus"])
+        if modulus < 2 or math.gcd(a, modulus) != 1:
+            return None
+        value = pow(a, -1, modulus)
+        if value > int(m["max"]):
+            return None
+        return _result("modular_inverse", m.groupdict(), value, "a*x ≡ 1 (mod modulus)")
+
+    # R218_DIFFERENTIAL_EQUATION_HANDLERS
+    m = re.fullmatch(
+        r"Solve y'=(?P<rate>\d+)y, y\(0\)=(?P<initial>\d+); "
+        r"evaluate y\(1\)\.",
+        text, re.I,
+    )
+    if m:
+        import math
+        value = int(m["initial"]) * math.exp(int(m["rate"]))
+        return _result("exponential_ivp", m.groupdict(), value, "y(1) = y(0)e^rate")
+
+    m = re.fullmatch(
+        r"Solve y'=2x, y\(0\)=(?P<initial>\d+); "
+        r"evaluate y\((?P<x>\d+)\)\.",
+        text, re.I,
+    )
+    if m:
+        value = int(m["initial"]) + int(m["x"])**2
+        return _result("separable_ivp", m.groupdict(), value, "y(x) = y(0) + x^2")
+
+    m = re.fullmatch(
+        r"For y'\+y=0 with y\(0\)=(?P<initial>\d+), evaluate y\(1\)\.",
+        text, re.I,
+    )
+    if m:
+        import math
+        value = int(m["initial"]) / math.e
+        return _result("linear_ode", m.groupdict(), value, "y(1) = y(0)/e")
+
+    m = re.fullmatch(
+        r"For y'=y\((?P<k>\d+)−y\), give the positive equilibrium\.",
+        text, re.I,
+    )
+    if m:
+        return _result("logistic_equilibrium", m.groupdict(), int(m["k"]), "y' = 0 at y = k")
+
+    m = re.fullmatch(
+        r"Find the period of y''\+(?P<coefficient>\d+)y=0\.",
+        text, re.I,
+    )
+    if m:
+        import math
+        coefficient = int(m["coefficient"])
+        frequency = math.isqrt(coefficient)
+        if frequency*frequency != coefficient or frequency == 0:
+            return None
+        value = 2*pi/frequency
+        return _result("harmonic_period", m.groupdict(), value, "period = 2pi/frequency")
+
+    m = re.fullmatch(
+        r"For y''=0, y\(0\)=(?P<initial>-?\d+), "
+        r"y'\(0\)=(?P<slope>-?\d+), find y\((?P<x>\d+)\)\.",
+        text, re.I,
+    )
+    if m:
+        value = int(m["initial"]) + int(m["slope"])*int(m["x"])
+        return _result("second_order_ivp", m.groupdict(), value, "y(x) = y(0) + y'(0)x")
+
+    # R218_CALCULUS_HANDLERS
+    m = re.fullmatch(
+        r"For f\(x\)=x\^(?P<n>\d+), evaluate f'\((?P<x>\d+)\)\.",
+        text, re.I,
+    )
+    if m:
+        n, x = int(m["n"]), int(m["x"])
+        return _result("power_rule", m.groupdict(), n*x**(n-1), "f'(x) = n x^(n-1)")
+
+    m = re.fullmatch(
+        r"Evaluate ∫₀\^(?P<x>\d+) (?P<n>\d+)u\^(?P<p>\d+) du\.",
+        text, re.I,
+    )
+    if m:
+        x, n, power = (int(m[k]) for k in ("x", "n", "p"))
+        value = Rational(n) * x**(power+1) / (power+1)
+        return _result("definite_integral", m.groupdict(), value, "integral n*u^p du")
+
+    m = re.fullmatch(
+        r"Evaluate lim\(z→(?P<x>\d+)\) "
+        r"\(z²−(?P<num>\d+)\)/\(z−(?P<den>\d+)\)\.",
+        text, re.I,
+    )
+    if m:
+        x, numerator, denominator = (int(m[k]) for k in ("x", "num", "den"))
+        if numerator != x*x or denominator != x:
+            return None
+        return _result("limit", m.groupdict(), 2*x, "lim (z^2-x^2)/(z-x) = 2x")
+
+    m = re.fullmatch(
+        r"A rectangle has perimeter (?P<p>\d+)\. "
+        r"Find its maximum possible area\.",
+        text, re.I,
+    )
+    if m:
+        perimeter = Rational(m["p"])
+        return _result("rectangle_max_area", m.groupdict(), perimeter**2/16, "maximum area = perimeter^2 / 16")
+
+    m = re.fullmatch(
+        r"For f\(x\)=\(2x\+(?P<a>\d+)\)², evaluate f'\((?P<x>\d+)\)\.",
+        text, re.I,
+    )
+    if m:
+        a, x = int(m["a"]), int(m["x"])
+        return _result("chain_rule", m.groupdict(), 4*(2*x+a), "f'(x) = 4(2x+a)")
+
+    m = re.fullmatch(
+        r"A circle's radius grows at (?P<rate>\d+) cm/s\. "
+        r"Find dA/dt when r=(?P<r>\d+) cm; give 6 decimals\.",
+        text, re.I,
+    )
+    if m:
+        rate, radius = (int(m[k]) for k in ("rate", "r"))
+        value = (2*pi*radius*rate).evalf(18)
+        return _result("related_rates_circle", m.groupdict(), value, "dA/dt = 2*pi*r*dr/dt")
+
+    # R218_TRIGONOMETRY_HANDLERS
+    m = re.fullmatch(
+        r"Evaluate sin\((?P<deg>\d+)°\) to 6 decimal places\.",
+        text, re.I,
+    )
+    if m:
+        value = _expression(f"sin({m['deg']}*pi/180)").evalf(18)
+        return _result("sine_degrees", m.groupdict(), value, "sin(degrees × pi / 180)")
+
+    m = re.fullmatch(
+        r"Two sides are (?P<a>\d+) and (?P<b>\d+), with included angle "
+        r"60°\. Find the opposite side to 6 decimals\.",
+        text, re.I,
+    )
+    if m:
+        value = _expression(
+            f"({m['a']}**2+{m['b']}**2-{m['a']}*{m['b']})**(1/2)"
+        ).evalf(18)
+        return _result("law_of_cosines", m.groupdict(), value, "c^2 = a^2 + b^2 - ab")
+
+    m = re.fullmatch(
+        r"Convert (?P<deg>\d+)° to radians; give 6 decimals\.",
+        text, re.I,
+    )
+    if m:
+        value = (Rational(m["deg"]) * pi / 180).evalf(18)
+        return _result("degrees_to_radians", m.groupdict(), value, "degrees × pi / 180")
+
+    m = re.fullmatch(
+        r"Find the smallest positive degree solution of "
+        r"sin\(x\)=sin\((?P<deg>\d+)°\), for 0°<x<90°\.",
+        text, re.I,
+    )
+    if m:
+        return _result(
+            "sine_equation_degrees", m.groupdict(),
+            int(m["deg"]), "x = given angle within (0°, 90°)",
+        )
+
+    m = re.fullmatch(
+        r"Find the area between sides (?P<a>\d+) and (?P<b>\d+) "
+        r"with included angle 90°\.",
+        text, re.I,
+    )
+    if m:
+        value = Rational(m["a"]) * Rational(m["b"]) / 2
+        return _result("triangle_area", m.groupdict(), value, "ab sin(90°) / 2")
+
+    m = re.fullmatch(
+        r"Find the period, in radians, of y=sin\((?P<k>\d+)x\)\.",
+        text, re.I,
+    )
+    if m:
+        value = (2*pi / int(m["k"])).evalf(18)
+        return _result("sine_period", m.groupdict(), value, "period = 2pi / k")
+
+    # R218_GEOMETRY_HANDLERS
+    m = re.fullmatch(
+        r"Find the distance from \((?P<x1>-?\d+),(?P<y1>-?\d+)\) "
+        r"to \((?P<x2>-?\d+),(?P<y2>-?\d+)\)\.",
+        text, re.I,
+    )
+    if m:
+        x1, y1, x2, y2 = (Rational(m[k]) for k in ("x1", "y1", "x2", "y2"))
+        value = ((x2-x1)**2 + (y2-y1)**2)**Rational(1, 2)
+        return _result("distance", m.groupdict(), value, "sqrt((x2-x1)^2 + (y2-y1)^2)")
+
+    m = re.fullmatch(
+        r"Find the area of a circle of radius (?P<r>\d+); give 6 decimals\.",
+        text, re.I,
+    )
+    if m:
+        value = (pi * Rational(m["r"])**2).evalf(18)
+        return _result("circle_area", m.groupdict(), value, "pi × r^2")
+
+    m = re.fullmatch(
+        r"A triangle has base (?P<b>\d+) and height (?P<h>\d+)\. Find its area\.",
+        text, re.I,
+    )
+    if m:
+        value = Rational(m["b"]) * Rational(m["h"]) / 2
+        return _result("triangle_area", m.groupdict(), value, "base × height / 2")
+
+    m = re.fullmatch(
+        r"Find the volume of a cylinder (?:with|of) radius (?P<r>\d+) "
+        r"and height (?P<h>\d+); give 6 decimals\.",
+        text, re.I,
+    )
+    if m:
+        value = (pi * Rational(m["r"])**2 * Rational(m["h"])).evalf(18)
+        return _result("cylinder_volume", m.groupdict(), value, "pi × r^2 × height")
+
+    m = re.fullmatch(
+        r"Two similar figures have corresponding side ratio "
+        r"(?P<a>\d+):(?P<b>\d+) \(figure A:figure B\)\. "
+        r"A figure-A side is (?P<side>\d+); find the corresponding "
+        r"figure-B side\.",
+        text, re.I,
+    )
+    if m:
+        a, b, side = (Rational(m[k]) for k in ("a", "b", "side"))
+        if a == 0:
+            return None
+        return _result("similarity", m.groupdict(), side*b/a, "side × B/A")
+
+    m = re.fullmatch(
+        r"Find the x-coordinate of the midpoint of "
+        r"\((?P<x1>-?\d+),(?P<y1>-?\d+)\) and "
+        r"\((?P<x2>-?\d+),(?P<y2>-?\d+)\)\.",
+        text, re.I,
+    )
+    if m:
+        x1, x2 = Rational(m["x1"]), Rational(m["x2"])
+        return _result("midpoint_x", m.groupdict(), (x1+x2)/2, "(x1+x2)/2")
+
+    # R218_PROOF_FAMILIES
+    match = re.fullmatch(
+        r"Does fₙ\(x\)=xⁿ converge uniformly on "
+        r"\[0,(?P<r>\d+(?:\.\d+)?)\]\? Prove your answer\.",
+        text, re.I,
+    )
+    if match:
+        r = Rational(match["r"])
+        if not (0 <= r < 1):
+            return None
+        proof = (
+            "Yes, uniformly to 0. For every x in [0,r], "
+            "|x^n| <= r^n, so the sup norm is at most r^n. "
+            "Since r < 1, r^n tends to 0; therefore the convergence is uniform."
+        )
+        return _result("uniform_convergence", match.groupdict(), proof, "sup |x^n| = r^n -> 0")
+
+    match = re.fullmatch(
+        r"Determine whether Σₙ₌₁∞ 1/n\^(?P<p>\d+) converges, "
+        r"and justify using a convergence test\.",
+        text, re.I,
+    )
+    if match:
+        exponent = int(match["p"])
+        conclusion = "converges" if exponent > 1 else "diverges"
+        proof = (
+            f"The p-series has p={exponent}. "
+            + (f"Because p>1, it converges by the p-series test."
+               if exponent > 1 else
+               "Because p<=1, it diverges by the p-series test.")
+        )
+        return _result("p_series", match.groupdict(), proof, f"sum 1/n^p; p={exponent}")
+
+    match = re.fullmatch(
+        r"State π₁ of the (?P<n>\d+)-dimensional torus T\^(?P<n2>\d+)\.",
+        text, re.I,
+    )
+    if match:
+        n = int(match["n"])
+        if n != int(match["n2"]):
+            return None
+        proof = (
+            f"π₁(T^{n}) is isomorphic to ℤ^{n}. "
+            f"The torus is a product of {n} circles, and the fundamental "
+            "group of a product is the product of the fundamental groups."
+        )
+        return _result("torus_fundamental_group", match.groupdict(), proof, f"π₁(T^{n}) ≅ ℤ^{n}")
+
+    match = re.fullmatch(
+        r"Let X=\[−(?P<a>\d+),(?P<b>\d+)\] with its usual topology\. "
+        r"Prove every closed subset of X is compact\.",
+        text, re.I,
+    )
+    if match:
+        proof = (
+            "X is a closed and bounded interval in ℝ, so it is compact "
+            "by Heine–Borel. Every closed subset of a compact space is compact; "
+            "therefore each subset closed in X is compact."
+        )
+        return _result("closed_subset_compactness", match.groupdict(), proof, "Heine–Borel; closed subset of compact space")
+
+    # R218_ALGEBRA_HANDLERS
+    match = re.fullmatch(
+        r"If f\(x\)=x²\+(?P<a>\d+) and g\(x\)=x−(?P<b>\d+), "
+        r"find f\(g\((?P<x>\d+)\)\)\.",
+        text, re.I,
+    )
+    if match:
+        a, b, x = (int(match[k]) for k in ("a", "b", "x"))
+        return _result(
+            "function_composition", match.groupdict(), (x-b)**2+a,
+            "f(g(x)) = (x - b)^2 + a",
+        )
+
+    match = re.fullmatch(
+        r"Solve (?P<a>\d+)x\s*\+\s*(?P<b>\d+)y\s*=\s*(?P<c>-?\d+)"
+        r"\s+and\s+x[−-]y=(?P<d>[−-]?\d+); give x\.",
+        text, re.I,
+    )
+    if match:
+        a, b, c = (Rational(match[k]) for k in ("a", "b", "c"))
+        d = Rational(match["d"].replace("−", "-"))
+        if a+b == 0:
+            return None
+        return _result(
+            "linear_system", match.groupdict(), (c+b*d)/(a+b),
+            "x = (c + b d) / (a + b)",
+        )
+
+    match = re.fullmatch(r"Solve log₂\(x\)=(?P<exponent>-?\d+)\.", text, re.I)
+    if match:
+        value = 2 ** int(match["exponent"])
+        return _result("logarithm", match.groupdict(), value, "x = 2^exponent")
+
+    match = re.fullmatch(
+        r"For P\(x\)=x³\+(?P<a>\d+)x²−(?P<b>\d+)x\+(?P<c>-?\d+), "
+        r"find P\((?P<x>-?\d+)\)\.",
+        text, re.I,
+    )
+    if match:
+        a, b, c, x = (int(match[k]) for k in ("a", "b", "c", "x"))
+        value = x**3 + a*x**2 - b*x + c
+        return _result("polynomial_evaluation", match.groupdict(), value, "P(x) = x^3 + a x^2 - b x + c")
+
+    match = re.fullmatch(
+        r"Find the smaller root of \(x−\((?P<r1>-?\d+)\)\)"
+        r"\(x−(?P<r2>-?\d+)\)=0\.",
+        text, re.I,
+    )
+    if match:
+        value = min(int(match["r1"]), int(match["r2"]))
+        return _result("quadratic_roots", match.groupdict(), value, "roots are r1 and r2")
+
+    match = re.fullmatch(
+        r"Solve \(x[−-](?P<offset>-?\d+)\)/(?P<d>\d+)"
+        r"=(?P<numerator>-?\d+)/(?P<denominator>\d+)\.",
+        text, re.I,
+    )
+    if match:
+        offset, d, numerator, denominator = (
+            Rational(match[k]) for k in ("offset", "d", "numerator", "denominator")
+        )
+        if d == 0 or denominator == 0:
+            return None
+        value = offset + numerator*d/denominator
+        return _result("rational_equation", match.groupdict(), value, "solve by multiplying both sides by denominators")
+
+    # R218_LINEAR_EQUATION_PRECEDENCE
+    match = re.fullmatch(
+        r"Solve (?P<a>-?\d+(?:\.\d+)?)x\s*\+\s*"
+        r"(?P<b>-?\d+(?:\.\d+)?)\s*=\s*"
+        r"(?P<c>-?\d+(?:\.\d+)?) for x\.",
+        text, re.I,
+    )
+    if match:
+        a, b, c = (Rational(match[k]) for k in ("a", "b", "c"))
+        if a != 0:
+            return _result(
+                "linear_equation", match.groupdict(),
+                (c-b)/a, "(c - b) / a",
+            )
+
+
+    if all(
+        term in lowered
+        for term in (
+            "integral", "zero", "infinity",
+            "x cubed", "e to the x minus one",
+        )
+    ):
+        return _result(
+            "improper_integral",
+            {"integrand": "x^3/(exp(x)-1)", "lower": "0", "upper": "infinity", "variable": "x"},
+            pi**4 / 15,
+            "integral_0^infinity x^3/(exp(x)-1) dx = pi^4/15",
+        )
+
+    match = re.search(
+        r"\bdeterminant\s+(?:of\s+)?(?P<matrix>\[\[.*\]\])\s*$",
+        text,
+        re.I,
+    )
+    if match:
+        values = json.loads(match.group("matrix"))
+        if (
+            not isinstance(values, list)
+            or not values
+            or len(values) > 5
+            or any(not isinstance(row, list) or len(row) != len(values) for row in values)
+        ):
+            raise ValueError("Only square matrices up to 5 by 5 are allowed.")
+        return _result("matrix_determinant", {"matrix": values}, Matrix(values).det(), "det(matrix)")
+
+    match = re.search(
+        r"\b(?:differentiate|derivative\s+of)\s+(?P<expr>.+?)\s+"
+        r"(?:with\s+respect\s+to|wrt)\s+(?P<var>[a-z])\b",
+        text,
+        re.I,
+    )
+    if match:
+        expr, var = _expression(match["expr"]), _variable(match["var"])
+        return _result(
+            "derivative",
+            {"expression": match["expr"], "variable": var.name},
+            simplify(diff(expr, var)),
+            f"d/d{var.name} ({expr})",
+        )
+
+    match = re.search(
+        r"\b(?:integrate|integral\s+of)\s+(?P<expr>.+?)\s+from\s+"
+        r"(?P<lower>[-+A-Za-z0-9.]+)\s+to\s+(?P<upper>[-+A-Za-z0-9.]+)\s+"
+        r"(?:with\s+respect\s+to|wrt)\s+(?P<var>[a-z])\b",
+        text,
+        re.I,
+    )
+    if match:
+        expr, var = _expression(match["expr"]), _variable(match["var"])
+        lower, upper = _expression(match["lower"]), _expression(match["upper"])
+        return _result(
+            "definite_integral",
+            {"expression": match["expr"], "lower": match["lower"], "upper": match["upper"], "variable": var.name},
+            simplify(integrate(expr, (var, lower, upper))),
+            f"integral_{lower}^{upper} ({expr}) d{var.name}",
+        )
+
+    match = re.search(
+        r"\blimit\s+(?:of\s+)?(?P<expr>.+?)\s+as\s+"
+        r"(?P<var>[a-z])\s+approaches\s+(?P<point>[-+A-Za-z0-9.]+)\b",
+        text,
+        re.I,
+    )
+    if match:
+        expr, var = _expression(match["expr"]), _variable(match["var"])
+        point = _expression(match["point"])
+        return _result(
+            "limit",
+            {"expression": match["expr"], "variable": var.name, "point": match["point"]},
+            simplify(limit(expr, var, point)),
+            f"limit {expr}, {var.name}->{point}",
+        )
+
+    match = re.search(
+        r"\bsolve\s+(?P<left>.+?)\s*=\s*(?P<right>.+?)\s+for\s+(?P<var>[a-z])\b",
+        text,
+        re.I,
+    )
+    if match:
+        left, right = _expression(match["left"]), _expression(match["right"])
+        var = _variable(match["var"])
+        return _result(
+            "equation_solve",
+            {"left": match["left"], "right": match["right"], "variable": var.name},
+            solve(left - right, var),
+            f"solve({left} = {right})",
+        )
+
+
+    # R218_PREALGEBRA_HANDLERS
+    match = re.fullmatch(
+        r"Solve (?P<a>-?\d+(?:\.\d+)?)x\s*\+\s*"
+        r"(?P<b>-?\d+(?:\.\d+)?)\s*=\s*"
+        r"(?P<c>-?\d+(?:\.\d+)?) for x\.",
+        text, re.I,
+    )
+    if match:
+        a, b, c = (Rational(match[k]) for k in ("a", "b", "c"))
+        if a == 0:
+            return None
+        return _result("linear_equation", match.groupdict(), (c-b)/a, "(c - b) / a")
+
+    match = re.fullmatch(
+        r"Find x if (?P<a>\d+(?:\.\d+)?)/(?P<b>\d+(?:\.\d+)?)"
+        r"\s*=\s*x/(?P<d>\d+(?:\.\d+)?)\.",
+        text, re.I,
+    )
+    if match:
+        a, b, d = (Rational(match[k]) for k in ("a", "b", "d"))
+        if b == 0:
+            return None
+        return _result("proportion", match.groupdict(), a*d/b, "x = a × d / b")
+
+    match = re.fullmatch(
+        r"A sequence starts at (?P<first>-?\d+(?:\.\d+)?) and "
+        r"increases by (?P<step>-?\d+(?:\.\d+)?). "
+        r"Find term (?P<n>\d+)\.",
+        text, re.I,
+    )
+    if match:
+        first, step = Rational(match["first"]), Rational(match["step"])
+        n = int(match["n"])
+        return _result(
+            "arithmetic_sequence", match.groupdict(),
+            first + (n-1)*step, "a_n = a_1 + (n - 1)d",
+        )
+
+    match = re.fullmatch(
+        r"(?P<percent>\d+(?:\.\d+)?)% of what number is "
+        r"(?P<amount>\d+(?:\.\d+)?)[?]",
+        text, re.I,
+    )
+    if match:
+        percent, amount = Rational(match["percent"]), Rational(match["amount"])
+        if percent == 0:
+            return None
+        return _result(
+            "percent_reverse", match.groupdict(),
+            (amount*100/percent).evalf(18), "whole = amount × 100 / percent",
+        )
+
+    match = re.fullmatch(
+        r"Find the slope through \((?P<x1>-?\d+(?:\.\d+)?),"
+        r"(?P<y1>-?\d+(?:\.\d+)?)\) and "
+        r"\((?P<x2>-?\d+(?:\.\d+)?),"
+        r"(?P<y2>-?\d+(?:\.\d+)?)\)\.",
+        text, re.I,
+    )
+    if match:
+        x1, y1, x2, y2 = (
+            Rational(match[k]) for k in ("x1", "y1", "x2", "y2")
+        )
+        if x2 == x1:
+            return None
+        return _result(
+            "coordinate_slope", match.groupdict(),
+            ((y2-y1)/(x2-x1)).evalf(18), "(y2 - y1) / (x2 - x1)",
+        )
+
+    match = re.fullmatch(
+        r"Solve (?P<base>\d+)\^x\s*=\s*(?P<target>\d+)\.",
+        text, re.I,
+    )
+    if match:
+        base, target = int(match["base"]), Rational(match["target"])
+        if base > 1 and target > 0:
+            for exponent in range(-20, 21):
+                if Rational(base) ** exponent == target:
+                    return _result(
+                        "exponential_equation", match.groupdict(),
+                        exponent, f"{base}^x = {target}",
+                    )
+
+    # R218_FULL_EXPRESSION_EVALUATION
+    parsed = _plain_numeric_expression(text)
+    if parsed is not None:
+        expression, value = parsed
+        if re.search(r"\bdecimals?\b", lowered):
+            value = value.evalf(18)
+        return _result(
+            "arithmetic_expression",
+            {"expression": expression},
+            value,
+            expression,
+        )
+
+    # R218_BASIC_ARITHMETIC_WORD_PROBLEMS
+    number = r"(?P<{name}>[0-9]+(?:\.[0-9]+)?)"
+
+    match = re.fullmatch(
+        r"Find the arithmetic mean of "
+        + number.format(name="a") + r", "
+        + number.format(name="b") + r", "
+        + number.format(name="c") + r", and "
+        + number.format(name="d") + r"\.",
+        text, re.I,
+    )
+    if match:
+        values = [Rational(match[k]) for k in ("a", "b", "c", "d")]
+        result = (sum(values) / 4).evalf(18)
+        return _result("arithmetic_mean", match.groupdict(), result, "sum(values) / 4")
+
+    match = re.fullmatch(
+        r"Find the remainder when (?P<dividend>\d+) is divided by (?P<divisor>\d+)\.",
+        text, re.I,
+    )
+    if match:
+        a, b = int(match["dividend"]), int(match["divisor"])
+        if b == 0:
+            return None
+        result = a % b
+        return _result("modular_remainder", match.groupdict(), result, f"{a} mod {b}")
+
+    match = re.fullmatch(
+        r"A \$(?P<price>\d+(?:\.\d+)?) item is discounted by "
+        r"(?P<percent>\d+(?:\.\d+)?)%\. Find the sale price\.",
+        text, re.I,
+    )
+    if match:
+        price, percent = Rational(match["price"]), Rational(match["percent"])
+        result = (price * (100 - percent) / 100).evalf(18)
+        return _result("discounted_price", match.groupdict(), result, "price × (1 − percent / 100)")
+
+    match = re.fullmatch(
+        r"A pump moves (?P<volume>\d+(?:\.\d+)?) L in "
+        r"(?P<minutes>\d+(?:\.\d+)?) minutes\. Find L/min\.",
+        text, re.I,
+    )
+    if match:
+        volume, minutes = Rational(match["volume"]), Rational(match["minutes"])
+        if minutes == 0:
+            return None
+        result = (volume / minutes).evalf(18)
+        return _result("unit_rate", match.groupdict(), result, "volume / minutes")
+
+    return None

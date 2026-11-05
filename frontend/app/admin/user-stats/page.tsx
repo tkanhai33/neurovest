@@ -206,7 +206,7 @@ export default function AdminUserStatsPage() {
   );
 
   useEffect(() => {
-    void loadStatistics();
+    queueMicrotask(() => { void loadStatistics(); });
   }, [loadStatistics]);
 
   return (

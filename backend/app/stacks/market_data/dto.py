@@ -284,6 +284,7 @@ class HistoricalBar:
     close: float
     volume: float
     provider: str
+    adjusted_close: float | None = None
 
     def __post_init__(self) -> None:
         symbol = normalize_symbol(
@@ -334,6 +335,18 @@ class HistoricalBar:
         assert low_price is not None
         assert close_price is not None
         assert volume is not None
+
+        adjusted_close = require_finite(
+            self.adjusted_close,
+            "adjusted_close",
+        )
+        if adjusted_close is not None and adjusted_close < 0:
+            raise ValueError("adjusted_close must be non-negative")
+        object.__setattr__(
+            self,
+            "adjusted_close",
+            adjusted_close,
+        )
 
         if high_price < low_price:
             raise ValueError(

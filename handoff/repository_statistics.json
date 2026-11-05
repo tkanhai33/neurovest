@@ -1,0 +1,176 @@
+{
+  "total_files": 827,
+  "total_dirs": 73,
+  "python_files": 437,
+  "typescript_files": 20,
+  "json_files": 296,
+  "markdown_files": 29,
+  "scripts": 280,
+  "tests": 231,
+  "largest_files": [
+    {
+      "file": ".aider.tags.cache.v4/cache.db-wal",
+      "bytes": 4124152
+    },
+    {
+      "file": "runtime/graph_history/events.jsonl",
+      "bytes": 2423897
+    },
+    {
+      "file": "topology_wire_graph.png",
+      "bytes": 1620490
+    },
+    {
+      "file": "runtime/market_warehouse/history/AAPL_history.csv",
+      "bytes": 1561584
+    },
+    {
+      "file": "runtime/market_warehouse/history/MSFT_history.csv",
+      "bytes": 1284408
+    },
+    {
+      "file": "runtime/market_warehouse/history/TD_TO_history.csv",
+      "bytes": 997917
+    },
+    {
+      "file": "runtime/market_warehouse/history/RY_TO_history.csv",
+      "bytes": 995607
+    },
+    {
+      "file": "runtime/market_warehouse/history/NVDA_history.csv",
+      "bytes": 956580
+    },
+    {
+      "file": "cursor.AppImage",
+      "bytes": 690286
+    },
+    {
+      "file": "domain_runtime_overlay_graph.png",
+      "bytes": 566611
+    },
+    {
+      "file": "runtime/market_warehouse/history/TSLA_history.csv",
+      "bytes": 539919
+    },
+    {
+      "file": "runtime/market_warehouse/history/VFV_TO_history.csv",
+      "bytes": 452228
+    },
+    {
+      "file": "runtime/market_warehouse/history/VUN_TO_history.csv",
+      "bytes": 426620
+    },
+    {
+      "file": "domain_subsystem_graph.png",
+      "bytes": 318287
+    },
+    {
+      "file": "topology_wire_graph_canonical.png",
+      "bytes": 308830
+    },
+    {
+      "file": ".aider.chat.history.md",
+      "bytes": 294388
+    },
+    {
+      "file": "runtime/repo_memory/repo_index_v2.json",
+      "bytes": 250378
+    },
+    {
+      "file": ".aider.tags.cache.v4/cache.db",
+      "bytes": 237568
+    },
+    {
+      "file": "frontend/package-lock.json",
+      "bytes": 221605
+    },
+    {
+      "file": "neuro_cli_file_inspection.json",
+      "bytes": 71718
+    },
+    {
+      "file": "runtime/repo_memory/dependency_graph_v1.json",
+      "bytes": 64283
+    },
+    {
+      "file": "runtime/handoff_snapshot/neurovest_training_handoff_bundle_latest.json",
+      "bytes": 59780
+    },
+    {
+      "file": "frontend/app/page.tsx",
+      "bytes": 35077
+    },
+    {
+      "file": ".aider.input.history",
+      "bytes": 33797
+    },
+    {
+      "file": ".aider.tags.cache.v4/cache.db-shm",
+      "bytes": 32768
+    },
+    {
+      "file": "runtime/certifications/phase6b_dependency_validation_certification_latest.json",
+      "bytes": 32429
+    },
+    {
+      "file": "runtime/repo_memory/component_overlay_v1.json",
+      "bytes": 30215
+    },
+    {
+      "file": "runtime/handoff_snapshot/file_manifest_latest.txt",
+      "bytes": 28495
+    },
+    {
+      "file": "runtime/repo_memory/repo_index.json",
+      "bytes": 27818
+    },
+    {
+      "file": "runtime/handoff_snapshot/topology_tree_latest.txt",
+      "bytes": 26518
+    }
+  ],
+  "top_level": {
+    "OUTPUT": 1,
+    "ARCHITECTURE_REPAIR_PLAN.json": 1,
+    "TOPOLOGY_NORMALIZED_STATE.json": 1,
+    "ARCH_GOVERNANCE.md": 1,
+    "fix_phase9_self_fingerprint.sh": 1,
+    "TOPOLOGY_STATE.json": 1,
+    "topology_wire_graph.png": 1,
+    "neurovest_repo_context.md": 1,
+    "Directory Structure": 1,
+    "ORPHAN_RESOLUTION_PLAN.json": 1,
+    "topology_wire_graph_canonical.png": 1,
+    ".env.example": 1,
+    "domain_subsystem_graph.png": 1,
+    "generate_wire_graph.py": 1,
+    "neuro_health.sh": 1,
+    "neuro_cli_file_inspection.json": 1,
+    ".aider.input.history": 1,
+    "FINAL_ARCHITECTURE_STATE.json": 1,
+    "system_tree.txt": 1,
+    "docker-compose.yml": 1,
+    "ARCH_ENFORCEMENT_REPORT.json": 1,
+    "spine_mvp_full.sh": 1,
+    "pytest.ini": 1,
+    ".gitignore": 1,
+    "$OUTPUT": 1,
+    "SERVICE_RELOCATION_PLAN_RECONCILED.json": 1,
+    ".env": 1,
+    "domain_runtime_overlay_graph.png": 1,
+    ".aider.chat.history.md": 1,
+    "cursor.AppImage": 1,
+    "neuro": 1,
+    "neuro_cli.py": 1,
+    "neuro_engineer.py": 1,
+    "SERVICE_RELOCATION_PLAN.json": 1,
+    "architecture_backup": 1,
+    "scripts": 279,
+    "backend": 157,
+    ".aider.tags.cache.v4": 3,
+    "frontend": 36,
+    "backups": 1,
+    "runtime": 315,
+    ".github": 1
+  }
+}

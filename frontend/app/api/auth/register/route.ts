@@ -14,6 +14,9 @@ const BACKEND_BASE_URL =
   process.env.BACKEND_URL ||
   "http://127.0.0.1:8000";
 
+const TERMS_VERSION =
+  "neurovest-beta-terms-2026-10-09-v1";
+
 export async function POST(
   request: NextRequest,
 ) {
@@ -36,6 +39,8 @@ export async function POST(
   let payload: {
     email?: unknown;
     password?: unknown;
+    terms_accepted?: unknown;
+    terms_version?: unknown;
   };
 
   try {
@@ -67,7 +72,20 @@ export async function POST(
       ? payload.password
       : "";
 
-  if (!email || !password) {
+  const termsAccepted =
+    payload.terms_accepted === true;
+
+  const termsVersion =
+    typeof payload.terms_version === "string"
+      ? payload.terms_version
+      : "";
+
+  if (
+    !email ||
+    !password ||
+    !termsAccepted ||
+    termsVersion !== TERMS_VERSION
+  ) {
     return NextResponse.json(
       {
         status: "rejected",
@@ -99,6 +117,8 @@ export async function POST(
         body: JSON.stringify({
           email,
           password,
+          terms_accepted: true,
+          terms_version: TERMS_VERSION,
         }),
       },
     );

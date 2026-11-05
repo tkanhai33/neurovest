@@ -1,0 +1,22 @@
+QWEN READ-ONLY STATE MACHINE
+
+READ_HANDOFF
+    │
+    ├── SUMMARIZE_ARCHITECTURE
+    │       └── STOP
+    │
+    ├── EXPLAIN_LOCKED_GATES
+    │       └── STOP
+    │
+    ├── REPORT_MISSING_CONTEXT
+    │       └── STOP
+    │
+    └── RECOMMEND_READ_ONLY_NEXT_PHASE
+            └── STOP
+
+TERMINAL FREEZE:
+    terminal_read_allowed = true
+    terminal_write_allowed = false
+    terminal_execution_allowed = false
+    terminal_mutation_allowed = false
+    terminal_next_phase_generation_allowed = false

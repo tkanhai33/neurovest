@@ -16,7 +16,9 @@ from backend.app.stacks.identity_auth.api_dependencies import (
     get_required_password_change_service,
     get_session_lifecycle_api_service,
     require_authenticated_principal,
-    optional_logout_access_principal,    get_session_repository,
+    optional_logout_access_principal,
+    get_session_repository,
+    enforce_auth_rate_limit,
 
 )
 from backend.app.stacks.identity_auth.api_models import (
@@ -119,6 +121,9 @@ async def register_identity(
     service: RegistrationApiService = Depends(
         get_registration_api_service
     ),
+    _: None = Depends(
+        enforce_auth_rate_limit,
+    ),
 ) -> RegistrationApiResponse:
     try:
         result = await service.register(
@@ -126,6 +131,8 @@ async def register_identity(
                 email=request.email,
                 password=request.password,
                 display_name=request.display_name,
+                terms_accepted=request.terms_accepted,
+                terms_version=request.terms_version,
             )
         )
 
@@ -164,6 +171,9 @@ async def login_identity(
     request: LoginApiRequest,
     service: LoginApiService = Depends(
         get_login_api_service
+    ),
+    _: None = Depends(
+        enforce_auth_rate_limit,
     ),
 ) -> LoginTokenApiResponse:
     try:

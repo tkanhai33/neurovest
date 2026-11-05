@@ -20,7 +20,9 @@ async def test_registration_api_with_display_name():
     request = RegistrationApiRequest(
         email="test@example.com",
         password="securepassword123",
-        display_name="John Doe"
+        display_name="John Doe",
+        terms_accepted=True,
+        terms_version="neurovest-beta-terms-2026-10-09-v1",
     )
 
     assert request.email == "test@example.com"
@@ -34,7 +36,9 @@ async def test_registration_api_without_display_name():
     # This is a basic test to ensure the model accepts None for display_name
     request = RegistrationApiRequest(
         email="test@example.com",
-        password="securepassword123"
+        password="securepassword123",
+        terms_accepted=True,
+        terms_version="neurovest-beta-terms-2026-10-09-v1",
     )
 
     assert request.email == "test@example.com"
@@ -52,3 +56,38 @@ async def test_login_api_request():
 
     assert request.email == "test@example.com"
     assert request.password == "securepassword123"
+
+
+
+def test_registration_rejects_missing_terms():
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        RegistrationApiRequest(
+            email="test@example.com",
+            password="securepassword123",
+        )
+
+
+def test_registration_rejects_false_terms():
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        RegistrationApiRequest(
+            email="test@example.com",
+            password="securepassword123",
+            terms_accepted=False,
+            terms_version="neurovest-beta-terms-2026-10-09-v1",
+        )
+
+
+def test_registration_rejects_wrong_terms_version():
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        RegistrationApiRequest(
+            email="test@example.com",
+            password="securepassword123",
+            terms_accepted=True,
+            terms_version="outdated-version",
+        )

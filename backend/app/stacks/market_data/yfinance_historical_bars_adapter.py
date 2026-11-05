@@ -109,6 +109,9 @@ def get_historical_bars(
                 close_value = _clean_number(
                     row.get("Close")
                 )
+                adjusted_close_value = _clean_number(
+                    row.get("Adj Close")
+                )
                 volume_value = _clean_number(
                     row.get("Volume")
                 )
@@ -121,12 +124,31 @@ def get_historical_bars(
                 ):
                     continue
 
+                # Yahoo FX daily candles occasionally report an open or close
+                # just outside the supplied high/low. Exclude that malformed
+                # observation instead of altering provider prices.
+                if symbol.strip().upper().endswith("=X"):
+                    fx_ohlc = (
+                        open_value,
+                        high_value,
+                        low_value,
+                        close_value,
+                    )
+                    if (
+                        not all(math.isfinite(value) and value >= 0 for value in fx_ohlc)
+                        or high_value < low_value
+                        or not low_value <= open_value <= high_value
+                        or not low_value <= close_value <= high_value
+                    ):
+                        continue
+
                 bars.append({
                     "timestamp": timestamp.isoformat(),
                     "open": open_value,
                     "high": high_value,
                     "low": low_value,
                     "close": close_value,
+                    "adjusted_close": adjusted_close_value,
                     "volume": (
                         volume_value
                         if volume_value is not None

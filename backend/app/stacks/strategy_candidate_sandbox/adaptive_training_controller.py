@@ -28,6 +28,9 @@ import json
 import math
 import time
 
+from backend.app.stacks.strategy_candidate_sandbox.strategy_knowledge_completion_transaction import (
+    persist_best_runtime_candidate_at_completion_sync,
+)
 from backend.app.stacks.strategy_candidate_sandbox.training_candidate_contract import (
     build_training_candidate_contract,
     validate_training_candidate_contract,
@@ -623,6 +626,10 @@ def _next_candidate(
                 minimum_strength
             ),
             created_from="qualification",
+        
+            strategy_name=str(
+                current_candidate["strategy_name"]
+            ),
         )
         .to_dict()
     )
@@ -704,7 +711,23 @@ def start_adaptive_training_controller(
     owner_user_id: str | None = None,
     owner_session_id: str | None = None,
     requested_by_role: str | None = None,
+
+    strategy_name: str | None = None,
 ) -> dict[str, Any]:
+    if strategy_name is None:
+        raise ValueError(
+            "strategy_name must be a non-empty string"
+        )
+
+    normalized_strategy_name = str(
+        strategy_name
+    ).strip()
+
+    if not normalized_strategy_name:
+        raise ValueError(
+            "strategy_name must be a non-empty string"
+        )
+
     threshold = _finite_float(
         confidence_threshold,
         default=-1.0,
@@ -906,51 +929,23 @@ def start_adaptive_training_controller(
     thread = Thread(
         target=run_adaptive_training_controller,
         kwargs={
-            "confidence_threshold":
-                threshold,
-
-            "maximum_rounds":
-                resolved_maximum_rounds,
-
-            "duration_seconds_per_round":
-                resolved_duration,
-
-            "initial_candidate":
-                initial_candidate,
-
-            "window_start":
-                window_start,
-
-            "window_end":
-                window_end,
-
-            "lookback_rows":
-                lookback_rows,
-
-            "row_offset":
-                row_offset,
-
-            "requested_by":
-                requested_by,
-
-            "timeout_seconds_per_round":
-                timeout_seconds_per_round,
-
-            "scope":
-                resolved_scope,
-
-            "owner_user_id":
-                resolved_owner_user_id,
-
-            "owner_session_id":
-                resolved_owner_session_id,
-
-            "requested_by_role":
-                requested_by_role,
-
-            "controller_id":
-                controller_id,
-        },
+                   'confidence_threshold': threshold,
+                   'maximum_rounds': resolved_maximum_rounds,
+                   'duration_seconds_per_round': resolved_duration,
+                   'initial_candidate': initial_candidate,
+                   'window_start': window_start,
+                   'window_end': window_end,
+                   'lookback_rows': lookback_rows,
+                   'row_offset': row_offset,
+                   'requested_by': requested_by,
+                   'timeout_seconds_per_round': timeout_seconds_per_round,
+                   'scope': resolved_scope,
+                   'owner_user_id': resolved_owner_user_id,
+                   'owner_session_id': resolved_owner_session_id,
+                   'requested_by_role': requested_by_role,
+                   'controller_id': controller_id,
+                   'strategy_name': normalized_strategy_name,
+               },
         name=controller_id,
         daemon=True,
     )
@@ -1124,6 +1119,8 @@ def run_adaptive_training_controller(
     owner_session_id: str | None = None,
     requested_by_role: str | None = None,
     controller_id: str | None = None,
+
+    strategy_name: str,
 ) -> dict[str, Any]:
     threshold = _finite_float(
         confidence_threshold,
@@ -1224,6 +1221,8 @@ def run_adaptive_training_controller(
         candidate = (
             build_training_candidate_contract(
                 created_from="qualification",
+            
+                strategy_name=strategy_name,
             )
             .to_dict()
         )
@@ -1376,6 +1375,7 @@ def run_adaptive_training_controller(
     best_confidence = -1.0
     best_round_number = None
     best_candidate_id = None
+    best_candidate_payload = None
     best_window_id = None
 
     try:
@@ -1599,6 +1599,11 @@ def run_adaptive_training_controller(
                         "candidate_id"
                     )
                 )
+                best_candidate_payload = deepcopy(
+                    completed.get(
+                        "training_candidate"
+                    )
+                )
 
                 best_window_id = (
                     completed.get(
@@ -1647,6 +1652,23 @@ def run_adaptive_training_controller(
                 )
 
             if average_confidence >= threshold:
+                if not isinstance(
+                    best_candidate_payload,
+                    dict,
+                ):
+                    return _update_controller(
+                        controller_id,
+                        status="failed",
+                        completed_at=_utc_now(),
+                        stop_reason=(
+                            "best_candidate_payload_missing"
+                        ),
+                    )
+
+                persist_best_runtime_candidate_at_completion_sync(
+                    candidate=best_candidate_payload,
+                )
+
                 return _update_controller(
                     controller_id,
                     status="completed",
@@ -1660,6 +1682,23 @@ def run_adaptive_training_controller(
                 round_number
                 >= resolved_maximum_rounds
             ):
+                if not isinstance(
+                    best_candidate_payload,
+                    dict,
+                ):
+                    return _update_controller(
+                        controller_id,
+                        status="failed",
+                        completed_at=_utc_now(),
+                        stop_reason=(
+                            "best_candidate_payload_missing"
+                        ),
+                    )
+
+                persist_best_runtime_candidate_at_completion_sync(
+                    candidate=best_candidate_payload,
+                )
+
                 return _update_controller(
                     controller_id,
                     status="completed",

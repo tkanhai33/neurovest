@@ -1,5 +1,16 @@
 from __future__ import annotations
 
+from sqlalchemy import select
+from backend.app.stacks.identity_auth.models import IdentityUser
+
+
+from backend.app.stacks.identity_auth.credential_generation import (
+    current_generation,
+    claims_for_issuance,
+    assert_token_generation,
+)
+
+
 from collections.abc import (
     AsyncIterator,
     Mapping,
@@ -189,6 +200,81 @@ class EnvironmentJwtTokenIssuer:
     never stored by this adapter.
     """
 
+
+    def __init__(self, session):
+        self._credential_session = session
+
+    async def _generation_claims(
+        self,
+        subject,
+        extra_claims,
+    ):
+        generation = await current_generation(
+            self._credential_session,
+            subject,
+        )
+        return claims_for_issuance(
+            extra_claims or {},
+            generation,
+        )
+
+
+    async def lock_refresh_account(
+        self,
+        refresh_token: str,
+    ) -> str:
+        validated = validate_refresh_token(
+            refresh_token
+        )
+
+        await self.validate_refresh_generation(
+            subject=validated.subject,
+            refresh_token=refresh_token,
+        )
+
+        return validated.subject
+
+    async def validate_refresh_generation(
+        self,
+        *,
+        subject,
+        refresh_token,
+    ):
+
+        # F12-R3R: serialize refresh with credential changes.
+        # The surrounding refresh transaction must retain
+        # this PostgreSQL row lock through token rotation.
+        locked_result = await self._credential_session.execute(
+            select(IdentityUser)
+            .where(IdentityUser.id == subject)
+            .with_for_update()
+        )
+        locked_user = locked_result.scalars().one_or_none()
+
+        if (
+            locked_user is None
+            or locked_user.is_active is not True
+            or locked_user.status != "active"
+        ):
+            raise ValueError(
+                "Refresh account unavailable"
+            )
+
+        validated = validate_refresh_token(
+            refresh_token
+        )
+
+        if validated.subject != subject:
+            raise ValueError(
+                "Refresh-token subject mismatch"
+            )
+
+        await assert_token_generation(
+            self._credential_session,
+            user_id=subject,
+            claims=validated.extra,
+        )
+
     async def issue_access_token(
         self,
         *,
@@ -197,7 +283,7 @@ class EnvironmentJwtTokenIssuer:
 ) -> IssuedServiceToken:
         token = issue_access_token(
             subject,
-                    extra_claims=extra_claims,
+                    extra_claims=await self._generation_claims(subject, extra_claims),
                 )
 
         validated = validate_access_token(
@@ -237,7 +323,7 @@ class EnvironmentJwtTokenIssuer:
 ) -> IssuedServiceToken:
         token = issue_refresh_token(
             subject,
-                    extra_claims=extra_claims,
+                    extra_claims=await self._generation_claims(subject, extra_claims),
                 )
 
         validated = validate_refresh_token(
@@ -298,7 +384,7 @@ def build_authentication_runtime(
     )
 
     token_issuer = (
-        EnvironmentJwtTokenIssuer()
+        EnvironmentJwtTokenIssuer(session)
     )
 
     def runtime_refresh_token_hash(
@@ -383,7 +469,7 @@ def build_session_lifecycle_runtime(
         session
     )
 
-    token_issuer = EnvironmentJwtTokenIssuer()
+    token_issuer = EnvironmentJwtTokenIssuer(session)
 
     def runtime_validate_refresh_token(
         token: str,

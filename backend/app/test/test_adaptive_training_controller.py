@@ -69,6 +69,7 @@ def test_threshold_is_bounded(
         ValueError
     ):
         run_adaptive_training_controller(
+            strategy_name='Qualification Test Moving Average Crossover',
             confidence_threshold=(
                 threshold
             ),
@@ -87,6 +88,7 @@ def test_round_count_is_bounded(
         ValueError
     ):
         run_adaptive_training_controller(
+            strategy_name='Qualification Test Moving Average Crossover',
             confidence_threshold=0.5,
             maximum_rounds=(
                 maximum_rounds
@@ -97,6 +99,7 @@ def test_round_count_is_bounded(
 def test_controller_stops_at_immediate_threshold() -> None:
     result = (
         run_adaptive_training_controller(
+            strategy_name='Qualification Test Moving Average Crossover',
             confidence_threshold=0.0,
             maximum_rounds=3,
             duration_seconds_per_round=1,
@@ -142,12 +145,14 @@ def test_controller_reaches_maximum_rounds() -> None:
             long_lookback_rows=20,
             minimum_signal_strength=0.01,
             created_from="qualification",
+            strategy_name='Qualification Test Moving Average Crossover',
         )
         .to_dict()
     )
 
     result = (
         run_adaptive_training_controller(
+            strategy_name='Qualification Test Moving Average Crossover',
             confidence_threshold=1.0,
             maximum_rounds=2,
             duration_seconds_per_round=1,

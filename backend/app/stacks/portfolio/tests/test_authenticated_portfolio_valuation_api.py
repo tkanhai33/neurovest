@@ -54,7 +54,7 @@ async def test_portfolio_valuation_propagates_owner(
             "starting_capital": 100000.0,
             "current_cash_balance": 75000.25,
             "total_fees_paid": 12.5,
-            "net_liquidation_value": 75000.25,
+            "net_liquidation_value": None,
         }
     )
 
@@ -78,7 +78,7 @@ async def test_portfolio_valuation_propagates_owner(
         "starting_capital": 100000.0,
         "current_cash_balance": 75000.25,
         "total_fees_paid": 12.5,
-        "net_liquidation_value": 75000.25,
+        "net_liquidation_value": None,
         "valuation_basis": "cash_ledger",
         "live_market_marking": False,
     }
@@ -94,13 +94,13 @@ async def test_portfolio_valuation_keeps_owners_separate(
                 "starting_capital": 100000.0,
                 "current_cash_balance": 90000.0,
                 "total_fees_paid": 1.0,
-                "net_liquidation_value": 90000.0,
+                "net_liquidation_value": None,
             },
             {
                 "starting_capital": 100000.0,
                 "current_cash_balance": 70000.0,
                 "total_fees_paid": 2.0,
-                "net_liquidation_value": 70000.0,
+                "net_liquidation_value": None,
             },
         ]
     )

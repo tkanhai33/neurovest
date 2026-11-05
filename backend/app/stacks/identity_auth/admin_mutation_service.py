@@ -7,14 +7,13 @@ from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import HTTPException, status
-from sqlalchemy import delete, select, update
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.stacks.identity_auth.access_token_revocation_models import (
     IdentityAccessTokenRevocation,
 )
 from backend.app.stacks.identity_auth.admin_mutation_api_models import (
-    AdministrativeDeleteResponse,
     AdministrativeMutationResponse,
     AdministrativeTemporaryPasswordResponse,
 )
@@ -469,65 +468,6 @@ class AdministrativeUserMutationService:
                 action="enable_account",
                 user_id=user_id,
                 sessions_revoked=0,
-            )
-        except HTTPException:
-            raise
-        except Exception:
-            await self._session.rollback()
-            raise
-
-    async def delete_account(
-        self,
-        *,
-        principal: Any,
-        user_id: str,
-    ) -> AdministrativeDeleteResponse:
-        actor_id, _ = self._authorize_actor(
-            principal
-        )
-
-        target = await self._load_target(
-            user_id=user_id
-        )
-
-        self._assert_target_mutable(
-            actor_id=actor_id,
-            target=target,
-        )
-
-        try:
-            await self._session.execute(
-                delete(
-                    IdentityAccessTokenRevocation
-                ).where(
-                    IdentityAccessTokenRevocation.user_id
-                    == user_id
-                )
-            )
-
-            await self._session.execute(
-                delete(
-                    IdentityRefreshSession
-                ).where(
-                    IdentityRefreshSession.user_id
-                    == user_id
-                )
-            )
-
-            await self._session.delete(target)
-            await self._session.commit()
-
-            self._audit(
-                action="delete_account",
-                actor_id=actor_id,
-                target_id=user_id,
-            )
-
-            return AdministrativeDeleteResponse(
-                status="completed",
-                action="delete_account",
-                user_id=user_id,
-                deleted=True,
             )
         except HTTPException:
             raise

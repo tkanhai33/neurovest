@@ -13,7 +13,7 @@ This module:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP, localcontext
 import re
 from typing import Any
 
@@ -23,6 +23,10 @@ from backend.app.stacks.chat_public.math_tools.contracts import (
 )
 from backend.app.stacks.chat_public.math_tools.engine import (
     execute_math_tool,
+)
+from backend.app.stacks.chat_public.math_tools.symbolic_math import (
+    evaluate_symbolic_math,
+    symbolic_math_requested,
 )
 
 
@@ -135,6 +139,211 @@ def _extract_percentage_of(
             )
 
     return None
+
+
+
+def _extract_percentage_adjustment(
+    message: str,
+) -> ExtractedMathRequest | None:
+    """
+    Extract natural-language percentage increases/decreases into
+    the existing deterministic arithmetic multiplication operation.
+    """
+
+    text = str(
+        message or ""
+    ).strip()
+
+    if not text:
+        return None
+
+    number = (
+        r"[-+]?(?:\d+(?:\.\d+)?|\.\d+)"
+    )
+
+    patterns = (
+        re.compile(
+            rf"""
+            \$?
+            (?P<amount>{number})
+            (?:
+                \s+
+                (?:amount|value|price|balance|total)
+            )?
+            \s+
+            (?P<direction>
+                increases?
+                |
+                increased
+                |
+                rises?
+                |
+                rose
+                |
+                goes?\s+up
+                |
+                decreases?
+                |
+                decreased
+                |
+                falls?
+                |
+                fell
+                |
+                goes?\s+down
+            )
+            \s+
+            by
+            \s+
+            (?P<percent>{number})
+            \s*
+            (?:%|percent)
+            """,
+            re.IGNORECASE
+            | re.VERBOSE,
+        ),
+
+        re.compile(
+            rf"""
+            (?P<direction>
+                increase
+                |
+                raise
+                |
+                grow
+                |
+                decrease
+                |
+                reduce
+                |
+                lower
+            )
+            \s+
+            \$?
+            (?P<amount>{number})
+            \s+
+            by
+            \s+
+            (?P<percent>{number})
+            \s*
+            (?:%|percent)
+            """,
+            re.IGNORECASE
+            | re.VERBOSE,
+        ),
+
+        re.compile(
+            rf"""
+            (?P<direction>
+                add
+            )
+            \s+
+            (?P<percent>{number})
+            \s*
+            (?:%|percent)
+            \s+
+            (?:to|onto)
+            \s+
+            \$?
+            (?P<amount>{number})
+            """,
+            re.IGNORECASE
+            | re.VERBOSE,
+        ),
+    )
+
+    match = None
+
+    for pattern in patterns:
+
+        candidate = pattern.search(
+            text
+        )
+
+        if candidate is not None:
+            match = candidate
+            break
+
+    if match is None:
+        return None
+
+    amount = _clean_number(
+        match.group(
+            "amount"
+        )
+    )
+
+    percent = _clean_number(
+        match.group(
+            "percent"
+        )
+    )
+
+    direction = match.group(
+        "direction"
+    ).lower()
+
+    try:
+
+        percent_value = Decimal(
+            percent
+        )
+
+    except Exception:
+
+        return None
+
+    decrease = any(
+        token in direction
+        for token in (
+            "decrease",
+            "reduce",
+            "lower",
+            "fall",
+            "fell",
+            "down",
+        )
+    )
+
+    if decrease:
+
+        factor = (
+            Decimal("1")
+            - (
+                percent_value
+                / Decimal("100")
+            )
+        )
+
+    else:
+
+        factor = (
+            Decimal("1")
+            + (
+                percent_value
+                / Decimal("100")
+            )
+        )
+
+    return ExtractedMathRequest(
+        request=MathToolRequest(
+            operation="arithmetic",
+            arguments={
+                "left":
+                    amount,
+
+                "right":
+                    format(
+                        factor,
+                        "f",
+                    ),
+
+                "operator":
+                    "multiply",
+            },
+        ),
+        source_text=match.group(0),
+    )
 
 
 def _extract_percent_change(
@@ -433,6 +642,16 @@ def _extract_arithmetic(
     if not match:
         return None
 
+    # R218_REJECT_PARTIAL_ARITHMETIC_MATCH
+    # Do not ground a prefix when the prompt contains more operations.
+    remainder = message[:match.start()] + " " + message[match.end():]
+    extra_operation = re.compile(
+        rf"(?:{NUMBER}\s*[+\-*/×÷^%−]|[+\-*/×÷^%−]\s*{NUMBER})",
+        re.I,
+    )
+    if extra_operation.search(remainder):
+        return None
+
     operator_map = {
         "+":
             "add",
@@ -467,6 +686,7 @@ def _extract_arithmetic(
 
 
 EXTRACTORS = (
+    _extract_percentage_adjustment,
     _extract_percentage_of,
     _extract_percent_change,
     _extract_cagr,
@@ -530,11 +750,60 @@ def build_math_prompt_section(
     ]
 
 
+def _with_requested_display_values(
+    result: dict[str, Any],
+    message: str,
+) -> dict[str, Any]:
+    match = re.search(
+        r"\bgive\s+(\d{1,2})\s+decimals?\b",
+        str(message or ""),
+        re.I,
+    )
+    if match is None:
+        return result
+
+    places = int(match.group(1))
+    if places > 12:
+        return result
+
+    values = result.get("values")
+    if not isinstance(values, dict) or not values:
+        return result
+
+    quantum = Decimal(1).scaleb(-places)
+    display_values = {}
+
+    try:
+        for key, raw_value in values.items():
+            value = Decimal(str(raw_value))
+            if not value.is_finite() or abs(value.adjusted()) > 100:
+                return result
+
+            with localcontext() as context:
+                context.prec = max(
+                    28,
+                    len(value.as_tuple().digits) + places + 4,
+                )
+                rounded = value.quantize(
+                    quantum,
+                    rounding=ROUND_HALF_UP,
+                )
+
+            display_values[str(key)] = format(rounded, "f")
+    except (InvalidOperation, TypeError, ValueError):
+        return result
+
+    updated = dict(result)
+    updated["display_values"] = display_values
+    return updated
+
+
 def evaluate_live_math(
     message: str,
     *,
     requested: bool,
 ) -> LiveMathBundle:
+    message = str(message or "").replace("’", "'").replace("‘", "'")
     if not requested:
         return LiveMathBundle(
             requested=False,
@@ -544,6 +813,56 @@ def evaluate_live_math(
             arguments={},
             result=None,
             prompt_section="",
+            error=None,
+        )
+
+    if symbolic_math_requested(
+        message
+    ):
+        try:
+            symbolic = evaluate_symbolic_math(
+                message
+            )
+        except Exception as error:
+            return LiveMathBundle(
+                requested=True,
+                extracted=False,
+                succeeded=False,
+                operation=None,
+                arguments={},
+                result=None,
+                prompt_section="",
+                error=(
+                    "The symbolic request could not be evaluated "
+                    "within NeuroVest's constrained math grammar: "
+                    f"{type(error).__name__}: {error}"
+                ),
+            )
+
+        if symbolic is None:
+            return LiveMathBundle(
+                requested=True,
+                extracted=False,
+                succeeded=False,
+                operation=None,
+                arguments={},
+                result=None,
+                prompt_section="",
+                error="The requested symbolic form is not yet supported.",
+            )
+
+        return LiveMathBundle(
+            requested=True,
+            extracted=True,
+            succeeded=True,
+            operation=str(symbolic["operation"]),
+            arguments=dict(symbolic["arguments"]),
+            result=_with_requested_display_values(
+                dict(symbolic["result"]), message
+            ),
+            prompt_section=str(symbolic["prompt_section"])[
+                :MAX_MATH_PROMPT_CHARACTERS
+            ],
             error=None,
         )
 
@@ -571,7 +890,10 @@ def evaluate_live_math(
         extracted.request
     )
 
-    payload = result.as_serializable()
+    payload = _with_requested_display_values(
+        result.as_serializable(),
+        message,
+    )
 
     return LiveMathBundle(
         requested=True,

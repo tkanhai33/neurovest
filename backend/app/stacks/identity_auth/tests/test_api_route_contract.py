@@ -129,6 +129,8 @@ def test_registration_contract() -> None:
         json={
             "email": "user@example.com",
             "password": "safe-password-123",
+            "terms_accepted": True,
+            "terms_version": "neurovest-beta-terms-2026-10-09-v1",
         },
     )
 
@@ -139,6 +141,8 @@ def test_registration_contract() -> None:
     }
 
     assert service.command == RegistrationCommand(
+        terms_accepted=True,
+        terms_version='neurovest-beta-terms-2026-10-09-v1',
         email="user@example.com",
         password="safe-password-123",
     )
@@ -162,6 +166,8 @@ def test_registration_failure_is_generic() -> None:
         json={
             "email": "user@example.com",
             "password": "safe-password-123",
+            "terms_accepted": True,
+            "terms_version": "neurovest-beta-terms-2026-10-09-v1",
         },
     )
 

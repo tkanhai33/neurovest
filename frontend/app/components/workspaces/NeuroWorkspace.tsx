@@ -70,7 +70,7 @@ export default function NeuroWorkspace() {
           <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">Neuro Workspace</p>
           <h2 className="mt-2 text-3xl font-black text-white">Neuro System Overview</h2>
           <p className="mt-2 max-w-3xl text-sm text-slate-400">
-            Runtime telemetry and diagnostics. The floating Neuro button remains the only conversational interface.
+            Runtime telemetry and diagnostics. Developer Chat now uses the shared authenticated Chat runtime.
           </p>
         </div>
 
@@ -92,7 +92,7 @@ export default function NeuroWorkspace() {
           />
           <MetricCard title="Requests" value={String(ok)} color="text-emerald-300" />
           <MetricCard title="Failures" value={String(failed)} color="text-red-300" />
-          <MetricCard title="Provider" value="Ollama" color="text-fuchsia-300" />
+          <MetricCard title="Provider" value="Runtime-routed" color="text-slate-300" />
           <MetricCard title="Broker" value="Locked" color="text-amber-300" />
         </div>
       </section>
@@ -104,11 +104,11 @@ export default function NeuroWorkspace() {
 
           <div className="mt-5 space-y-3">
             {[
-              ["Replay Engine", "ACTIVE"],
-              ["Learning Engine", "ACTIVE"],
+              ["Replay Engine", "Not reported"],
+              ["Learning Engine", "Not reported"],
               ["Broker Execution", "LOCKED"],
               ["Portfolio Mutation", "LOCKED"],
-              ["Chat Interface", "FLOATING BUTTON"],
+              ["Chat Interface", "Shared authenticated runtime"],
             ].map(([label, value]) => (
               <div key={label} className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
                 <span>{label}</span>

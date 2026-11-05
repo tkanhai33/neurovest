@@ -1,0 +1,42 @@
+# NEUROVEST GAP QUALIFICATION WORKSHEET
+
+Generated: 2026-07-31T18:44:52.493320
+
+| FP | Gap | TODO | Evidence |  |
+| ---: | --- | TODO | --- |  |
+| 01 | No root error.tsx/error.jsx/error.js file was found. | OPTIONAL |  | Decide if required before launch |
+| 01 | No root loading.tsx/loading.jsx/loading.js file was found. | OPTIONAL |  | Decide if required before launch |
+| 02 | Registration rate limiting was not conclusively detected. | IMPLEMENTED — VERIFIED | backend/app/stacks/identity_auth/api_dependencies.py: enforce_auth_rate_limit; backend/app/stacks/identity_auth/api_router.py: /auth/register; backend/app/stacks/identity_auth/tests/test_auth_rate_limiting.py; 11 focused tests passed 2026-07-31 | CLOSED |
+| 03 | Login rate limiting was not conclusively detected. | IMPLEMENTED — VERIFIED | backend/app/stacks/identity_auth/api_dependencies.py: enforce_auth_rate_limit; backend/app/stacks/identity_auth/api_router.py: /auth/login; backend/app/stacks/identity_auth/tests/test_auth_rate_limiting.py; 11 focused tests passed 2026-07-31 | CLOSED |
+| 04 | The exact successful login-to-dashboard redirect was not conclusively detected. | IMPLEMENTED — SOURCE VERIFIED | frontend/app/login/page.tsx: posts to /api/auth/login, defaults destination to /dashboard, and calls router.replace(destination); frontend/app/api/auth/login/route.ts returns /dashboard; frontend/tests/test_fp04_login_redirect_contract.py passed | CLOSED |
+| 05 | No dedicated portfolio page was detected; portfolio currently appears to be embedded in the authenticated dashboard. | EXPECTED DESIGN |  | Verify dashboard integration |
+| 06 | No dedicated analytics page was detected; analytics may be embedded in the authenticated dashboard. | EXPECTED DESIGN — SOURCE VERIFIED | runtime/system_inventory/fp06_analytics_dashboard_verification_20260731_195231.txt; authenticated dashboard source contains analytics, performance, portfolio-measurement, and metric presentation evidence; frontend/tests/test_fp06_embedded_analytics_contract.py passed | CLOSED |
+| 08 | No dedicated strategy-analysis page was detected; the strategy surface appears to be embedded in the authenticated dashboard. | EXPECTED DESIGN |  | Verify dashboard integration |
+| 09 | No dedicated Risk Analysis page was detected; the risk surface appears to be embedded in the authenticated dashboard. | EXPECTED DESIGN |  | Verify dashboard integration |
+| 10 | No dedicated market-data page was detected; market data appears to be consumed by authenticated dashboard functions. | EXPECTED DESIGN — SOURCE VERIFIED | runtime/system_inventory/fp10_market_data_dashboard_verification_20260731_195404.txt; authenticated dashboard source contains market and price presentation evidence, while backend market-data services provide the runtime data path; frontend/tests/test_fp10_embedded_market_data_contract.py passed | CLOSED |
+| 11 | No direct frontend /api/v1/chat request was detected. | IMPLEMENTED — FULL CHAIN VERIFIED | runtime/system_inventory/fp11_chat_full_chain_verified_20260731_200158.txt; frontend/services/chatService.ts calls /api/v1/chat; frontend/app/api/v1/chat/route.ts invokes backendFetch('/api/v1/chat'); frontend/lib/backendAuth.ts executes the authenticated backend fetch; backend/app/stacks/chat_public/chat_api.py exposes POST /api/v1/chat; frontend/tests/test_fp11_chat_full_chain_contract.py passed | CLOSED |
+| 11 | Potential automatic order-submission markers were detected and require direct review. | FALSE POSITIVE — SAFETY BOUNDARY VERIFIED | runtime/system_inventory/fp11_automatic_order_call_path_20260731_200552.txt; 526 source files scanned; zero chat execution imports, zero chat execution calls, and zero chat order-route references; backend/app/stacks/chat_public/tests/test_fp11_no_order_execution_path.py passed | CLOSED |
+| 12 | Delete markers were detected and must be reviewed against immutable audit requirements. | TODO |  |  |
+| 12 | No direct frontend journal or ledger request was detected. | VERIFY FRONTEND |  | Confirm UI integration |
+| 12 | Update markers were detected and must be reviewed against append-only ledger requirements. | TODO |  |  |
+| 13 | Delivery status or delivery evidence was not detected. | TODO |  |  |
+| 13 | Mark-read or acknowledgement behavior was not detected. | TODO |  |  |
+| 13 | No decorated notification or alert backend route was mapped. | VERIFY ROUTE |  | Confirm API exposure |
+| 13 | No direct frontend notification request was detected. | VERIFY FRONTEND |  | Confirm UI integration |
+| 13 | Notification creation or emission was not detected. | TODO |  |  |
+| 13 | Notification read or list behavior was not detected. | TODO |  |  |
+| 14 | User-deletion markers were detected and require direct review. | TODO |  |  |
+| 15 | A dedicated liveness contract was not detected. | TODO |  |  |
+| 16 | Broker connection-portal generation was not detected. | TODO |  |  |
+| 16 | Broker synchronization state was not detected. | TODO |  |  |
+| 16 | Explicit encryption for broker secrets was not detected. | TODO |  |  |
+| 16 | No decorated broker or SnapTrade backend route was mapped. | VERIFY ROUTE |  | Confirm API exposure |
+| 16 | No direct frontend broker or SnapTrade request was detected. | VERIFY FRONTEND |  | Confirm UI integration |
+| 16 | Potential broker order-execution functions were detected and require direct call-path review. | MANUAL REVIEW |  | Review implementation |
+| 17 | A centralized execution gate was not detected. | ARCHITECTURE REVIEW |  | Confirm intended operating-mode design |
+| 17 | Explicit operating-mode transition validation was not detected. | ARCHITECTURE REVIEW |  | Confirm intended operating-mode design |
+| 17 | LOCKED mode was not detected. | ARCHITECTURE REVIEW |  | Confirm intended operating-mode design |
+| 17 | No decorated operating-mode or emergency-stop backend route was mapped. | VERIFY ROUTE |  | Confirm API exposure |
+| 17 | No direct frontend operating-mode or emergency-stop request was detected. | VERIFY FRONTEND |  | Confirm UI integration |
+| 17 | Operating-mode restart recovery was not detected. | ARCHITECTURE REVIEW |  | Confirm intended operating-mode design |
+| 17 | SAFE mode was not detected. | ARCHITECTURE REVIEW |  | Confirm intended operating-mode design |

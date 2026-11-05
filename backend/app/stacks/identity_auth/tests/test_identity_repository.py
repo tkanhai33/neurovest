@@ -28,6 +28,7 @@ async def test_user_repository_normalizes_email() -> None:
     user = await repository.create(
         email="  User@Example.COM ",
         password_hash="scrypt$test",
+        terms_version="neurovest-beta-terms-2026-10-09-v1",
     )
 
     assert isinstance(
@@ -43,11 +44,13 @@ async def test_user_repository_normalizes_email() -> None:
         "scrypt$test"
     )
 
-    session.add.assert_called_once_with(
-        user
-    )
+    assert session.add.call_count == 2
+    assert session.add.call_args_list[0].args[0] is user
 
-    session.flush.assert_awaited_once()
+    acceptance = session.add.call_args_list[1].args[0]
+    assert acceptance.user_id == user.id
+    assert acceptance.document_version == "neurovest-beta-terms-2026-10-09-v1"
+    assert session.flush.await_count == 2
 
 
 @pytest.mark.asyncio

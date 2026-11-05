@@ -50,6 +50,10 @@ class MockIdentityUserRepository:
             MockIdentityUser,
         ] = {}
 
+        self.terms_acceptances: list[
+            dict[str, str]
+        ] = []
+
     async def get_by_email(
         self,
         email: str,
@@ -64,6 +68,7 @@ class MockIdentityUserRepository:
         email: str,
         password_hash: str,
         display_name: str | None = None,
+        terms_version: str = "",
     ) -> MockIdentityUser:
         if email in self.users_by_email:
             raise RuntimeError(
@@ -82,6 +87,18 @@ class MockIdentityUserRepository:
         self.users_by_email[
             email
         ] = user
+
+        if not terms_version:
+            raise RuntimeError(
+                "Terms version cannot be empty"
+            )
+
+        self.terms_acceptances.append(
+            {
+                "user_id": user.id,
+                "document_version": terms_version,
+            }
+        )
 
         return user
 

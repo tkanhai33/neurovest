@@ -17,7 +17,7 @@ export async function getBackendHealth(): Promise<BackendHealth> {
 
     return {
       apiOnline: response.ok,
-      frontendOnline: true,
+      frontendOnline: false,
       graphOnline: response.ok,
       lastChecked: new Date().toISOString(),
       latencyMs: Date.now() - startedAt,
@@ -26,7 +26,7 @@ export async function getBackendHealth(): Promise<BackendHealth> {
   } catch (error) {
     return {
       apiOnline: false,
-      frontendOnline: true,
+      frontendOnline: false,
       graphOnline: false,
       lastChecked: new Date().toISOString(),
       latencyMs: Date.now() - startedAt,

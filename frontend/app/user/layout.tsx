@@ -2,7 +2,7 @@ import type {
   ReactNode,
 } from "react";
 
-import AppShell from "../../components/app-shell/AppShell";
+import UserAppShell from "./UserAppShell";
 
 export default function UserLayout({
   children,
@@ -10,8 +10,8 @@ export default function UserLayout({
   children: ReactNode;
 }>) {
   return (
-    <AppShell workspace="user">
+    <UserAppShell>
       {children}
-    </AppShell>
+    </UserAppShell>
   );
 }

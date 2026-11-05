@@ -1,0 +1,22 @@
+{
+  "phase": "63B_ARCHITECTURE_ATLAS_GENERATOR",
+  "created_at": "2026-07-07T03:10:44.679455+00:00",
+  "mode": "READ_ONLY_ATLAS_COMPILER",
+  "output_dir": "/home/tkanhai/Neurovest/handoff/project_bible/architecture_atlas",
+  "phase_artifacts_scanned": 231,
+  "python_import_files_scanned": 439,
+  "generated_files": [
+    "ARCHITECTURE_ATLAS.md",
+    "PHASE_TIMELINE.md",
+    "STACK_OWNERSHIP.md",
+    "LAYER_OWNERSHIP.md",
+    "IMPORT_DEPENDENCY_ATLAS.json",
+    "FLOWS/market_data.md",
+    "FLOWS/candidate_pipeline.md",
+    "FLOWS/execution_disabled.md",
+    "TOPOLOGY/node_graph.md",
+    "TOPOLOGY/dependency_graph.md",
+    "TOPOLOGY/stack_graph.json"
+  ],
+  "certified": true
+}

@@ -86,6 +86,8 @@ async def test_mock_registration_result_remains_registration_contract() -> None:
 
     registered = await runtime.registration.register(
         RegistrationCommand(
+            terms_accepted=True,
+            terms_version='neurovest-beta-terms-2026-10-09-v1',
             email="stage4f-contract@example.com",
             password="correct-password",
         )
@@ -112,6 +114,8 @@ async def test_mock_registration_login_flow_accepts_claim_propagation() -> None:
 
     await runtime.registration.register(
         RegistrationCommand(
+            terms_accepted=True,
+            terms_version='neurovest-beta-terms-2026-10-09-v1',
             email="stage4f-login@example.com",
             password="correct-password",
         )

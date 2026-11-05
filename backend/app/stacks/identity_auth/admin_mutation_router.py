@@ -3,7 +3,6 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 
 from backend.app.stacks.identity_auth.admin_mutation_api_models import (
-    AdministrativeDeleteResponse,
     AdministrativeMutationResponse,
     AdministrativeTemporaryPasswordResponse,
 )
@@ -100,25 +99,6 @@ async def enable_account(
     ),
 ) -> AdministrativeMutationResponse:
     return await service.enable_account(
-        principal=principal,
-        user_id=user_id,
-    )
-
-
-@router.delete(
-    "/{user_id}",
-    response_model=AdministrativeDeleteResponse,
-)
-async def delete_account(
-    user_id: str,
-    principal: AdministrativePrincipal = Depends(
-        require_administrative_principal
-    ),
-    service: AdministrativeUserMutationService = Depends(
-        get_administrative_user_mutation_service
-    ),
-) -> AdministrativeDeleteResponse:
-    return await service.delete_account(
         principal=principal,
         user_id=user_id,
     )

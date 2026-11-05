@@ -370,7 +370,7 @@ def _session_state(
     )
 
 
-def _normalize_quote_payload(
+def _nv10s_original_normalize_quote_payload(
     payload: object,
     requested_symbol: str,
 ) -> MarketQuote:
@@ -556,6 +556,72 @@ def _normalize_quote_payload(
         },
     )
 
+# NEUROVEST_TIMESTAMP_PROVENANCE_10S
+from functools import wraps as _nv10s_wraps
+
+@_nv10s_wraps(_nv10s_original_normalize_quote_payload)
+def _normalize_quote_payload(*args, **kwargs):
+    from collections.abc import Mapping
+    from dataclasses import replace
+    from inspect import signature
+
+    original = _nv10s_original_normalize_quote_payload
+
+    bound = signature(original).bind(*args, **kwargs)
+    bound.apply_defaults()
+
+    payload = bound.arguments["payload"]
+
+    # Original normalization runs first.
+    # This preserves explicit-null and invalid
+    # timestamp rejection without workarounds.
+    quote = original(*args, **kwargs)
+
+    if not isinstance(quote, MarketQuote):
+        raise TypeError(
+            "Quote normalizer returned a non-canonical result."
+        )
+
+    timestamp_keys = (
+        "observed_at",
+        "timestamp",
+        "datetime",
+        "time",
+        "regularMarketTime",
+    )
+
+    if isinstance(payload, MarketQuote):
+        origin = "preexisting_quote_object"
+
+    elif isinstance(payload, Mapping):
+        source_has_timestamp = any(
+            payload.get(key) is not None
+            and payload.get(key) != ""
+            for key in timestamp_keys
+        )
+
+        origin = (
+            "source_payload"
+            if source_has_timestamp
+            else "locally_synthesized"
+        )
+
+    else:
+        origin = "locally_synthesized"
+
+    metadata = dict(quote.metadata or {})
+
+    # Always overwrite this internal provenance key.
+    # Source payload metadata must not certify itself.
+    metadata["neurovest_timestamp_origin"] = origin
+
+    return replace(
+        quote,
+        metadata=metadata,
+    )
+
+
+
 
 def _bar_records(
     payload: object,
@@ -719,6 +785,21 @@ def _normalize_bar(
         "close",
     )
 
+    adjusted_close_raw = _first_present(
+        payload,
+        (
+            "adjusted_close",
+            "adj_close",
+            "Adj Close",
+        ),
+        default=None,
+    )
+    adjusted_close = (
+        _finite_float(adjusted_close_raw, "adjusted_close")
+        if adjusted_close_raw is not None
+        else None
+    )
+
     volume = _finite_float(
         _first_present(
             payload,
@@ -747,6 +828,7 @@ def _normalize_bar(
         close=close_price,
         volume=volume,
         provider="yfinance",
+        adjusted_close=adjusted_close,
     )
 
 
@@ -838,7 +920,7 @@ def _normalize_historical_payload(
 
     if request.limit is not None:
         bars = bars[
-            : request.limit
+            -request.limit:
         ]
 
     return HistoricalBarsResult(

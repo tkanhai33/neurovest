@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import {
   Panel,
   StatusBadge,
@@ -11,6 +13,7 @@ type UnknownRecord =
 
 type RecentOrderActivityProps = {
   orders: unknown[];
+  unavailable?: boolean;
 };
 
 function asRecord(
@@ -187,13 +190,86 @@ function statusTone(
 
 export default function RecentOrderActivity({
   orders,
+  unavailable = false,
 }: RecentOrderActivityProps) {
+  // Filters operate only on the eight records supplied to this
+  // compact account-history panel. No new API or ledger writes.
+  const [orderSearch, setOrderSearch] = useState("");
+  const [orderStatusFilter, setOrderStatusFilter] =
+    useState("all");
+  const [orderSideFilter, setOrderSideFilter] =
+    useState("all");
+
   const normalizedOrders =
     Array.isArray(orders)
       ? orders
           .map(asRecord)
           .slice(0, 8)
       : [];
+
+  const filteredOrders = normalizedOrders.filter((order) => {
+    const symbol = readString(
+      order,
+      ["symbol", "ticker", "asset_symbol"],
+    ).toLowerCase();
+
+    const action = readString(
+      order,
+      ["signal", "action", "side", "order_side"],
+    ).toLowerCase();
+
+    const status = readString(
+      order,
+      ["status", "order_status", "execution_status"],
+      "recorded",
+    ).toLowerCase();
+
+    const identifier = readString(
+      order,
+      ["id", "order_id", "trade_id", "trace_id"],
+    ).toLowerCase();
+
+    const search = orderSearch.trim().toLowerCase();
+
+    const matchesSearch =
+      !search ||
+      symbol.includes(search) ||
+      action.includes(search) ||
+      status.includes(search) ||
+      identifier.includes(search);
+
+    const isFilled =
+      status.includes("executed") ||
+      status.includes("filled") ||
+      status.includes("complete");
+
+    const isClosed =
+      status.includes("reject") ||
+      status.includes("fail") ||
+      status.includes("error") ||
+      status.includes("cancel");
+
+    const isPending =
+      status.includes("pending") ||
+      status.includes("queued") ||
+      status.includes("review");
+
+    const category = isFilled
+      ? "filled"
+      : isClosed
+        ? "closed"
+        : isPending
+          ? "pending"
+          : "other";
+
+    return (
+      matchesSearch &&
+      (orderStatusFilter === "all" ||
+        orderStatusFilter === category) &&
+      (orderSideFilter === "all" ||
+        orderSideFilter === action)
+    );
+  });
 
   return (
     <Panel
@@ -218,8 +294,8 @@ export default function RecentOrderActivity({
           </p>
         </div>
 
-        <StatusBadge tone="violet">
-          {orders.length} total
+        <StatusBadge tone={unavailable ? "warning" : "violet"}>
+          {unavailable ? "Unavailable" : `${orders.length} total`}
         </StatusBadge>
       </div>
 
@@ -227,14 +303,117 @@ export default function RecentOrderActivity({
         data-testid="recent-order-activity"
         className="p-6"
       >
-        {normalizedOrders.length === 0 ? (
+        {!unavailable && normalizedOrders.length > 0 && (
+          <div
+            data-testid="f8-order-filters"
+            className="mb-5 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4"
+          >
+            <div className="grid gap-3 md:grid-cols-3">
+              <label className="block min-w-0">
+                <span className="nv-stat-label">
+                  Search recent orders
+                </span>
+                <input
+                  type="search"
+                  data-testid="f8-order-search"
+                  value={orderSearch}
+                  onChange={(event) =>
+                    setOrderSearch(event.target.value)
+                  }
+                  placeholder="Symbol, status, or ID"
+                  className="nv-input mt-2 w-full"
+                />
+              </label>
+
+              <label className="block min-w-0">
+                <span className="nv-stat-label">
+                  Order status
+                </span>
+                <select
+                  data-testid="f8-order-status"
+                  value={orderStatusFilter}
+                  onChange={(event) =>
+                    setOrderStatusFilter(event.target.value)
+                  }
+                  className="nv-input mt-2 w-full"
+                >
+                  <option value="all">All statuses</option>
+                  <option value="filled">Filled / executed</option>
+                  <option value="pending">Pending / under review</option>
+                  <option value="closed">Cancelled / rejected / failed</option>
+                  <option value="other">Other recorded statuses</option>
+                </select>
+              </label>
+
+              <label className="block min-w-0">
+                <span className="nv-stat-label">
+                  Direction
+                </span>
+                <select
+                  data-testid="f8-order-side"
+                  value={orderSideFilter}
+                  onChange={(event) =>
+                    setOrderSideFilter(event.target.value)
+                  }
+                  className="nv-input mt-2 w-full"
+                >
+                  <option value="all">Buy and sell</option>
+                  <option value="buy">Buy only</option>
+                  <option value="sell">Sell only</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <p
+                data-testid="f8-order-visible-count"
+                aria-live="polite"
+                className="text-xs text-slate-400"
+              >
+                Showing {filteredOrders.length} of{" "}
+                {normalizedOrders.length} recent records
+              </p>
+              {(orderSearch ||
+                orderStatusFilter !== "all" ||
+                orderSideFilter !== "all") && (
+                <button
+                  type="button"
+                  data-testid="f8-order-clear-filters"
+                  onClick={() => {
+                    setOrderSearch("");
+                    setOrderStatusFilter("all");
+                    setOrderSideFilter("all");
+                  }}
+                  className="nv-button nv-button-secondary nv-button-sm"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+            <p className="mt-2 text-xs leading-5 text-slate-500">
+              Filtering the eight most recent records shown here.
+              This is not a search of the complete order ledger.
+            </p>
+          </div>
+        )}
+        {unavailable ? (
+          <StatusMessage tone="warning">
+            Order history is currently unavailable.
+            Please refresh your account to try again.
+          </StatusMessage>
+        ) : normalizedOrders.length === 0 ? (
           <StatusMessage tone="info">
             No paper orders have been
             recorded for this account yet.
           </StatusMessage>
+        ) : filteredOrders.length === 0 ? (
+          <StatusMessage tone="info">
+            No recent orders match these filters.
+            Clear the filters to restore this view.
+          </StatusMessage>
         ) : (
           <div className="space-y-3">
-            {normalizedOrders.map(
+            {filteredOrders.map(
               (
                 order,
                 index,

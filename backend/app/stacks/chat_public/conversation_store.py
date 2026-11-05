@@ -261,6 +261,11 @@ class ConversationStore:
             existing = await self.get_thread(thread_id)
 
             if existing is not None:
+                if not user_id or existing.user_id != user_id:
+                    raise PermissionError(
+                        "Chat thread is not available."
+                    )
+
                 return existing
 
         return await self.create_thread(
@@ -477,7 +482,7 @@ class ConversationStore:
             )
             .order_by(
                 ordering,
-                ChatMessageRecord.message_id.asc(),
+                (ChatMessageRecord.message_id.asc() if oldest_first else ChatMessageRecord.message_id.desc()),
             )
             .limit(bounded_limit)
         )
@@ -826,6 +831,129 @@ class ConversationStore:
         archived = await self.require_thread(thread_id)
         return archived
 
+    async def list_learned_strategy_knowledge(
+        self,
+        *,
+        limit: int = 25,
+    ) -> list[dict[str, Any]]:
+        """
+        Return bounded server-authoritative learned strategy context.
+
+        SELECT-only. This method does not validate, admit, promote,
+        train, execute, or mutate StrategyKnowledge.
+        """
+
+        from backend.app.stacks.db_model.strategy_knowledge import (
+            StrategyKnowledge,
+        )
+
+        bounded_limit = max(
+            1,
+            min(
+                int(limit),
+                25,
+            ),
+        )
+
+        statement = (
+            select(
+                StrategyKnowledge
+            )
+            .where(
+                StrategyKnowledge.validation_status.in_(
+                    (
+                        "passed",
+                        "qualified",
+                        "accepted",
+                    )
+                )
+            )
+            .where(
+                StrategyKnowledge.lifecycle_state.in_(
+                    (
+                        "accepted",
+                        "challenger",
+                        "champion",
+                    )
+                )
+            )
+            .where(
+                StrategyKnowledge.admission_decision
+                == "admit"
+            )
+            .order_by(
+                StrategyKnowledge.updated_at.desc(),
+                StrategyKnowledge.created_at.desc(),
+            )
+            .limit(
+                bounded_limit
+            )
+        )
+
+        async with async_session() as session:
+            result = await session.execute(
+                statement
+            )
+
+            records = result.scalars().all()
+
+        return [
+            {
+                "strategy_id":
+                    record.strategy_id,
+
+                "strategy_fingerprint":
+                    record.strategy_fingerprint,
+
+                "strategy_version":
+                    int(
+                        record.strategy_version
+                    ),
+
+                "strategy_name":
+                    record.strategy_name,
+
+                "name":
+                    record.name,
+
+                "strategy_family":
+                    record.strategy_family,
+
+                "asset_class":
+                    record.asset_class,
+
+                "symbols":
+                    list(
+                        record.symbols
+                        or []
+                    ),
+
+                "generation_source":
+                    record.generation_source,
+
+                "validation_status":
+                    record.validation_status,
+
+                "lifecycle_state":
+                    record.lifecycle_state,
+
+                "admission_decision":
+                    record.admission_decision,
+
+                "promotion_status":
+                    record.promotion_status,
+
+                "history_row_count":
+                    record.history_row_count,
+
+                "feature_count":
+                    record.feature_count,
+            }
+            for record
+            in records
+        ]
+
+
     async def load_context_bundle(
         self,
         thread_id: str,
@@ -833,13 +961,60 @@ class ConversationStore:
         message_limit: int = 20,
         memory_limit: int = 100,
         evidence_limit: int = 50,
+        owner_user_id: str | None = None,
     ) -> dict[str, Any]:
         thread = await self.require_thread(thread_id)
+
+        # NEUROVEST_V111R2_CONTEXT_OWNER
+        # Check caller ownership before reading context.
+        if owner_user_id is not None:
+            expected_owner = str(owner_user_id).strip()
+
+            if not expected_owner:
+                raise PermissionError(
+                    "Authenticated context owner required."
+                )
+
+            actual_owner = str(
+                getattr(thread, "user_id", "") or ""
+            ).strip()
+
+            if actual_owner != expected_owner:
+                raise PermissionError(
+                    "Chat context is not available."
+                )
 
         messages = await self.list_messages(
             thread_id,
             limit=message_limit,
-            oldest_first=True,
+            oldest_first=False,
+        )
+
+        # NEUROVEST_R110_NEWEST_CONTEXT_MESSAGES
+        # Restore chronological order after selecting the newest rows.
+        messages.reverse()
+
+        # The owner check above has passed. Fetch the earliest user turn
+        # from this thread independently of the bounded recent-message window.
+        async with async_session() as session:
+            first_user_result = await session.execute(
+                select(ChatMessageRecord)
+                .where(
+                    ChatMessageRecord.thread_id == thread_id,
+                    ChatMessageRecord.role == "user",
+                )
+                .order_by(
+                    ChatMessageRecord.created_at.asc(),
+                    ChatMessageRecord.message_id.asc(),
+                )
+                .limit(1)
+            )
+            first_user_record = first_user_result.scalar_one_or_none()
+
+        first_user_message = (
+            _message_contract(first_user_record)
+            if first_user_record is not None
+            else None
         )
 
         state = await self.get_conversation_state(
@@ -857,12 +1032,61 @@ class ConversationStore:
             limit=evidence_limit,
         )
 
+        learned_strategy_knowledge = (
+            await self.list_learned_strategy_knowledge(
+                limit=25,
+            )
+        )
+
+
+        # User-selected reference Strategy Library context.
+        #
+        # Selection metadata only. This does not authorize inference,
+        # training, promotion, broker activity, or execution.
+        enabled_reference_strategies = []
+
+        owner_subject = str(
+            getattr(
+                thread,
+                "user_id",
+                "",
+            )
+            or ""
+        ).strip()
+
+        if owner_subject:
+
+            try:
+                from backend.app.stacks.strategy.user_activation.service import (
+                    list_enabled_reference_strategies,
+                )
+
+                enabled_reference_strategies = (
+                    await list_enabled_reference_strategies(
+                        owner_subject=owner_subject,
+                    )
+                )
+
+            except Exception:
+                # Optional enrichment fails closed.
+                #
+                # Existing conversation context and learned
+                # StrategyKnowledge remain available.
+                enabled_reference_strategies = []
+
+
         return {
             "thread": thread,
             "messages": messages,
+            "first_user_message": first_user_message,
             "conversation_state": state,
             "memory_facts": memories,
             "tool_evidence": evidence,
+            "learned_strategy_knowledge":
+                learned_strategy_knowledge,
+
+            "enabled_reference_strategies":
+                enabled_reference_strategies,
         }
 
     async def delete_thread_for_testing(

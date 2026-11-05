@@ -254,6 +254,7 @@ def test_user_scope_requires_both_owner_values() -> None:
         match="owner user ID",
     ):
         controller.start_adaptive_training_controller(
+            strategy_name="test-fixture-strategy",
             confidence_threshold=0.75,
             maximum_rounds=2,
             scope="user",
@@ -266,6 +267,7 @@ def test_user_scope_requires_both_owner_values() -> None:
         match="owner session ID",
     ):
         controller.start_adaptive_training_controller(
+            strategy_name="test-fixture-strategy",
             confidence_threshold=0.75,
             maximum_rounds=2,
             scope="user",
@@ -280,6 +282,7 @@ def test_system_scope_rejects_customer_ownership() -> None:
         match="customer owner",
     ):
         controller.start_adaptive_training_controller(
+            strategy_name="test-fixture-strategy",
             confidence_threshold=0.75,
             maximum_rounds=2,
             scope="system",
@@ -327,6 +330,7 @@ def test_async_start_derives_owned_queued_record(
     queued = (
         controller
         .start_adaptive_training_controller(
+            strategy_name="test-fixture-strategy",
             confidence_threshold=0.75,
             maximum_rounds=2,
             duration_seconds_per_round=1,

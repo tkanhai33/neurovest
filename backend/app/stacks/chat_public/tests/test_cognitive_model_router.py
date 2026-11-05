@@ -437,3 +437,36 @@ def test_router_never_exposes_execution_authority() -> None:
     assert forbidden.isdisjoint(
         payload
     )
+
+# NEUROVEST_R209_ASYNCIO_ROUTING_REGRESSION
+def test_asyncio_gil_explanation_uses_neuro_reason() -> None:
+    message = (
+        "Explain whether asyncio avoids or bypasses the GIL in "
+        "conventional GIL-enabled CPython. Include a runnable "
+        "standard-library asyncio example."
+    )
+    decision = route_cognitive_request(message, intent=intent())
+
+    assert decision.tier == "code"
+    assert decision.model == NEURO_REASON_MODEL
+
+
+def test_explicit_asyncio_implementation_uses_neuro_reason() -> None:
+    message = (
+        "Write complete Python asyncio code with a main function "
+        "and a runnable standard-library example."
+    )
+    decision = route_cognitive_request(message, intent=intent())
+
+    assert decision.tier == "code"
+    assert decision.model == NEURO_REASON_MODEL
+
+
+def test_ordinary_education_stays_on_neuro_fast() -> None:
+    decision = route_cognitive_request(
+        "What is photosynthesis?",
+        intent=intent(),
+    )
+
+    assert decision.tier == "fast"
+    assert decision.model == NEURO_FAST_MODEL

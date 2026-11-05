@@ -145,11 +145,7 @@ def retrieve_arxiv_results(message: str) -> tuple[RetrievalResult, ...]:
             continue
 
         arxiv_id = match.group(1).strip()
-        source_url = source_url.replace(
-            "http://arxiv.org/abs/",
-            "https://arxiv.org/abs/",
-            1,
-        )
+        source_url = "https://arxiv.org/abs/" + arxiv_id
         safe_id = re.sub(r"[^A-Za-z0-9_-]", "_", arxiv_id)
         title = " ".join(
             html.unescape(entry.findtext(f"{ATOM}title") or "").split()

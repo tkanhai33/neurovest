@@ -25,6 +25,24 @@ from backend.app.stacks.snaptrade.application.connection_service import (
     SnapTradeProviderUnavailableError,
 )
 
+from backend.app.stacks.snaptrade.application.live_portfolio_sync_service import (
+    SnapTradeLivePortfolioSyncService,
+)
+
+from backend.app.stacks.snaptrade.application.external_portfolio_inventory import (
+    get_external_snaptrade_portfolio,
+)
+
+from backend.app.stacks.snaptrade.application.external_balance_inventory import (
+    get_external_snaptrade_balances,
+)
+
+from backend.app.stacks.snaptrade.application.external_portfolio_value_history import (
+    list_external_portfolio_value_history,
+    stage_external_portfolio_value_observation,
+)
+
+
 
 router = APIRouter(
     prefix="/api/v1/snaptrade",
@@ -223,18 +241,90 @@ async def synchronize_snaptrade_status(
 
     try:
         async with async_session() as session:
-            service = (
-                SnapTradeConnectionService(
-                    session
+
+            try:
+                connection_service = (
+                    SnapTradeConnectionService(
+                        session
+                    )
                 )
+
+                connection_state = (
+                    await connection_service
+                    .synchronize_status(
+                        neurovest_user_id=owner
+                    )
+                )
+
+                portfolio_service = (
+                    SnapTradeLivePortfolioSyncService(
+                        session
+                    )
+                )
+
+                synchronized = (
+                    await portfolio_service
+                    .synchronize(
+                        neurovest_user_id=owner
+                    )
+                )
+
+                await stage_external_portfolio_value_observation(
+                    session=session,
+                    neurovest_user_id=owner,
+                    snapshot=synchronized.snapshot,
+                )
+
+                await session.commit()
+
+            except Exception:
+                await session.rollback()
+                raise
+
+            response = dict(
+                connection_state
             )
 
-            return (
-                await service
-                .synchronize_status(
-                    neurovest_user_id=owner
-                )
-            )
+            response[
+                "portfolio_sync"
+            ] = {
+                "status":
+                    "synchronized",
+
+                "read_only":
+                    synchronized.snapshot.read_only,
+
+                "trading_enabled":
+                    synchronized.snapshot.trading_enabled,
+
+                "order_operations_enabled":
+                    synchronized.snapshot.order_operations_enabled,
+
+                "account_count":
+                    synchronized.snapshot.account_count,
+
+                "position_count":
+                    synchronized.snapshot.position_count,
+
+                "balance_record_count":
+                    synchronized.snapshot.balance_record_count,
+
+                "network_request_count":
+                    synchronized.snapshot.network_request_count,
+
+                "symbols":
+                    list(
+                        synchronized.snapshot.symbols
+                    ),
+
+                "inserted":
+                    synchronized.persistence.inserted,
+
+                "updated":
+                    synchronized.persistence.updated,
+            }
+
+            return response
 
     except (
         SnapTradeConnectionRejectedError,
@@ -243,3 +333,91 @@ async def synchronize_snaptrade_status(
         raise provider_error(
             exc
         ) from exc
+
+@router.get(
+    "/balances",
+)
+async def get_snaptrade_external_balances(
+    principal=Depends(
+        require_authenticated_principal
+    ),
+) -> dict[str, object]:
+    """
+    Return the authenticated owner's durable external SnapTrade
+    balance inventory.
+
+    This endpoint performs no provider call and has no order or
+    execution capability.
+    """
+
+    owner = principal_subject(
+        principal
+    )
+
+    async with async_session() as session:
+
+        return await get_external_snaptrade_balances(
+            session=session,
+            neurovest_user_id=owner,
+        )
+
+
+@router.get(
+    "/portfolio",
+)
+async def get_snaptrade_external_portfolio(
+    principal=Depends(
+        require_authenticated_principal
+    ),
+) -> dict[str, object]:
+    """
+    Return the authenticated owner's durable external SnapTrade
+    portfolio inventory.
+
+    This endpoint performs no provider call and has no order or
+    execution capability.
+    """
+
+    owner = principal_subject(
+        principal
+    )
+
+    async with async_session() as session:
+
+        return await get_external_snaptrade_portfolio(
+            session=session,
+            neurovest_user_id=owner,
+        )
+
+
+
+@router.get("/portfolio/history")
+async def snaptrade_portfolio_value_history(
+    limit: int = 1000,
+    principal=Depends(
+        require_authenticated_principal
+    ),
+) -> dict[str, object]:
+
+    owner = principal_subject(
+        principal
+    )
+
+    async with async_session() as session:
+
+        points = (
+            await list_external_portfolio_value_history(
+                session=session,
+                neurovest_user_id=owner,
+                limit=limit,
+            )
+        )
+
+    return {
+        "status": "ok",
+        "read_only": True,
+        "source_provider": "snaptrade",
+        "value_formula": "market_value + cash",
+        "point_count": len(points),
+        "points": points,
+    }

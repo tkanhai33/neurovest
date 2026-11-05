@@ -1,0 +1,55 @@
+{
+  "phase": "63A_PROJECT_BIBLE_GENERATOR",
+  "created_at": "2026-07-07T03:05:48.839971+00:00",
+  "mode": "READ_ONLY_DOCUMENTATION_COMPILER",
+  "source_handoff_dir": "/home/tkanhai/Neurovest/handoff",
+  "output_dir": "/home/tkanhai/Neurovest/handoff/project_bible",
+  "certified_count": 110,
+  "uncertified_count": 43,
+  "archive_summary": {
+    "status": "archive_ready",
+    "archive_mode": "terminal_read_only_archive",
+    "latest_certified_phase": "60B_QWEN_READ_ONLY_TERMINAL_FREEZE_ROLLUP_CERTIFICATION",
+    "terminal_stage": "Qwen Read-Only Terminal Freeze Certified",
+    "read_only_chain_closed": true,
+    "execution_surface_opened": false,
+    "mutation_surface_opened": false,
+    "critical_safety_locks": {
+      "live_execution_enabled": false,
+      "broker_execution_enabled": false,
+      "simulation_enabled": false,
+      "registry_write_enabled": false,
+      "promotion_enabled": false,
+      "learning_enabled": false
+    },
+    "archive_actions": [
+      "retain certified artifacts",
+      "retain certification chain",
+      "retain safety locks",
+      "retain read-only capability summaries",
+      "handoff to future chat if required"
+    ],
+    "forbidden_after_archive": [
+      "continue certification chain",
+      "open runtime",
+      "mutate source",
+      "execute runtime",
+      "broker execution",
+      "live trading"
+    ],
+    "recommended_next_action": "START_NEW_CHAT_FROM_ARCHIVED_HANDOFF"
+  },
+  "generated_files": [
+    "DATA_FLOW.md",
+    "DEPENDENCY_GRAPH.md",
+    "DEVELOPER_RULEBOOK.md",
+    "EXECUTIVE_SUMMARY.md",
+    "GLOSSARY.md",
+    "NODE_MAP.md",
+    "PROJECT_BIBLE.md",
+    "QWEN_READ_ONLY_ARCHITECTURE.md",
+    "ROADMAP.md",
+    "TRACEABILITY_INDEX.md"
+  ],
+  "certified": true
+}

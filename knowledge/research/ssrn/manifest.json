@@ -1,0 +1,71 @@
+{
+  "corpus": "NeuroVest SSRN research",
+  "document_count": 4,
+  "documents": [
+    {
+      "author": "Vliet, Pim van",
+      "canonical_pdf": "knowledge/research/ssrn/originals/ssrn-3145152_f21393a1a9c0.pdf",
+      "existing_repo_path": "/home/tkanhai/Neurovest/knowledge/research/ssrn/ssrn-3145152.pdf",
+      "extracted_text": "knowledge/research/ssrn/extracted/ssrn-3145152_f21393a1a9c0.txt",
+      "hash_verified": true,
+      "import_action": "CANONICAL_COPY_CREATED",
+      "pages": "21",
+      "sha256": "f21393a1a9c0bbf289666e31b13e21db72ef8265ad2c7b0df7120770f87d6cef",
+      "source_download_path": "/home/tkanhai/Downloads/ssrn-3145152.pdf",
+      "source_filename": "ssrn-3145152.pdf",
+      "ssrn_signals": "filename,document_text",
+      "status_before_import": "ALREADY_PRESENT",
+      "text_extraction_status": "TEXT_EXTRACTED",
+      "title": ""
+    },
+    {
+      "author": "",
+      "canonical_pdf": "knowledge/research/ssrn/originals/ssrn-3247865_1bc54915eb27.pdf",
+      "existing_repo_path": "/home/tkanhai/Neurovest/knowledge/research/ssrn/ssrn-3247865.pdf",
+      "extracted_text": "knowledge/research/ssrn/extracted/ssrn-3247865_1bc54915eb27.txt",
+      "hash_verified": true,
+      "import_action": "CANONICAL_COPY_CREATED",
+      "pages": "361",
+      "sha256": "1bc54915eb2778b1b6a8eacfa0b07fb8c568f2cd5caa3ded45fa28f47c83c73e",
+      "source_download_path": "/home/tkanhai/Downloads/ssrn-3247865.pdf",
+      "source_filename": "ssrn-3247865.pdf",
+      "ssrn_signals": "filename,document_text",
+      "status_before_import": "ALREADY_PRESENT",
+      "text_extraction_status": "TEXT_EXTRACTED",
+      "title": ""
+    },
+    {
+      "author": "",
+      "canonical_pdf": "knowledge/research/ssrn/originals/ssrn-6289958_11b3d2acd787.pdf",
+      "existing_repo_path": "/home/tkanhai/Neurovest/knowledge/research/ssrn/ssrn-6289958.pdf",
+      "extracted_text": "knowledge/research/ssrn/extracted/ssrn-6289958_11b3d2acd787.txt",
+      "hash_verified": true,
+      "import_action": "CANONICAL_COPY_CREATED",
+      "pages": "28",
+      "sha256": "11b3d2acd787a3e79bd13974f44c906eb5e67be5d8705d2e2e62d8585f02ce8f",
+      "source_download_path": "/home/tkanhai/Downloads/ssrn-6289958.pdf",
+      "source_filename": "ssrn-6289958.pdf",
+      "ssrn_signals": "filename",
+      "status_before_import": "ALREADY_PRESENT",
+      "text_extraction_status": "TEXT_EXTRACTED",
+      "title": ""
+    },
+    {
+      "author": "",
+      "canonical_pdf": "knowledge/research/ssrn/originals/ssrn-6562398_d89c300e81b2.pdf",
+      "existing_repo_path": "/home/tkanhai/Neurovest/knowledge/research/ssrn/ssrn-6562398.pdf",
+      "extracted_text": "knowledge/research/ssrn/extracted/ssrn-6562398_d89c300e81b2.txt",
+      "hash_verified": true,
+      "import_action": "CANONICAL_COPY_CREATED",
+      "pages": "49",
+      "sha256": "d89c300e81b2dcec9053143112c467490b55b7555935c774d200a9f81d3719d2",
+      "source_download_path": "/home/tkanhai/Downloads/ssrn-6562398.pdf",
+      "source_filename": "ssrn-6562398.pdf",
+      "ssrn_signals": "filename,document_text",
+      "status_before_import": "ALREADY_PRESENT",
+      "text_extraction_status": "TEXT_EXTRACTED",
+      "title": ""
+    }
+  ],
+  "generated_at": "2026-08-01T09:52:30.028934"
+}

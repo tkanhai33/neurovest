@@ -1,3 +1,4 @@
+from decimal import Decimal
 """DOMAIN_LOGIC_V1 asynchronous portfolio audit and ledger reconciliation daemon."""
 
 import asyncio
@@ -137,6 +138,7 @@ async def run_reconciliation_audit(
         "status": "success",
         "user_id": normalized_user_id,
         "corrections_applied": 0,
+        "discrepancies_detected": 0,
         "details": [],
     }
 
@@ -165,6 +167,39 @@ async def run_reconciliation_audit(
                     .all()
                 )
 
+                # Detect executed symbols missing from inventory.
+                # Report only; do not manufacture holdings.
+                executed_symbols_result = await session.execute(
+                    select(OrderHistory.symbol)
+                    .where(
+                        OrderHistory.user_id == normalized_user_id,
+                        OrderHistory.status == "executed",
+                    )
+                    .distinct()
+                )
+
+                inventory_symbols = {
+                    str(position.symbol).strip().upper()
+                    for position in warehouse_positions
+                }
+
+                executed_symbols = {
+                    str(symbol).strip().upper()
+                    for symbol in executed_symbols_result.scalars().all()
+                    if symbol is not None and str(symbol).strip()
+                }
+
+                for missing_symbol in sorted(
+                    executed_symbols - inventory_symbols
+                ):
+                    audit_results["discrepancies_detected"] += 1
+                    audit_results["details"].append({
+                        "user_id": normalized_user_id,
+                        "symbol": missing_symbol,
+                        "reason": "executed_orders_without_inventory",
+                        "inventory_record_present": False,
+                    })
+
                 for position in warehouse_positions:
                     order_statement = (
                         select(
@@ -192,20 +227,31 @@ async def run_reconciliation_audit(
                         .all()
                     )
 
-                    recalculated_shares = 0.0
+                    recalculated_shares = Decimal("0")
 
                     for order in executed_orders:
                         if (
                             order.allocated_capital
                             and order.slippage_price
                         ):
-                            quantity = (
-                                float(
+                            allocated_capital_decimal = Decimal(
+                                str(
                                     order.allocated_capital
                                 )
-                                / float(
+                            )
+                            slippage_price_decimal = Decimal(
+                                str(
                                     order.slippage_price
                                 )
+                            )
+
+                            if slippage_price_decimal == 0:
+                                continue
+
+                            quantity = (
+                                allocated_capital_decimal
+                                /
+                                slippage_price_decimal
                             )
 
                             signal = str(
@@ -229,20 +275,19 @@ async def run_reconciliation_audit(
                                 )
 
                     corrected_shares = max(
-                        0.0,
+                        Decimal("0"),
                         recalculated_shares,
                     )
 
                     variance = abs(
-                        float(
-                            position.shares_quantity
-                        )
-                        - corrected_shares
+                        position.shares_quantity
+                        -
+                        corrected_shares
                     )
 
-                    if variance > 0.0001:
+                    if variance > Decimal("0.0001"):
                         audit_results[
-                            "corrections_applied"
+                            "discrepancies_detected"
                         ] += 1
 
                         audit_results[
@@ -262,20 +307,9 @@ async def run_reconciliation_audit(
                             }
                         )
 
-                        position.shares_quantity = (
-                            corrected_shares
-                        )
-
-                        position.total_cost_basis = (
-                            float(
-                                position.shares_quantity
-                            )
-                            * float(
-                                position.average_entry_price
-                            )
-                        )
-
-                await session.flush()
+                        # Read-only audit: never rewrite inventory.
+                        # Corrections require a separately authorized
+                        # and independently verified repair workflow.
 
         if trace_id:
             from backend.app.core.runtime_trace import (

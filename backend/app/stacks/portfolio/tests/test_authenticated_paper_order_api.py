@@ -92,7 +92,7 @@ def test_paper_order_rejects_invalid_action() -> None:
 async def test_paper_order_propagates_authenticated_owner(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    processor = AsyncMock()
+    processor = AsyncMock(return_value={"status": "executed"})
 
     monkeypatch.setattr(
         main,
@@ -155,7 +155,7 @@ async def test_paper_order_propagates_authenticated_owner(
 async def test_two_orders_keep_owners_separate(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    processor = AsyncMock()
+    processor = AsyncMock(return_value={"status": "executed"})
 
     monkeypatch.setattr(
         main,

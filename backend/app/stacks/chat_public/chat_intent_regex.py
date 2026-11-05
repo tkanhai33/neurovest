@@ -81,7 +81,8 @@ PERSONALITY_PATTERNS = [
 SELF_EVALUATION_PATTERNS = [
     re.compile(
         r"\b(how can (i|we) improve you|evaluate yourself|"
-        r"review yourself|what are your limitations|"
+        r"review yourself|where do you need improvement|"
+        r"what are your limitations|"
         r"what capabilities are missing|what are you missing)\b",
         re.I,
     ),
@@ -200,6 +201,11 @@ _SYMBOL_EXCLUSIONS = {
     "BY",
     "CAN",
     "DO",
+    "EMA",
+    # NEUROVEST_FINANCIAL_ACRONYM_GUARD_V1
+    # ETF is normally a financial instrument category.
+    # Do not infer a stock lookup from this acronym alone.
+    "ETF",
     "FOR",
     "FROM",
     "GO",
@@ -209,12 +215,16 @@ _SYMBOL_EXCLUSIONS = {
     "IN",
     "IS",
     "IT",
+    "MACD",
     "MY",
     "NO",
     "OF",
     "ON",
     "OR",
+    "RSI",
+    "SMA",
     "SO",
+    "SSRN",
     "THE",
     "TO",
     "UP",
@@ -225,7 +235,6 @@ _SYMBOL_EXCLUSIONS = {
     "WHY",
     "YES",
     "YOU",
-    "SSRN",
 }
 
 
@@ -235,6 +244,30 @@ def _extract_symbol(message: str) -> str | None:
         message,
     ):
         candidate = match.group(1).upper()
+
+        # G41: TCP/UDP are networking terms in protocol questions.
+        # Preserve explicit financial discussion rather than blocking
+        # these names as market symbols globally.
+        # G41: Interpret network protocol abbreviations in context.
+        # Do not globally blacklist potentially legitimate tickers.
+        network_context = bool(re.search(
+            r"\b(?:protocols?|networking|transport|internet"
+            r"|network|packet|routing|tcp\/ip|osi|web protocols?)\b",
+            message,
+            re.I,
+        ))
+        financial_context = bool(re.search(
+            r"\b(?:ticker|stock|shares?|equity|quote|share price"
+            r"|market cap|nasdaq|nyse|tsx|buy shares?|sell shares?)\b",
+            message,
+            re.I,
+        ))
+        if (
+            candidate in {"TCP", "UDP", "HTTP", "HTTPS", "DNS", "TLS"}
+            and network_context
+            and not financial_context
+        ):
+            continue
 
         if candidate not in _SYMBOL_EXCLUSIONS:
             return candidate
@@ -256,6 +289,39 @@ TRAINING_DURATION_PATTERN = re.compile(
 )
 
 
+TRAINING_RESULTS_PATTERN = re.compile(
+    r"\b("
+    r"report|show|give|tell|summari[sz]e|review|what"
+    r")\b"
+    r".{0,100}"
+    r"\b("
+    r"training|training session|training run"
+    r")\b"
+    r".{0,100}"
+    r"\b("
+    r"result|results|stat|stats|statistics|metrics|"
+    r"complete|completed|ran|run"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+CANADIAN_MARKET_TODAY_PATTERN = re.compile(
+    r"(?:"
+        r"\b(?:tsx|toronto stock exchange)\b"
+        r".{0,120}"
+        r"\b(?:today|current|currently|now|session|doing|look like)\b"
+    r"|"
+        r"\b(?:canadian|canada)\b"
+        r".{0,120}"
+        r"\b(?:market|stock market|stocks|index|tsx)\b"
+        r".{0,120}"
+        r"\b(?:today|current|currently|now|session|doing|look like)\b"
+    r")",
+    re.IGNORECASE,
+)
+
+
 def detect_chat_intent(message: str) -> ChatIntent:
     clean = message.strip()
 
@@ -269,6 +335,37 @@ def detect_chat_intent(message: str) -> ChatIntent:
                 subtype="blocked_live_execution",
                 confidence=1.0,
             )
+
+
+    training_results_match = (
+        TRAINING_RESULTS_PATTERN.search(
+            clean
+        )
+    )
+
+    if training_results_match:
+        return ChatIntent(
+            intent="training_results",
+            family="TRAINING",
+            subtype="training_results_followup",
+            confidence=1.0,
+        )
+
+
+    canadian_market_today_match = (
+        CANADIAN_MARKET_TODAY_PATTERN.search(
+            clean
+        )
+    )
+
+    if canadian_market_today_match:
+        return ChatIntent(
+            intent="canadian_market_today",
+            symbol="^GSPTSE",
+            family="MARKET",
+            subtype="canadian_market_today",
+            confidence=1.0,
+        )
 
 
     training_match = (
@@ -389,6 +486,121 @@ def detect_chat_intent(message: str) -> ChatIntent:
             developer_mode=True,
         )
 
+
+    # NEUROVEST_R116_G40_R23_SCIENCE_FINANCE_DISAMBIGUATION
+    # Financial symbols can overlap scientific abbreviations (DNA).
+    # This applies only to explicit scientific education questions.
+    # Existing safety, developer and privileged-command checks above
+    # retain their precedence.
+    _g40_r23_educational = bool(re.search(
+        r"\b(?:what is|what are|explain|compare|difference"
+        r"|how does|how do|define|describe)\b",
+        clean, re.I,
+    ))
+    _g40_r23_scientific = bool(re.search(
+        r"\b(?:dna|rna|proteins?|genes?|genetics?"
+        r"|nucleotides?|ribosomes?|cells?|biology)\b",
+        clean, re.I,
+    ))
+    _g40_r23_financial = bool(re.search(
+        r"\b(?:stock|stocks|ticker|share price|shares"
+        r"|trading|broker|buy|sell|short|options?"
+        r"|portfolio|market cap|valuation|earnings"
+        r"|nasdaq|nyse|tsx|order)\b",
+        clean, re.I,
+    ))
+    if (
+        _g40_r23_educational
+        and _g40_r23_scientific
+        and not _g40_r23_financial
+    ):
+        return ChatIntent(
+            intent="general_conversation",
+            family="GENERAL",
+            subtype="science_education",
+            confidence=1.0,
+        )
+
+    # G41_NETWORK_EDUCATION_PRIORITY
+    # This remains below existing privileged/safety checks.
+    _g41_network_education = bool(re.search(
+        r"\b(?:explain|compare|define|describe|difference"
+        r"|how does|how do|what is|what are)\b",
+        clean, re.I,
+    )) and bool(re.search(
+        r"\b(?:tcp|udp|http|https|tls|dns)\b",
+        clean, re.I,
+    )) and not bool(re.search(
+        r"\b(?:ticker|stock|shares?|quote|share price"
+        r"|market cap|nasdaq|nyse|tsx|buy|sell"
+        r"|broker|trade|trading|portfolio)\b",
+        clean, re.I,
+    ))
+
+    if _g41_network_education:
+        return ChatIntent(
+            intent="general_conversation",
+            family="GENERAL",
+            subtype="network_protocol_education",
+            confidence=1.0,
+        )
+
+    # NEUROVEST_R116_G40_GENERAL_PROGRAMMING_EDUCATION
+    # Advisory classification only. Safety, command and developer
+    # controls above this point keep their existing precedence.
+    _g40_educational = bool(re.search(
+        r"\b(explain|define|compare|difference|"
+        r"how to|what is|why does)\b",
+        clean, re.I,
+    ))
+    _g40_programming = bool(re.search(
+        r"\b(python|javascript|typescript|sql|json|"
+        r"rest api|apis|linux service|recursion|asyncio|"
+        r"programming)\b",
+        clean, re.I,
+    ))
+    _g40_execution_request = bool(re.search(
+        r"\b(place|execute|submit)\b.{0,60}"
+        r"\b(real|live|broker|order|trade)\b",
+        clean, re.I,
+    ))
+    # V36-R3R7 — mixed code + strategy remains developer.
+    if (
+        re.search(
+            r"\bSSRN_3247865_[0-9]{3}\b",
+            clean,
+            flags=re.IGNORECASE,
+        )
+        and re.search(
+            r"\b(python|async|await|code|coding|typescript|javascript|fastapi)\b",
+            clean,
+            flags=re.IGNORECASE,
+        )
+        and re.search(
+            r"\b(also|separate|distinguish|then|while)\b",
+            clean,
+            flags=re.IGNORECASE,
+        )
+    ):
+        return ChatIntent(
+            intent="general_conversation",
+            family="DEVELOPER",
+            subtype="mixed_developer_strategy",
+            confidence=1.0,
+            developer_mode=True,
+        )
+    if (
+        _g40_educational
+        and _g40_programming
+        and not _g40_execution_request
+    ):
+        return ChatIntent(
+            intent="general_conversation",
+            family="GENERAL",
+            subtype="software_education",
+            confidence=1.0,
+        )
+
     for subtype, pattern in SYSTEM_PATTERNS:
         if pattern.search(clean):
             return ChatIntent(
@@ -416,6 +628,97 @@ def detect_chat_intent(message: str) -> ChatIntent:
                 confidence=1.0,
             )
 
+
+
+    # V36-R3R7 compatibility rule:
+    #
+    # Plain "Explain diversification." remains the established
+    # GENERAL/discussion behavior.
+    #
+    # Only promote to finance reasoning when the question explicitly
+    # asks about expected return or risk semantics.
+    has_diversification = bool(
+        re.search(
+            r"\b(diversification|diversified)\b",
+            clean,
+            flags=re.IGNORECASE,
+        )
+    )
+
+    has_finance_semantic_relation = bool(
+        re.search(
+            r"\b(expected returns?|idiosyncratic risk|"
+            r"concentration risk)\b",
+            clean,
+            flags=re.IGNORECASE,
+        )
+    )
+
+    if (
+        has_diversification
+        and has_finance_semantic_relation
+    ):
+        return ChatIntent(
+            intent="trading_conversation",
+            family="MARKET",
+            subtype="general_finance_reasoning",
+            confidence=1.0,
+        )
+
+    # Explicit strategy creation must remain a trading conversation when
+    # "paper trade" appears only inside non-execution safety language.
+    #
+    # RESEARCH_PATTERNS intentionally recognizes the standalone word
+    # "paper" for academic/repository questions. Without this precedence
+    # guard, phrases such as "do not paper trade" incorrectly preempt the
+    # later strategy/trading classifier.
+    explicit_strategy_creation = bool(
+        re.search(
+            r"\b(create|build|design|draft|develop|propose)\b"
+            r".{0,120}\bstrateg(?:y|ies)\b",
+            clean,
+            flags=re.IGNORECASE,
+        )
+    )
+
+    nonexecution_paper_trade_language = bool(
+        re.search(
+            r"\b(do not|don't|never|without)\b"
+            r".{0,80}\bpaper\s+trad(?:e|ing)\b",
+            clean,
+            flags=re.IGNORECASE,
+        )
+    )
+
+    explicit_research_language = bool(
+        re.search(
+            r"\b("
+            r"ssrn|research\s+papers?|academic\s+papers?|"
+            r"journal|journals|citation|citations|"
+            r"academic\s+research|research\s+study|research\s+studies|"
+            r"corpus|document\s+research"
+            r")\b",
+            clean,
+            flags=re.IGNORECASE,
+        )
+    )
+
+    explicit_strategy_creation_with_nonexecution_paper_trade = (
+        explicit_strategy_creation
+        and nonexecution_paper_trade_language
+        and not explicit_research_language
+    )
+
+    if explicit_strategy_creation_with_nonexecution_paper_trade:
+        return ChatIntent(
+            intent="trading_conversation",
+            symbol=_extract_symbol(
+                clean
+            ),
+            family="MARKET",
+            subtype="market_analysis",
+            confidence=1.0,
+        )
 
     for pattern in RESEARCH_PATTERNS:
         if pattern.search(clean):
@@ -470,3 +773,16 @@ __all__ = [
     "ChatIntent",
     "detect_chat_intent",
 ]
+
+
+# NEUROVEST_G43_R42A_ALIGNMENT
+import os as _r42a_os
+
+_r42a_previous_detect = detect_chat_intent
+
+def detect_chat_intent(message):
+    decision = _r42a_previous_detect(message)
+    if _r42a_os.environ.get("NV_R42A_ALIGNMENT_ENABLED") != "1":
+        return decision
+    from backend.app.stacks.chat_public.routing_alignment_r42a import align_intent
+    return align_intent(message, decision)

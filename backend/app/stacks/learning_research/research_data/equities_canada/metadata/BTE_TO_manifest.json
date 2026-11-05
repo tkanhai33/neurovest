@@ -1,0 +1,12 @@
+{
+  "symbol": "BTE.TO",
+  "asset_group": "equities_canada",
+  "data_provider": "Yahoo Finance via yfinance",
+  "interval": "1d",
+  "row_count": 7677,
+  "first_date": "1996-03-21",
+  "last_date": "2026-10-09",
+  "downloaded_at": "2026-10-11T03:00:44.423905+00:00",
+  "source_type": "public_historical_market_data",
+  "contains_private_portfolio_data": false
+}

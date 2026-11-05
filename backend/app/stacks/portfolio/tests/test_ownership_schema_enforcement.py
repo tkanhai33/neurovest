@@ -73,6 +73,7 @@ def test_orm_enforces_owned_rows() -> None:
 
 @pytest.mark.asyncio
 async def test_live_database_enforces_owned_rows() -> None:
+    # Discard pooled connections created on prior pytest loops.
     await engine.dispose(close=False)
 
     async with engine.connect() as connection:

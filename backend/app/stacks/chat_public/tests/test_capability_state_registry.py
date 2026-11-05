@@ -48,7 +48,7 @@ def test_registry_uses_declared_state_categories() -> None:
         assert row["state"] in allowed_states
 
 
-def test_drawdown_guard_is_not_called_without_balance() -> None:
+def test_drawdown_guard_uses_static_contract_probe_without_invocation() -> None:
     registry = build_capability_registry()
 
     matching = [
@@ -61,12 +61,55 @@ def test_drawdown_guard_is_not_called_without_balance() -> None:
 
     row = matching[0]
 
-    assert row["state"] == "requires_adapter"
-    assert row["verified"] is False
-    assert row["invocation"] == "not_invoked"
-    assert "current_balance" in row["detail"][
-        "required_arguments"
-    ]
+    assert row["state"] == "available"
+    assert row["available"] is True
+    assert row["verified"] is True
+
+    assert (
+        row["invocation"]
+        == "static_contract_probe"
+    )
+
+    assert (
+        row["detail"]["callable"]
+        == "healthcheck"
+    )
+
+    assert (
+        row["detail"]["async"]
+        is True
+    )
+
+    assert (
+        row["detail"][
+            "runtime_context_required"
+        ]
+        is True
+    )
+
+    assert (
+        row["detail"][
+            "production_guard_invoked"
+        ]
+        is False
+    )
+
+    assert (
+        row["detail"][
+            "database_called"
+        ]
+        is False
+    )
+
+    assert (
+        row["detail"][
+            "required_arguments"
+        ]
+        == [
+            "current_balance",
+            "user_id",
+        ]
+    )
 
 
 def test_registry_summary_is_grounded_in_rows() -> None:
@@ -119,13 +162,90 @@ def test_unverified_adapter_and_async_states_require_attention() -> None:
         }
     ]
 
-    assert len(attention_rows) == 2
-    assert registry["attention_count"] >= 2
+    assert attention_rows == []
 
-    capabilities = {
-        row["capability"]
-        for row in attention_rows
-    }
+    assert (
+        registry["attention_count"]
+        == 0
+    )
 
-    assert "drawdown_guard" in capabilities
-    assert "conversation_store" in capabilities
+
+def test_conversation_store_uses_qualified_async_probe_without_runtime_invocation() -> None:
+    registry = build_capability_registry()
+
+    matching = [
+        row
+        for row in registry["states"]
+        if row["capability"]
+        == "conversation_store"
+    ]
+
+    assert len(matching) == 1
+
+    row = matching[0]
+
+    assert row["state"] == "available"
+    assert row["available"] is True
+    assert row["verified"] is True
+
+    assert (
+        row["invocation"]
+        == "qualified_select_only_async_probe"
+    )
+
+    assert (
+        row["detail"]["callable"]
+        == "healthcheck"
+    )
+
+    assert (
+        row["detail"]["async"]
+        is True
+    )
+
+    assert (
+        row["detail"]["required_arguments"]
+        == []
+    )
+
+    assert (
+        row["detail"][
+            "runtime_probe_qualified"
+        ]
+        is True
+    )
+
+    assert (
+        row["detail"][
+            "qualified_result_status"
+        ]
+        == "ok"
+    )
+
+    assert (
+        row["detail"][
+            "qualified_persistent"
+        ]
+        is True
+    )
+
+    assert (
+        row["detail"][
+            "qualified_database_operation"
+        ]
+        == "SELECT_ONLY"
+    )
+
+    assert (
+        row["detail"][
+            "healthcheck_invoked_by_registry"
+        ]
+        is False
+    )
+
+    assert (
+        row["detail"][
+            "database_called_by_registry"
+        ]
+        is False
+    )

@@ -78,6 +78,8 @@ async def test_registration_normalizes_and_hashes_password() -> None:
 
     result = await service.register(
         RegistrationCommand(
+            terms_accepted=True,
+            terms_version='neurovest-beta-terms-2026-10-09-v1',
             email=" User@Example.COM ",
             password="test-password",
         )
@@ -95,6 +97,7 @@ async def test_registration_normalizes_and_hashes_password() -> None:
         email="user@example.com",
         password_hash="scrypt$derived",
         display_name=None,
+        terms_version="neurovest-beta-terms-2026-10-09-v1",
     )
 
     commit.assert_awaited_once()
@@ -130,6 +133,8 @@ async def test_duplicate_registration_fails_generically() -> None:
     ):
         await service.register(
             RegistrationCommand(
+                terms_accepted=True,
+                terms_version='neurovest-beta-terms-2026-10-09-v1',
                 email="user@example.com",
                 password="test-password",
             )
@@ -156,6 +161,8 @@ async def test_registration_hash_failure_rolls_back() -> None:
     ):
         await service.register(
             RegistrationCommand(
+                terms_accepted=True,
+                terms_version='neurovest-beta-terms-2026-10-09-v1',
                 email="user@example.com",
                 password="test-password",
             )
@@ -177,6 +184,8 @@ async def test_empty_password_fails_closed() -> None:
     ):
         await service.register(
             RegistrationCommand(
+                terms_accepted=True,
+                terms_version='neurovest-beta-terms-2026-10-09-v1',
                 email="user@example.com",
                 password="",
             )

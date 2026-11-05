@@ -148,6 +148,58 @@ class IdentityUser(Base):
     )
 
 
+class IdentityTermsAcceptance(Base):
+    __tablename__ = (
+        "identity_terms_acceptances"
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "document_version",
+            name=(
+                "uq_identity_terms_acceptances_"
+                "user_document"
+            ),
+        ),
+        Index(
+            "ix_identity_terms_acceptances_user",
+            "user_id",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid4()),
+    )
+
+    user_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey(
+            "identity_users.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+
+    document_version: Mapped[str] = mapped_column(
+        String(128),
+        nullable=False,
+    )
+
+    accepted_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=utc_now,
+    )
+
+
 class IdentityRefreshSession(Base):
     __tablename__ = (
         "identity_refresh_sessions"

@@ -164,6 +164,11 @@ export function storeChatThread(
     JSON.stringify(state)
   );
 
+  // NEUROVEST_CHAT_FINDINGS_SSE_V2
+  window.dispatchEvent(
+    new Event("neurovest:chat-thread-updated")
+  );
+
   return state;
 }
 
@@ -249,6 +254,64 @@ export async function sendChatMessage(
   return data;
 }
 
+
+export async function loadChatHistory(
+  threadId: string
+): Promise<ChatMessage[]> {
+  if (!threadId) {
+    return [];
+  }
+
+  try {
+    const response = await fetch(
+      `/api/v1/chat/threads/${encodeURIComponent(threadId)}/messages`,
+      {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const payload = (await response.json()) as {
+      messages?: unknown;
+    };
+
+    if (!Array.isArray(payload.messages)) {
+      return [];
+    }
+
+    return payload.messages.flatMap((item): ChatMessage[] => {
+      if (
+        typeof item !== "object" ||
+        item === null ||
+        Array.isArray(item)
+      ) {
+        return [];
+      }
+
+      const row = item as Record<string, unknown>;
+      if (
+        typeof row.message_id !== "string" ||
+        (row.role !== "user" && row.role !== "assistant") ||
+        typeof row.content !== "string"
+      ) {
+        return [];
+      }
+
+      return [{
+        id: row.message_id,
+        role: row.role,
+        content: row.content,
+      }];
+    });
+  } catch {
+    return [];
+  }
+}
 
 function isRecord(
   value: unknown
@@ -389,6 +452,34 @@ export async function getTrainingRun(
   );
 }
 
+function sanitizeVisibleChatReply(
+  value: string
+): string {
+  /*
+   * Approved backend citation tokens are part of the user-visible
+   * grounded answer contract.
+   *
+   * Do not remove [chunk_*] citations here. The backend verifier and
+   * /api/v1/chat proxy have already preserved the approved response.
+   * This sanitizer is limited to whitespace normalization only.
+   */
+  return value
+    .replace(
+      /(?:&#x0*20;|&#0*32;|&#x0*a0;|&#0*160;|&nbsp;)/gi,
+      " "
+    )
+    .replace(
+      /[ \t]+\n/g,
+      "\n"
+    )
+    .replace(
+      /\n{3,}/g,
+      "\n\n"
+    )
+    .trim();
+}
+
+
 export function normalizeChatReply(
   data: ChatResponsePayload
 ): string {
@@ -396,14 +487,18 @@ export function normalizeChatReply(
     typeof data.message === "string" &&
     data.message.trim()
   ) {
-    return data.message;
+    return sanitizeVisibleChatReply(
+      data.message
+    );
   }
 
   if (
     typeof data.response === "string" &&
     data.response.trim()
   ) {
-    return data.response;
+    return sanitizeVisibleChatReply(
+      data.response
+    );
   }
 
   if (
@@ -414,7 +509,9 @@ export function normalizeChatReply(
       typeof data.response.message === "string" &&
       data.response.message.trim()
     ) {
-      return data.response.message;
+      return sanitizeVisibleChatReply(
+        data.response.message
+      );
     }
 
     const command =
@@ -431,7 +528,9 @@ export function normalizeChatReply(
   }
 
   if (data.error) {
-    return data.error;
+    return sanitizeVisibleChatReply(
+      data.error
+    );
   }
 
   return "Neuro returned an empty response.";
@@ -448,14 +547,6 @@ export function normalizeChatMeta(
 
   if (data.symbol) {
     parts.push(data.symbol);
-  }
-
-  if (data.provider) {
-    parts.push(data.provider);
-  }
-
-  if (data.model) {
-    parts.push(data.model);
   }
 
   if (data.thread_id) {

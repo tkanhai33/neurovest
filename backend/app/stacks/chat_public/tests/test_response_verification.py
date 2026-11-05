@@ -153,7 +153,8 @@ def test_position_size_result_passes() -> None:
 
     result = verify_response(
         (
-            "The risk budget is 250 and the whole-unit "
+            "The risk budget is 250, risk per unit is 2.50, "
+            "allocated capital is 5250, and whole-unit "
             "position size is 100 shares."
         ),
         math_bundle=math,

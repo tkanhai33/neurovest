@@ -334,6 +334,192 @@ def _normalize_state(
     return "reported", True
 
 
+def _inspect_drawdown_guard_static_contract(
+    function: Any,
+    source: CapabilitySource,
+) -> CapabilityState | None:
+    """
+    Verify only the callable contract of the balance-dependent
+    production drawdown guard.
+
+    The production guard is never invoked and no runtime
+    balance or user identity is fabricated.
+    """
+
+    try:
+        signature = inspect.signature(
+            function
+        )
+    except Exception:
+        return None
+
+    parameters = signature.parameters
+
+    current_balance = parameters.get(
+        "current_balance"
+    )
+
+    user_id = parameters.get(
+        "user_id"
+    )
+
+    if (
+        current_balance is None
+        or user_id is None
+    ):
+        return None
+
+    if (
+        current_balance.default
+        is not inspect.Parameter.empty
+    ):
+        return None
+
+    if (
+        user_id.default
+        is not inspect.Parameter.empty
+    ):
+        return None
+
+    if (
+        user_id.kind
+        is not inspect.Parameter.KEYWORD_ONLY
+    ):
+        return None
+
+    if not inspect.iscoroutinefunction(
+        function
+    ):
+        return None
+
+    return CapabilityState(
+        capability=source.capability,
+        module=source.module,
+        entrypoint=source.entrypoint,
+        state="available",
+        available=True,
+        verified=True,
+        invocation="static_contract_probe",
+        detail={
+            "callable":
+                source.entrypoint,
+
+            "async":
+                True,
+
+            "required_arguments": [
+                "current_balance",
+                "user_id",
+            ],
+
+            "runtime_context_required":
+                True,
+
+            "production_guard_invoked":
+                False,
+
+            "database_called":
+                False,
+        },
+        error=None,
+        description=source.description,
+    )
+
+
+def _inspect_conversation_store_qualified_contract(
+    function: Any,
+    source: CapabilitySource,
+) -> CapabilityState | None:
+    """
+    Represent the separately-qualified conversation-store
+    healthcheck without re-running database I/O from the
+    synchronous capability registry.
+
+    V4 qualified the real async healthcheck as:
+      - zero argument
+      - SELECT only
+      - status=ok
+      - persistent=True
+      - bounded under timeout
+      - zero persistence delta
+
+    This adapter still verifies the callable shape each time.
+    If the async/argument contract changes, it falls back to
+    the generic registry classification instead of claiming
+    qualification.
+    """
+
+    try:
+        signature = inspect.signature(
+            function
+        )
+    except Exception:
+        return None
+
+    if signature.parameters:
+        return None
+
+    if not inspect.iscoroutinefunction(
+        function
+    ):
+        return None
+
+    return CapabilityState(
+        capability=source.capability,
+        module=source.module,
+        entrypoint=source.entrypoint,
+        state="available",
+        available=True,
+        verified=True,
+        invocation=(
+            "qualified_select_only_async_probe"
+        ),
+        detail={
+            "callable":
+                source.entrypoint,
+
+            "async":
+                True,
+
+            "required_arguments":
+                [],
+
+            "runtime_probe_qualified":
+                True,
+
+            "qualification":
+                (
+                    "conversation_store_"
+                    "bounded_select_only_"
+                    "async_probe_v4"
+                ),
+
+            "qualified_result_status":
+                "ok",
+
+            "qualified_persistent":
+                True,
+
+            "qualified_database_operation":
+                "SELECT_ONLY",
+
+            "qualified_persistence_delta":
+                0,
+
+            "probe_timeout_seconds":
+                5,
+
+            "healthcheck_invoked_by_registry":
+                False,
+
+            "database_called_by_registry":
+                False,
+        },
+        error=None,
+        description=source.description,
+    )
+
+
 def inspect_capability(
     source: CapabilitySource,
 ) -> CapabilityState:
@@ -376,6 +562,34 @@ def inspect_capability(
             error=None,
             description=source.description,
         )
+
+    if (
+        source.capability
+        == "drawdown_guard"
+    ):
+        drawdown_state = (
+            _inspect_drawdown_guard_static_contract(
+                function,
+                source,
+            )
+        )
+
+        if drawdown_state is not None:
+            return drawdown_state
+
+    if (
+        source.capability
+        == "conversation_store"
+    ):
+        conversation_store_state = (
+            _inspect_conversation_store_qualified_contract(
+                function,
+                source,
+            )
+        )
+
+        if conversation_store_state is not None:
+            return conversation_store_state
 
     try:
         required = _required_arguments(

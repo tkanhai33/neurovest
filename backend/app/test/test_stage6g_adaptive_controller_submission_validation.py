@@ -36,6 +36,7 @@ def test_rejects_excessive_rounds_before_queueing():
         ),
     ):
         module.start_adaptive_training_controller(
+            strategy_name="test-fixture-strategy",
             confidence_threshold=1.0,
             maximum_rounds=100,
             duration_seconds_per_round=1,
@@ -63,6 +64,7 @@ def test_rejects_zero_rounds_before_queueing():
         ),
     ):
         module.start_adaptive_training_controller(
+            strategy_name="test-fixture-strategy",
             confidence_threshold=1.0,
             maximum_rounds=0,
             duration_seconds_per_round=1,
@@ -88,6 +90,7 @@ def test_rejects_invalid_threshold_before_queueing():
         ),
     ):
         module.start_adaptive_training_controller(
+            strategy_name="test-fixture-strategy",
             confidence_threshold=1.5,
             maximum_rounds=2,
             duration_seconds_per_round=1,
@@ -113,6 +116,7 @@ def test_rejects_invalid_duration_before_queueing():
         ),
     ):
         module.start_adaptive_training_controller(
+            strategy_name="test-fixture-strategy",
             confidence_threshold=1.0,
             maximum_rounds=2,
             duration_seconds_per_round=0,
@@ -138,6 +142,7 @@ def test_rejects_invalid_timeout_before_queueing():
         ),
     ):
         module.start_adaptive_training_controller(
+            strategy_name="test-fixture-strategy",
             confidence_threshold=1.0,
             maximum_rounds=2,
             duration_seconds_per_round=1,
@@ -184,6 +189,7 @@ def test_valid_submission_uses_normalized_values(
 
     result = (
         module.start_adaptive_training_controller(
+            strategy_name="test-fixture-strategy",
             confidence_threshold=0.75,
             maximum_rounds=2,
             duration_seconds_per_round=1,

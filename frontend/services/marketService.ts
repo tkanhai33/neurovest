@@ -50,18 +50,46 @@ export async function getLivePrice(
 export async function getLivePrices(
   symbols: string[],
 ): Promise<Record<string, LiveQuote>> {
-  const results =
-    await Promise.all(
-      symbols.map(async (symbol) => {
-        const quote =
-          await getLivePrice(symbol);
+  const cleanSymbols = [
+    ...new Set(
+      symbols
+        .map((symbol) =>
+          symbol.trim().toUpperCase(),
+        )
+        .filter(Boolean),
+    ),
+  ];
 
-        return [
-          symbol,
-          quote,
-        ] as const;
-      }),
-    );
+  if (cleanSymbols.length === 0) {
+    return {};
+  }
 
-  return Object.fromEntries(results);
+  const response = await fetch(
+    `/api/v1/market/live-prices?symbols=${encodeURIComponent(
+      cleanSymbols.join(","),
+    )}`,
+    {
+      cache: "no-store",
+    },
+  );
+
+  const payload = (await response.json()) as {
+    quotes?: Record<string, LiveQuote>;
+    error?: string;
+  };
+
+  return Object.fromEntries(
+    cleanSymbols.map((symbol) => [
+      symbol,
+      payload.quotes?.[symbol] ?? {
+        status: "error",
+        symbol,
+        price: null,
+        provider: "frontend_market_service",
+        error:
+          payload.error ??
+          "bulk_quote_unavailable",
+      },
+    ]),
+  );
 }

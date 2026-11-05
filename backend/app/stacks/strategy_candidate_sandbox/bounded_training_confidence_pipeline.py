@@ -18,6 +18,7 @@ creation, broker request, or live execution is permitted here.
 from __future__ import annotations
 
 from backend.app.stacks.strategy_candidate_sandbox.training_candidate_contract import (
+    MANUAL_BOUNDED_TRAINING_STRATEGY_NAME,
     build_training_candidate_contract,
     validate_training_candidate_contract,
 )
@@ -253,6 +254,9 @@ def build_bounded_training_confidence_summary(
     resolved_candidate = (
         build_training_candidate_contract(
             created_from="manual",
+            strategy_name=(
+                MANUAL_BOUNDED_TRAINING_STRATEGY_NAME
+            ),
         ).to_dict()
         if training_candidate is None
         else dict(training_candidate)

@@ -33,9 +33,6 @@ def test_admin_mutation_routes_are_exact() -> None:
             "/api/v1/admin/users/"
             "{user_id}/enable"
         ): {"POST"},
-        "/api/v1/admin/users/{user_id}": {
-            "DELETE",
-        },
     }
 
     actual = {

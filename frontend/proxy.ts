@@ -3,6 +3,37 @@ import {
   NextResponse,
 } from "next/server";
 
+function createNonce(): string {
+  const bytes = new Uint8Array(16);
+
+  crypto.getRandomValues(bytes);
+
+  return btoa(
+    String.fromCharCode(...bytes)
+  );
+}
+
+function contentSecurityPolicy(
+  nonce: string
+): string {
+  return [
+    "default-src 'self'",
+    (
+      "script-src 'self' " +
+      "'nonce-" + nonce + "' " +
+      "'strict-dynamic'"
+    ),
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+  ].join("; ");
+}
+
 const SESSION_COOKIE =
   "neurovest_session";
 
@@ -393,7 +424,15 @@ export async function proxy(
     isDeveloperDashboard ||
     isUserWorkspace;
 
-  if (!authenticated) {
+  const requiresAuthentication =
+    isProtectedApi ||
+    isAdmin ||
+    isDeveloperDashboard ||
+    isUserWorkspace ||
+    path.startsWith("/change-password") ||
+    path.startsWith("/api/auth/change-password");
+
+  if (!authenticated && requiresAuthentication) {
     if (isProtectedApi) {
       return NextResponse.json(
         {
@@ -574,9 +613,30 @@ export async function proxy(
     }
   }
 
-  const response =
-    NextResponse.next();
+  const nonce = createNonce();
+  const csp = contentSecurityPolicy(nonce);
+  const requestHeaders = new Headers(
+    request.headers
+  );
 
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set(
+    "Content-Security-Policy",
+    csp
+  );
+
+  const response = NextResponse.next(
+    {
+      request: {
+        headers: requestHeaders,
+      },
+    }
+  );
+
+  response.headers.set(
+    "Content-Security-Policy",
+    csp
+  );
   response.headers.set(
     "Cache-Control",
     "no-store, no-cache, must-revalidate"
@@ -587,11 +647,20 @@ export async function proxy(
 
 export const config = {
   matcher: [
-    "/dashboard/:path*",
-    "/admin/:path*",
-    "/change-password",
-    "/api/auth/change-password",
-    "/api/v1/:path*",
-    "/user/:path*",
-],
+    {
+      source:
+        "/((?!_next/static|_next/image|favicon.ico).*)",
+      missing: [
+        {
+          type: "header",
+          key: "next-router-prefetch",
+        },
+        {
+          type: "header",
+          key: "purpose",
+          value: "prefetch",
+        },
+      ],
+    },
+  ],
 };

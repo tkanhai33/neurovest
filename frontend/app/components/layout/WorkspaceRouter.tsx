@@ -4,7 +4,7 @@ import type { PortfolioPosition } from "../../../services/portfolioService";
 import type { DashboardTab } from "./DashboardShell";
 
 import OverviewWorkspace from "../workspaces/OverviewWorkspace";
-import NeuroWorkspace from "../workspaces/NeuroWorkspace";
+import DeveloperChatWorkspacePanel from "../workspaces/DeveloperChatWorkspacePanel";
 import MarketWorkspace from "../workspaces/MarketWorkspace";
 import GraphWorkspacePanel from "../workspaces/GraphWorkspacePanel";
 import ObservabilityWorkspacePanel from "../workspaces/ObservabilityWorkspacePanel";
@@ -40,7 +40,7 @@ export default function WorkspaceRouter({
       )}
 
       {activeTab === "chat" && (
-        <NeuroWorkspace />
+        <DeveloperChatWorkspacePanel />
       )}
     </>
   );

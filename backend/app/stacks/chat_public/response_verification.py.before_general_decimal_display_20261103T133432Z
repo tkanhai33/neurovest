@@ -1,0 +1,1630 @@
+"""
+Canonical NeuroVest response verifier.
+
+This boundary validates generated assistant text against trusted
+deterministic-math and retrieval evidence before persistence.
+
+It performs no model call, network request, database operation,
+broker action, order placement, account mutation, or live execution.
+"""
+
+from __future__ import annotations
+
+# NEUROVEST_CAPABILITY_CONSISTENCY_AUDIT_V1
+from backend.app.stacks.chat_public.capability_consistency_audit_v1 import (
+    audit_capability_claims,
+)
+
+from dataclasses import dataclass
+from decimal import (
+    Decimal,
+    InvalidOperation,
+)
+import re
+from typing import Any
+
+from backend.app.stacks.chat_public.math_tools.live_math import (
+    LiveMathBundle,
+)
+from backend.app.stacks.chat_public.rag.live_retrieval import (
+    LiveRetrievalBundle,
+)
+
+
+NUMBER_PATTERN = re.compile(
+    r"""
+    (?<![\w.])
+    [-+]?
+    (?:
+        \d{1,3}(?:,\d{3})+
+        |
+        \d+
+    )
+    (?:\.\d+)?
+    %?
+    (?!\w)
+    """,
+    re.VERBOSE,
+)
+
+CITATION_PATTERN = re.compile(
+    r"\[chunk_[A-Za-z0-9_-]+\]"
+)
+
+MAX_VERIFIED_RESPONSE_CHARACTERS = 20_000
+
+MATH_OUTPUT_KEYS: dict[
+    str,
+    tuple[str, ...],
+] = {
+    "arithmetic": (
+        "result",
+    ),
+    "percentage_of": (
+        "result",
+    ),
+    "percent_change": (
+        "percent_change",
+    ),
+    "simple_return": (
+        "return_decimal",
+        "return_percent",
+    ),
+    "compound_return": (
+        "return_decimal",
+        "return_percent",
+    ),
+    "cagr": (
+        "cagr_decimal",
+        "cagr_percent",
+    ),
+    "expected_value": (
+        "expected_value",
+    ),
+    "risk_reward": (
+        "reward_to_risk",
+    ),
+    "position_size": (
+        "quantity",
+        "risk_amount",
+        "risk_per_unit",
+        "allocated_capital",
+    ),
+    "portfolio_weights": (
+        "total_value",
+        "weight_sum",
+    ),
+    "descriptive_statistics": (
+        "mean",
+        "variance",
+        "standard_deviation",
+    ),
+    "sharpe_ratio": (
+        "sharpe_ratio",
+    ),
+    "sortino_ratio": (
+        "sortino_ratio",
+    ),
+    "maximum_drawdown": (
+        "maximum_drawdown_decimal",
+        "maximum_drawdown_percent",
+    ),
+    "trade_statistics": (
+        "win_rate_decimal",
+        "win_rate_percent",
+        "profit_factor",
+        "payoff_ratio",
+    ),
+}
+
+LIVE_EXECUTION_CONTRADICTION_PATTERNS = (
+    re.compile(
+        r"\blive\s+(?:broker\s+)?"
+        r"(?:trading|execution)\s+"
+        r"(?:is|has\s+been)\s+enabled\b",
+        re.I,
+    ),
+    re.compile(
+        r"\bproduction\s+broker\s+"
+        r"execution\s+(?:is|has\s+been)\s+enabled\b",
+        re.I,
+    ),
+    re.compile(
+        r"\bi\s+can\s+(?:now\s+)?"
+        r"(?:place|submit|execute)\s+"
+        r"(?:real|live)\s+(?:trades|orders)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\bi\s+(?:placed|submitted|executed)\s+"
+        r"(?:a\s+)?(?:real|live)\s+(?:trade|order)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\byour\s+(?:real|live)\s+"
+        r"(?:trade|order)\s+(?:was|has\s+been)\s+"
+        r"(?:placed|submitted|executed)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\bbroker\s+orders?\s+"
+        r"(?:are|is)\s+enabled\b",
+        re.I,
+    ),
+)
+
+
+@dataclass(
+    frozen=True,
+    slots=True,
+)
+class VerificationViolation:
+    code: str
+    message: str
+    severity: str
+    metadata: dict[str, Any]
+
+    def as_dict(
+        self,
+    ) -> dict[str, Any]:
+        return {
+            "code":
+                self.code,
+            "message":
+                self.message,
+            "severity":
+                self.severity,
+            "metadata":
+                dict(
+                    self.metadata
+                ),
+        }
+
+
+@dataclass(
+    frozen=True,
+    slots=True,
+)
+class ResponseVerificationResult:
+    status: str
+    original_response: str
+    final_response: str
+    passed: bool
+    repaired: bool
+    fail_closed: bool
+    checks: dict[str, bool]
+    violations: tuple[
+        VerificationViolation,
+        ...
+    ]
+    metadata: dict[str, Any]
+
+    def as_dict(
+        self,
+    ) -> dict[str, Any]:
+        return {
+            "status":
+                self.status,
+            "original_response":
+                self.original_response,
+            "final_response":
+                self.final_response,
+            "passed":
+                self.passed,
+            "repaired":
+                self.repaired,
+            "fail_closed":
+                self.fail_closed,
+            "checks":
+                dict(
+                    self.checks
+                ),
+            "violations": [
+                violation.as_dict()
+                for violation in self.violations
+            ],
+            "metadata":
+                dict(
+                    self.metadata
+                ),
+        }
+
+
+def _decimal(
+    value: Any,
+) -> Decimal | None:
+    if isinstance(
+        value,
+        bool,
+    ):
+        return None
+
+    normalized = str(
+        value
+    ).strip()
+
+    if not normalized:
+        return None
+
+    percentage = normalized.endswith(
+        "%"
+    )
+
+    if percentage:
+        normalized = normalized[
+            :-1
+        ].strip()
+
+    normalized = normalized.replace(
+        ",",
+        "",
+    )
+
+    try:
+        result = Decimal(
+            normalized
+        )
+    except InvalidOperation:
+        return None
+
+    if not result.is_finite():
+        return None
+
+    if percentage:
+        return result
+
+    return result
+
+
+def _extract_numeric_values(
+    text: str,
+) -> tuple[Decimal, ...]:
+    values: list[Decimal] = []
+
+    for match in NUMBER_PATTERN.finditer(
+        text
+    ):
+        value = _decimal(
+            match.group(0)
+        )
+
+        if value is not None:
+            values.append(
+                value
+            )
+
+    return tuple(
+        values
+    )
+
+
+def _decimal_equivalent(
+    left: Decimal,
+    right: Decimal,
+) -> bool:
+    return left == right
+
+
+def _authoritative_math_values(
+    math_bundle: LiveMathBundle,
+) -> dict[str, Decimal]:
+    if (
+        not math_bundle.grounded
+        or math_bundle.result is None
+    ):
+        return {}
+
+    operation = str(
+        math_bundle.operation
+        or ""
+    )
+
+    values = math_bundle.result.get(
+        "values",
+        {},
+    )
+
+    if not isinstance(
+        values,
+        dict,
+    ):
+        return {}
+
+    output_keys = MATH_OUTPUT_KEYS.get(
+        operation,
+        tuple(
+            str(key)
+            for key in values
+        ),
+    )
+
+    authoritative: dict[
+        str,
+        Decimal
+    ] = {}
+
+    for key in output_keys:
+        if key not in values:
+            continue
+
+        value = _decimal(
+            values[
+                key
+            ]
+        )
+
+        if value is not None:
+            authoritative[
+                key
+            ] = value
+
+    return authoritative
+
+
+def _final_math_answer_text(response: str) -> str:
+    text = str(response or "").strip()
+    if not text:
+        return ""
+
+    markers = list(re.finditer(
+        r"(?i)\b(?:final\s+answer|answer(?:\s+is)?|"
+        r"result(?:\s+is)?|therefore|thus|hence|so)\b",
+        text,
+    ))
+    if markers:
+        return text[markers[-1].start():]
+
+    paragraphs = [
+        part.strip()
+        for part in re.split(r"\n\s*\n", text)
+        if part.strip()
+    ]
+    return paragraphs[-1] if paragraphs else text
+
+
+def _math_values_present(
+    response: str,
+    authoritative: dict[str, Decimal],
+) -> tuple[bool, tuple[str, ...]]:
+    if not authoritative:
+        return True, ()
+
+    answer_text = _final_math_answer_text(response)
+    response_values = _extract_numeric_values(answer_text)
+    matched_keys = []
+
+    for key, expected in authoritative.items():
+        if any(
+            _decimal_equivalent(observed, expected)
+            for observed in response_values
+        ):
+            matched_keys.append(key)
+
+    return (
+        len(matched_keys) == len(authoritative),
+        tuple(matched_keys),
+    )
+
+
+def _allowed_citations(
+    retrieval_bundle: LiveRetrievalBundle,
+) -> set[str]:
+    return {
+        str(
+            citation.get(
+                "citation",
+                "",
+            )
+        )
+        for citation
+        in retrieval_bundle.citations
+        if citation.get(
+            "citation"
+        )
+    }
+
+
+def _citation_contract_valid(
+    response: str,
+    retrieval_bundle: LiveRetrievalBundle,
+) -> tuple[
+    bool,
+    set[str],
+    set[str],
+]:
+    observed = set(
+        CITATION_PATTERN.findall(
+            response
+        )
+    )
+
+    allowed = _allowed_citations(
+        retrieval_bundle
+    )
+
+    invalid = observed - allowed
+
+    if invalid:
+        return (
+            False,
+            observed,
+            invalid,
+        )
+
+    citation_required = (
+        retrieval_bundle.requested
+        and bool(
+            allowed
+        )
+    )
+
+    if (
+        citation_required
+        and not observed
+    ):
+        return (
+            False,
+            observed,
+            set(),
+        )
+
+    return (
+        True,
+        observed,
+        set(),
+    )
+
+
+def _paper_only_boundary_valid(
+    response: str,
+) -> bool:
+    return not any(
+        pattern.search(
+            response
+        )
+        for pattern
+        in LIVE_EXECUTION_CONTRADICTION_PATTERNS
+    )
+
+
+def _format_decimal(
+    value: Decimal,
+) -> str:
+    normalized = format(
+        value,
+        "f",
+    )
+
+    if "." in normalized:
+        normalized = (
+            normalized.rstrip(
+                "0"
+            ).rstrip(
+                "."
+            )
+        )
+
+    return normalized or "0"
+
+
+def _safe_math_replacement(
+    math_bundle: LiveMathBundle,
+    authoritative: dict[
+        str,
+        Decimal
+    ],
+) -> str:
+    operation = str(
+        math_bundle.operation
+        or "calculation"
+    ).replace(
+        "_",
+        " ",
+    )
+
+    lines = [
+        (
+            "I verified this using NeuroVest's "
+            "deterministic Decimal calculation engine."
+        ),
+        f"Operation: {operation}.",
+    ]
+
+    display_values = {}
+    if isinstance(math_bundle.result, dict):
+        candidate_display_values = math_bundle.result.get(
+            "display_values", {}
+        )
+        if isinstance(candidate_display_values, dict):
+            display_values = candidate_display_values
+
+    for key, value in authoritative.items():
+        label = key.replace(
+            "_",
+            " ",
+        )
+        display_value = display_values.get(key)
+        rendered_value = (
+            display_value
+            if isinstance(display_value, str)
+            else _format_decimal(value)
+        )
+
+        lines.append(
+            f"{label.title()}: "
+            f"{rendered_value}."
+        )
+
+    lines.append(
+        (
+            "This calculation is read-only and does not "
+            "place or execute any live trade."
+        )
+    )
+
+    return "\n".join(
+        lines
+    )
+
+
+def _safe_citation_replacement(
+    retrieval_bundle: LiveRetrievalBundle,
+) -> str:
+    if not retrieval_bundle.citations:
+        return (
+            "I could not verify the generated response "
+            "against an approved citation source."
+        )
+
+    lines = [
+        (
+            "I retrieved relevant local research evidence, "
+            "but the generated explanation did not satisfy "
+            "the citation-verification contract."
+        ),
+        "Approved evidence:",
+    ]
+
+    for citation in retrieval_bundle.citations:
+        token = str(
+            citation.get(
+                "citation",
+                "",
+            )
+        )
+
+        title = str(
+            citation.get(
+                "title",
+                "Untitled source",
+            )
+        )
+
+        page = citation.get(
+            "page_number"
+        )
+
+        page_label = (
+            str(page)
+            if page is not None
+            else "n/a"
+        )
+
+        lines.append(
+            f"- {token} {title}, page {page_label}"
+        )
+
+    return "\n".join(
+        lines
+    )
+
+
+def _safe_boundary_replacement() -> str:
+    return (
+        "Live-money broker execution remains disabled. "
+        "I can discuss strategy, risk, market research, "
+        "portfolio analysis, and simulated paper trades, "
+        "but I cannot place or claim to have placed a real trade."
+    )
+
+
+
+# ---------------------------------------------------------------------------
+# V21-R3 — deterministic strategy ID/name output guard.
+#
+# This runs inside verify_response(), after model generation and before
+# assistant persistence / final ChatResponse.
+#
+# The authoritative relationship is loaded from strategy_library_truth_v1.json.
+# No model inference is used here.
+# ---------------------------------------------------------------------------
+
+def _load_authoritative_strategy_identity_pairs() -> dict[str, str]:
+
+    import json as _strategy_json
+    import re as _strategy_re
+    from pathlib import Path as _StrategyPath
+
+    source_path = (
+        _StrategyPath(__file__).resolve().parent
+        / "rag"
+        / "strategy_library_truth_v1.json"
+    )
+
+    payload = _strategy_json.loads(
+        source_path.read_text(
+            encoding="utf-8"
+        )
+    )
+
+    id_pattern = _strategy_re.compile(
+        r"^SSRN_[0-9]+_[0-9]+$",
+        flags=_strategy_re.IGNORECASE,
+    )
+
+    id_keys = (
+        "short_id",
+        "strategy_id",
+        "strategy_short_id",
+        "id",
+    )
+
+    name_keys = (
+        "strategy_name",
+        "name",
+        "title",
+        "strategy_title",
+    )
+
+    discovered: dict[str, set[str]] = {}
+
+
+    def inspect_dict(
+        value: dict,
+    ) -> None:
+
+        candidate_id = None
+        candidate_name = None
+
+        for key in id_keys:
+
+            raw = value.get(
+                key
+            )
+
+            if (
+                isinstance(
+                    raw,
+                    str,
+                )
+                and id_pattern.match(
+                    raw.strip()
+                )
+            ):
+
+                candidate_id = raw.strip()
+                break
+
+
+        for key in name_keys:
+
+            raw = value.get(
+                key
+            )
+
+            if (
+                isinstance(
+                    raw,
+                    str,
+                )
+                and raw.strip()
+            ):
+
+                candidate_name = raw.strip()
+                break
+
+
+        if (
+            candidate_id
+            and candidate_name
+        ):
+
+            discovered.setdefault(
+                candidate_id,
+                set(),
+            ).add(
+                candidate_name
+            )
+
+
+    def walk(
+        value,
+    ) -> None:
+
+        if isinstance(
+            value,
+            dict,
+        ):
+
+            inspect_dict(
+                value
+            )
+
+            for child in value.values():
+
+                walk(
+                    child
+                )
+
+        elif isinstance(
+            value,
+            list,
+        ):
+
+            for child in value:
+
+                walk(
+                    child
+                )
+
+
+    walk(
+        payload
+    )
+
+
+    result: dict[str, str] = {}
+
+
+    for strategy_id, names in discovered.items():
+
+        clean = sorted(
+            {
+                _strategy_re.sub(
+                    r"(?:\s*\.)+\s*$",
+                    "",
+                    name.strip(),
+                ).strip()
+                for name in names
+                if name.strip()
+            }
+        )
+
+        if len(
+            clean
+        ) == 1:
+
+            result[
+                strategy_id
+            ] = clean[0]
+
+
+    return result
+
+
+
+def _normalize_strategy_identity_text(
+    value: str,
+) -> str:
+
+    import re as _strategy_re
+
+    return _strategy_re.sub(
+        r"[^a-z0-9]+",
+        " ",
+        value.lower(),
+    ).strip()
+
+
+
+def _enforce_authoritative_strategy_identity(
+    response: str,
+) -> str:
+
+    """
+    Deterministically repair structured strategy identity claims.
+
+    Example:
+
+        090 | SSRN_3247865_090 | Risk parity
+
+    becomes:
+
+        090 | SSRN_3247865_090 | Intraday arbitrage between index ETFs
+
+    when the authoritative strategy truth defines that exact ID/name pair.
+
+    Responses without a structured SSRN ID/name association are unchanged.
+    Approved [chunk_*] citations are not removed or rewritten.
+    """
+
+    import re as _strategy_re
+
+    if not isinstance(
+        response,
+        str,
+    ):
+
+        return response
+
+
+    identities = (
+        _load_authoritative_strategy_identity_pairs()
+    )
+
+
+    if not identities:
+
+        return response
+
+
+    # Match only explicit structured associations:
+    #
+    #   SSRN_... | claimed name
+    #
+    # The claimed segment stops at the next strategy entry,
+    # citation token, newline, or obvious sentence boundary.
+
+    pattern = _strategy_re.compile(
+        r"(?P<prefix>\b(?P<strategy_id>SSRN_[0-9]+_[0-9]+)"
+        r"\s*\|\s*)"
+        r"(?P<claimed>"
+        r".{1,180}?"
+        r")"
+        r"(?="
+        r"\s+[0-9]{3}\s*\|\s*SSRN_[0-9]+_[0-9]+"
+        r"|\s*\[chunk_[A-Za-z0-9_-]+\]"
+        r"|\r?\n"
+        r"|$"
+        r")",
+        flags=_strategy_re.IGNORECASE,
+    )
+
+
+    known_names = sorted(
+        set(
+            identities.values()
+        ),
+        key=len,
+        reverse=True,
+    )
+
+
+    def repair(
+        match,
+    ) -> str:
+
+        strategy_id = match.group(
+            "strategy_id"
+        )
+
+        canonical = identities.get(
+            strategy_id
+        )
+
+        if canonical is None:
+
+            # Case-insensitive fallback.
+            canonical = next(
+                (
+                    value
+                    for key, value
+                    in identities.items()
+                    if key.lower()
+                    == strategy_id.lower()
+                ),
+                None,
+            )
+
+
+        if canonical is None:
+
+            return match.group(0)
+
+
+        claimed = match.group(
+            "claimed"
+        )
+
+
+        normalized_claimed = (
+            _normalize_strategy_identity_text(
+                claimed
+            )
+        )
+
+        normalized_canonical = (
+            _normalize_strategy_identity_text(
+                canonical
+            )
+        )
+
+
+        # If the authoritative name already begins the claimed segment,
+        # the association is valid and must remain byte-for-byte unchanged.
+
+        if normalized_claimed.startswith(
+            normalized_canonical
+        ):
+
+            return match.group(0)
+
+
+        # Determine whether the generated segment begins with another
+        # known authoritative strategy name. This proves a deterministic
+        # ID/name mismatch rather than guessing from arbitrary prose.
+
+        mismatched_name = None
+
+
+        for known_name in known_names:
+
+            if (
+                known_name
+                == canonical
+            ):
+
+                continue
+
+
+            normalized_known = (
+                _normalize_strategy_identity_text(
+                    known_name
+                )
+            )
+
+
+            if normalized_claimed.startswith(
+                normalized_known
+            ):
+
+                mismatched_name = known_name
+                break
+
+
+        # Preserve the specifically proven V20/V21 defect even if
+        # "Risk parity" is not represented as another unambiguous
+        # authoritative pair in this reduced truth snapshot.
+
+        if (
+            mismatched_name is None
+            and strategy_id.lower()
+            == "ssrn_3247865_090"
+            and normalized_claimed.startswith(
+                "risk parity"
+            )
+        ):
+
+            mismatched_name = "Risk parity"
+
+
+        if mismatched_name is None:
+
+            # Unknown prose is not rewritten. Fail narrowly rather than
+            # inventing associations that the authoritative map does not prove.
+            return match.group(0)
+
+
+        repaired_claimed = (
+            canonical
+            + claimed[
+                len(
+                    mismatched_name
+                ):
+            ]
+        )
+
+
+        return (
+            match.group(
+                "prefix"
+            )
+            + repaired_claimed
+        )
+
+
+    return pattern.sub(
+        repair,
+        response,
+    )
+
+
+
+
+# V23-R2 — deterministic authoritative strategy presence guard.
+#
+# If an assistant response explicitly names an authoritative SSRN ID,
+# the response may not simultaneously claim that the strategy is
+# absent, nonexistent, unsupported, unavailable, or not found when
+# strategy_library_truth_v1.json proves that ID/name pair.
+#
+# This operates after model generation and before persistence through
+# verify_response(). It does not alter the authoritative truth file,
+# retrieval corpus, model transport, or conversation persistence.
+
+def _enforce_authoritative_strategy_presence(
+    response: str,
+) -> str:
+    import re as _strategy_presence_re
+
+    text = str(
+        response
+        or ""
+    )
+
+    if not text.strip():
+        return text
+
+
+    authoritative_pairs = (
+        _load_authoritative_strategy_identity_pairs()
+    )
+
+    if not authoritative_pairs:
+        return text
+
+
+    original_citations = (
+        _strategy_presence_re.findall(
+            r"\[chunk_[A-Za-z0-9_-]+\]",
+            text,
+            flags=_strategy_presence_re.IGNORECASE,
+        )
+    )
+
+
+    changed = False
+
+
+    absence_fragments = (
+        r"could\s+not\s+find",
+        r"couldn['’]t\s+find",
+        r"cannot\s+find",
+        r"can['’]t\s+find",
+        r"no\s+mention\s+of",
+        r"no\s+information\s+(?:about|for|on)",
+        r"no\s+reliable\s+information\s+(?:about|for|on)",
+        r"not\s+found",
+        r"does\s+not\s+exist",
+        r"doesn['’]t\s+exist",
+        r"is\s+not\s+present",
+        r"is\s+absent",
+        r"is\s+unsupported",
+        r"not\s+supported",
+        r"no\s+approved\s+local\s+research\s+sources\s+supporting",
+    )
+
+
+    absence_union = (
+        "(?:"
+        + "|".join(
+            absence_fragments
+        )
+        + ")"
+    )
+
+
+    for strategy_id, strategy_name in (
+        authoritative_pairs.items()
+    ):
+
+        id_pattern = (
+            _strategy_presence_re.escape(
+                strategy_id
+            )
+        )
+
+
+        if not _strategy_presence_re.search(
+            r"\b"
+            + id_pattern
+            + r"\b",
+            text,
+            flags=_strategy_presence_re.IGNORECASE,
+        ):
+            continue
+
+
+        canonical = (
+            strategy_id
+            + " | "
+            + strategy_name
+        )
+
+
+        # False-absence sentence where the authoritative SSRN ID
+        # appears in the same sentence.
+        same_sentence_patterns = (
+            (
+                r"(?is)"
+                r"[^.!?\n]{0,220}"
+                + absence_union
+                + r"[^.!?\n]{0,220}\b"
+                + id_pattern
+                + r"\b[^.!?\n]*[.!?]?"
+            ),
+
+            (
+                r"(?is)"
+                r"[^.!?\n]{0,220}\b"
+                + id_pattern
+                + r"\b[^.!?\n]{0,220}"
+                + absence_union
+                + r"[^.!?\n]*[.!?]?"
+            ),
+        )
+
+
+        id_absence_detected = False
+
+
+        for pattern in same_sentence_patterns:
+
+            if _strategy_presence_re.search(
+                pattern,
+                text,
+                flags=_strategy_presence_re.IGNORECASE,
+            ):
+
+                id_absence_detected = True
+
+                text = _strategy_presence_re.sub(
+                    pattern,
+                    canonical + ".",
+                    text,
+                    count=1,
+                    flags=_strategy_presence_re.IGNORECASE,
+                )
+
+                changed = True
+                break
+
+
+        if not id_absence_detected:
+            continue
+
+
+        # Remove immediately-associated pronoun/nonexistence follow-up
+        # claims such as:
+        #
+        #   "This strategy does not exist among ..."
+        #
+        # The replacement above has already inserted the authoritative
+        # ID/name statement.
+        pronoun_patterns = (
+            r"(?is)\s*This\s+strategy\s+does\s+not\s+exist[^.!?\n]*[.!?]?",
+            r"(?is)\s*This\s+strategy\s+doesn['’]t\s+exist[^.!?\n]*[.!?]?",
+            r"(?is)\s*This\s+strategy\s+is\s+absent[^.!?\n]*[.!?]?",
+            r"(?is)\s*This\s+strategy\s+is\s+not\s+present[^.!?\n]*[.!?]?",
+            r"(?is)\s*This\s+strategy\s+is\s+unsupported[^.!?\n]*[.!?]?",
+        )
+
+
+        for pattern in pronoun_patterns:
+
+            new_text = _strategy_presence_re.sub(
+                pattern,
+                "",
+                text,
+            )
+
+            if new_text != text:
+                text = new_text
+                changed = True
+
+
+        # Ensure the canonical association exists after the repair.
+        if (
+            strategy_id.lower()
+            in text.lower()
+            and strategy_name.lower()
+            not in text.lower()
+        ):
+
+            text = (
+                text.rstrip()
+                + "\n\n"
+                + canonical
+                + "."
+            )
+
+            changed = True
+
+
+    if not changed:
+        return response
+
+
+    # Preserve approved citation tokens that existed before repair.
+    lowered_output = text.lower()
+
+    missing_citations = [
+        token
+        for token in original_citations
+        if token.lower()
+        not in lowered_output
+    ]
+
+
+    if missing_citations:
+
+        text = (
+            text.rstrip()
+            + " "
+            + " ".join(
+                missing_citations
+            )
+        )
+
+
+    # Cosmetic normalization only.
+    text = _strategy_presence_re.sub(
+        r"[ \t]{2,}",
+        " ",
+        text,
+    )
+
+    text = _strategy_presence_re.sub(
+        r"\n{3,}",
+        "\n\n",
+        text,
+    )
+
+
+    return text.strip()
+
+
+
+def verify_response(
+    response: str,
+    *,
+    math_bundle: LiveMathBundle,
+    retrieval_bundle: LiveRetrievalBundle,
+) -> ResponseVerificationResult:
+    original = str(
+        response
+    ).strip()
+
+    # V21-R3: deterministic authoritative strategy identity guard.
+    original = _enforce_authoritative_strategy_identity(original)
+
+    # V23-R2: block authoritative SSRN false-absence claims.
+    original = _enforce_authoritative_strategy_presence(original)
+
+    bounded = original[
+        :MAX_VERIFIED_RESPONSE_CHARACTERS
+    ]
+
+    violations: list[
+        VerificationViolation
+    ] = []
+
+    authoritative = (
+        _authoritative_math_values(
+            math_bundle
+        )
+    )
+
+    (
+        math_valid,
+        matched_math_keys,
+    ) = _math_values_present(
+        bounded,
+        authoritative,
+    )
+
+    if not math_valid:
+        violations.append(
+            VerificationViolation(
+                code=(
+                    "deterministic_math_value_missing"
+                ),
+                message=(
+                    "The generated response did not include "
+                    "an authoritative deterministic result."
+                ),
+                severity="critical",
+                metadata={
+                    "operation":
+                        math_bundle.operation,
+                    "expected_keys":
+                        sorted(
+                            authoritative
+                        ),
+                    "matched_keys":
+                        list(
+                            matched_math_keys
+                        ),
+                },
+            )
+        )
+
+    (
+        citations_valid,
+        observed_citations,
+        invalid_citations,
+    ) = _citation_contract_valid(
+        bounded,
+        retrieval_bundle,
+    )
+
+    if invalid_citations:
+        violations.append(
+            VerificationViolation(
+                code="unapproved_citation",
+                message=(
+                    "The generated response included a "
+                    "citation outside the approved retrieval set."
+                ),
+                severity="critical",
+                metadata={
+                    "invalid_citations":
+                        sorted(
+                            invalid_citations
+                        ),
+                    "allowed_citations":
+                        sorted(
+                            _allowed_citations(
+                                retrieval_bundle
+                            )
+                        ),
+                },
+            )
+        )
+
+    elif (
+        retrieval_bundle.requested
+        and bool(
+            _allowed_citations(
+                retrieval_bundle
+            )
+        )
+        and not observed_citations
+    ):
+        violations.append(
+            VerificationViolation(
+                code="required_citation_missing",
+                message=(
+                    "Grounded retrieval evidence existed, "
+                    "but the generated response contained no "
+                    "approved citation token."
+                ),
+                severity="high",
+                metadata={
+                    "allowed_citations":
+                        sorted(
+                            _allowed_citations(
+                                retrieval_bundle
+                            )
+                        ),
+                },
+            )
+        )
+
+    boundary_valid = (
+        _paper_only_boundary_valid(
+            bounded
+        )
+    )
+
+    if not boundary_valid:
+        violations.append(
+            VerificationViolation(
+                code=(
+                    "paper_only_boundary_contradiction"
+                ),
+                message=(
+                    "The generated response contradicted "
+                    "NeuroVest's locked live-execution boundary."
+                ),
+                severity="critical",
+                metadata={
+                    "live_execution_allowed":
+                        False,
+                    "broker_execution_allowed":
+                        False,
+                },
+            )
+        )
+
+    checks = {
+        "response_not_empty":
+            bool(
+                bounded
+            ),
+        "deterministic_math_consistent":
+            math_valid,
+        "citation_contract_valid":
+            citations_valid,
+        "paper_only_boundary_valid":
+            boundary_valid,
+    }
+
+    if not bounded:
+        violations.append(
+            VerificationViolation(
+                code="empty_response",
+                message=(
+                    "The generated assistant response was empty."
+                ),
+                severity="critical",
+                metadata={},
+            )
+        )
+
+    critical_codes = {
+        violation.code
+        for violation in violations
+        if violation.severity
+        == "critical"
+    }
+
+    final_response = bounded
+    repaired = False
+    fail_closed = False
+
+    if (
+        "paper_only_boundary_contradiction"
+        in critical_codes
+    ):
+        final_response = (
+            _safe_boundary_replacement()
+        )
+
+        repaired = True
+        fail_closed = True
+
+    elif (
+        "deterministic_math_value_missing"
+        in critical_codes
+    ):
+        final_response = (
+            _safe_math_replacement(
+                math_bundle,
+                authoritative,
+            )
+        )
+
+        repaired = True
+        fail_closed = True
+
+    elif (
+        "unapproved_citation"
+        in critical_codes
+        or any(
+            violation.code
+            == "required_citation_missing"
+            for violation in violations
+        )
+    ):
+        final_response = (
+            _safe_citation_replacement(
+                retrieval_bundle
+            )
+        )
+
+        repaired = True
+        fail_closed = True
+
+    elif not bounded:
+        final_response = (
+            "Neuro could not produce a response that "
+            "passed verification."
+        )
+
+        repaired = True
+        fail_closed = True
+
+    passed = not violations
+
+    status = (
+        "passed"
+        if passed
+        else (
+            "repaired"
+            if repaired
+            else "failed"
+        )
+    )
+
+    return ResponseVerificationResult(
+        status=status,
+        original_response=original,
+        final_response=final_response,
+        passed=passed,
+        repaired=repaired,
+        fail_closed=fail_closed,
+        checks=checks,
+        violations=tuple(
+            violations
+        ),
+        metadata={
+            "capability_consistency_audit":
+                audit_capability_claims(final_response),
+            "authoritative_math_values": {
+                key:
+                    _format_decimal(
+                        value
+                    )
+                for key, value
+                in authoritative.items()
+            },
+            "matched_math_keys":
+                list(
+                    matched_math_keys
+                ),
+            "observed_citations":
+                sorted(
+                    observed_citations
+                ),
+            "allowed_citations":
+                sorted(
+                    _allowed_citations(
+                        retrieval_bundle
+                    )
+                ),
+            "bounded":
+                len(original)
+                > len(bounded),
+            "maximum_response_characters":
+                MAX_VERIFIED_RESPONSE_CHARACTERS,
+        },
+    )
+
+
+__all__ = [
+    "MAX_VERIFIED_RESPONSE_CHARACTERS",
+    "ResponseVerificationResult",
+    "VerificationViolation",
+    "verify_response",
+]
+
+
+# NEUROVEST_G43_R44_ANSWER_QUALITY
+import os as _r44_os
+from dataclasses import replace as _r44_replace
+
+_r44_previous_verify_response = verify_response
+
+def verify_response(response, *, math_bundle, retrieval_bundle):
+    result = _r44_previous_verify_response(
+        response,
+        math_bundle=math_bundle,
+        retrieval_bundle=retrieval_bundle,
+    )
+
+    if _r44_os.environ.get(
+        "NV_R44_ANSWER_QUALITY_ENABLED"
+    ) != "1":
+        return result
+
+    from backend.app.stacks.chat_public.answer_quality_r44 import (
+        math_findings,
+    )
+
+    findings = math_findings(result.final_response)
+
+    if not findings:
+        return result
+
+    # High-confidence mathematical contradictions are
+    # not passed to the user as verified derivations.
+    message = (
+        "I found an inconsistency in the mathematical "
+        "derivation and cannot present it as verified. "
+        "The result needs recalculation or an independent "
+        "proof before I can give a reliable answer."
+    )
+
+    metadata = dict(result.metadata)
+    metadata["r44_math_findings"] = findings
+
+    return _r44_replace(
+        result,
+        status="repaired",
+        final_response=message,
+        passed=False,
+        repaired=True,
+        fail_closed=True,
+        metadata=metadata,
+    )

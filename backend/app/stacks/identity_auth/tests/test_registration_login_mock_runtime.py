@@ -21,6 +21,8 @@ async def test_complete_mock_registration_and_login_flow() -> None:
 
     registered = await runtime.registration.register(
         RegistrationCommand(
+            terms_accepted=True,
+            terms_version='neurovest-beta-terms-2026-10-09-v1',
             email=" MockUser@Example.COM ",
             password="correct-password",
         )
@@ -79,6 +81,8 @@ async def test_duplicate_registration_rolls_back() -> None:
     runtime = MockAuthenticationRuntime()
 
     command = RegistrationCommand(
+        terms_accepted=True,
+        terms_version='neurovest-beta-terms-2026-10-09-v1',
         email="user@example.com",
         password="correct-password",
     )
@@ -109,6 +113,8 @@ async def test_unknown_and_wrong_password_share_error() -> None:
 
     await runtime.registration.register(
         RegistrationCommand(
+            terms_accepted=True,
+            terms_version='neurovest-beta-terms-2026-10-09-v1',
             email="user@example.com",
             password="correct-password",
         )
@@ -154,6 +160,8 @@ async def test_disabled_account_rejected_before_token_issuance() -> None:
 
     registered = await runtime.registration.register(
         RegistrationCommand(
+            terms_accepted=True,
+            terms_version='neurovest-beta-terms-2026-10-09-v1',
             email="user@example.com",
             password="correct-password",
         )
@@ -190,6 +198,8 @@ async def test_access_token_failure_rolls_back() -> None:
 
     await runtime.registration.register(
         RegistrationCommand(
+            terms_accepted=True,
+            terms_version='neurovest-beta-terms-2026-10-09-v1',
             email="user@example.com",
             password="correct-password",
         )
@@ -222,6 +232,8 @@ async def test_refresh_token_failure_rolls_back() -> None:
 
     await runtime.registration.register(
         RegistrationCommand(
+            terms_accepted=True,
+            terms_version='neurovest-beta-terms-2026-10-09-v1',
             email="user@example.com",
             password="correct-password",
         )
@@ -254,6 +266,8 @@ async def test_refresh_session_failure_rolls_back() -> None:
 
     await runtime.registration.register(
         RegistrationCommand(
+            terms_accepted=True,
+            terms_version='neurovest-beta-terms-2026-10-09-v1',
             email="user@example.com",
             password="correct-password",
         )
@@ -292,6 +306,8 @@ async def test_registration_commit_failure_fails_closed() -> None:
     ):
         await runtime.registration.register(
             RegistrationCommand(
+                terms_accepted=True,
+                terms_version='neurovest-beta-terms-2026-10-09-v1',
                 email="user@example.com",
                 password="correct-password",
             )
@@ -307,6 +323,8 @@ async def test_login_commit_failure_fails_closed() -> None:
 
     await runtime.registration.register(
         RegistrationCommand(
+            terms_accepted=True,
+            terms_version='neurovest-beta-terms-2026-10-09-v1',
             email="user@example.com",
             password="correct-password",
         )

@@ -29,7 +29,7 @@ export async function GET() {
         starting_capital: 0,
         current_cash_balance: 0,
         total_fees_paid: 0,
-        net_liquidation_value: 0,
+        net_liquidation_value: null,
         valuation_basis:
           "unavailable",
         live_market_marking:

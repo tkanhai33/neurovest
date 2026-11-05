@@ -105,6 +105,7 @@ def _bullet_lines(
 def build_developer_response(
     *,
     subtype: str,
+    message: str = '',
 ) -> str:
     """
     Build a deterministic developer response using existing local evidence.
@@ -445,6 +446,10 @@ def build_developer_response(
         else "Developer review"
     )
 
+    # NEUROVEST_DEV_REPO_INSPECTION_V1
+    from backend.app.stacks.chat_public.developer_repository_inspection import inspect_repository
+    source_matches = inspect_repository(message) if message else ''
+
     return (
         f"## {heading}\n\n"
         "### What the current evidence proves\n"
@@ -460,6 +465,7 @@ def build_developer_response(
         "I have not claimed that tests ran, providers responded, market data "
         "was refreshed, or broker operations occurred unless those facts were "
         "present in the loaded evidence."
+        + ("\n\n" + source_matches if source_matches else "")
     )
 
 

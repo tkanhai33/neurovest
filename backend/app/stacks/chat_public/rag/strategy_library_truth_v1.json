@@ -1,0 +1,100 @@
+{
+  "answer_contract": "The repository does not currently prove an exact number of strategies developed by NeuroVest. NeuroVest has 173 normalized strategy entries in its research library. Eight strategies have repeated candidate-specific or small-set lifecycle evidence. Five of those eight also have strong structured model lineage. The five are a subset of the eight, so 8 + 5 must never be presented as 13 distinct strategies. Lifecycle evidence and model lineage do not by themselves prove that a strategy was developed, trained, qualified, refined, or promoted by NeuroVest.",
+  "claim_boundaries": [
+    "Research-library membership does not prove that a strategy was developed by NeuroVest.",
+    "Research-library membership does not prove that a strategy was trained.",
+    "Research-library membership does not prove that a strategy was qualified.",
+    "Research-library membership does not prove that a strategy was refined by NeuroVest.",
+    "Research-library membership does not prove that a strategy was promoted.",
+    "Repeated candidate-specific or small-set lifecycle evidence is lineage evidence, not proof that NeuroVest developed, trained, qualified, refined, or promoted that strategy.",
+    "Structured model lineage proves model-lineage relevance, not proof that NeuroVest developed, trained, qualified, refined, or promoted that strategy.",
+    "The five structured-model-lineage strategies are contained within the eight repeated-lifecycle-evidence strategies.",
+    "The counts 8 and 5 overlap and are not additive.",
+    "Never infer or state that NeuroVest developed 13 strategies from the counts 8 and 5.",
+    "When asked how many strategies NeuroVest developed, state that the exact developed count is not proven by the current repository evidence."
+  ],
+  "classification": "neurovest_strategy_library_runtime_truth_v1",
+  "evidence_set_relationship": {
+    "counts_are_additive": false,
+    "distinct_union_count": 8,
+    "intersection_count": 5,
+    "repeated_lifecycle_evidence_count": 8,
+    "structured_model_lineage_count": 5,
+    "structured_model_lineage_is_subset_of_repeated_lifecycle": true
+  },
+  "read_only": true,
+  "repeated_lifecycle_evidence": [
+    {
+      "ordinal": 64,
+      "short_id": "SSRN_3247865_064",
+      "strategy_name": "Sector momentum rotation"
+    },
+    {
+      "ordinal": 74,
+      "short_id": "SSRN_3247865_074",
+      "strategy_name": "Real estate momentum – regional approach"
+    },
+    {
+      "ordinal": 53,
+      "short_id": "SSRN_3247865_053",
+      "strategy_name": "Price-momentum"
+    },
+    {
+      "ordinal": 66,
+      "short_id": "SSRN_3247865_066",
+      "strategy_name": "Dual-momentum sector rotation . ."
+    },
+    {
+      "ordinal": 57,
+      "short_id": "SSRN_3247865_057",
+      "strategy_name": "Residual momentum ."
+    },
+    {
+      "ordinal": 151,
+      "short_id": "SSRN_3247865_151",
+      "strategy_name": "CDS basis arbitrage ."
+    },
+    {
+      "ordinal": 67,
+      "short_id": "SSRN_3247865_067",
+      "strategy_name": "Mean-reversion ."
+    },
+    {
+      "ordinal": 90,
+      "short_id": "SSRN_3247865_090",
+      "strategy_name": "Intraday arbitrage between index ETFs . ."
+    }
+  ],
+  "repeated_lifecycle_evidence_count": 8,
+  "research_library_count": 173,
+  "source_family": "SSRN_3247865",
+  "structured_model_lineage": [
+    {
+      "ordinal": 53,
+      "short_id": "SSRN_3247865_053",
+      "strategy_name": "Price-momentum"
+    },
+    {
+      "ordinal": 57,
+      "short_id": "SSRN_3247865_057",
+      "strategy_name": "Residual momentum ."
+    },
+    {
+      "ordinal": 64,
+      "short_id": "SSRN_3247865_064",
+      "strategy_name": "Sector momentum rotation"
+    },
+    {
+      "ordinal": 66,
+      "short_id": "SSRN_3247865_066",
+      "strategy_name": "Dual-momentum sector rotation . ."
+    },
+    {
+      "ordinal": 74,
+      "short_id": "SSRN_3247865_074",
+      "strategy_name": "Real estate momentum – regional approach"
+    }
+  ],
+  "structured_model_lineage_count": 5,
+  "unique_normalized_id_count": 173
+}

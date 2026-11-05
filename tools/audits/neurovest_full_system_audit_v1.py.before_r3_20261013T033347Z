@@ -1,0 +1,1007 @@
+from __future__ import annotations
+
+import ast
+import collections
+import datetime as dt
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path.home() / "Neurovest"
+STAMP = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+OUT = ROOT / "runtime" / "audits" / f"neurovest_full_system_v1_{STAMP}"
+
+OUT.mkdir(parents=True, exist_ok=False, mode=0o700)
+
+SOURCE_ROOTS = [
+    "backend/app",
+    "backend/tests",
+    "backend/test",
+    "frontend/app",
+    "frontend/components",
+    "frontend/lib",
+    "frontend/services",
+    "frontend/tests",
+    "frontend/hooks",
+    "frontend/proxy.ts",
+    "frontend/next.config.ts",
+    "alembic",
+    "scripts",
+    "tools",
+    "dashboard",
+    "admin",
+]
+
+SOURCE_SUFFIXES = {".py", ".ts", ".tsx", ".js", ".jsx", ".mjs"}
+
+EXCLUDED_DIRS = {
+    ".git", ".venv", "venv", "node_modules", ".next",
+    "dist", "build", "coverage", "__pycache__",
+    ".pytest_cache", ".mypy_cache", ".ruff_cache",
+    "runtime", "training_data", "test-results",
+    "backups", "backup", ".cache",
+}
+
+MAX_FILES = 20000
+MAX_BYTES_PER_FILE = 1_000_000
+MAX_EDGES_PER_FILE = 750
+
+DOMAINS = {
+    "identity_auth": [
+        "backend/app/stacks/identity_auth/",
+        "frontend/app/api/auth/",
+        "frontend/app/login/",
+        "frontend/app/register/",
+        "frontend/app/change-password/",
+    ],
+    "security_governance": [
+        "backend/app/stacks/safety_governance/",
+        "backend/app/stacks/execution/execution_control",
+        "backend/app/stacks/chat_public/developer_role_guard",
+        "backend/app/stacks/db_runtime/owner_ai_scope",
+    ],
+    "market_data": [
+        "backend/app/stacks/market_data/",
+        "frontend/services/marketService",
+        "frontend/app/api/v1/market/",
+    ],
+    "portfolio": [
+        "backend/app/stacks/portfolio/",
+        "backend/app/stacks/strategy/allocation_",
+    ],
+    "strategy": [
+        "backend/app/stacks/strategy/",
+        "frontend/services/strategyService",
+    ],
+    "paper_execution": [
+        "backend/app/stacks/execution/",
+        "backend/app/stacks/paper_trading/",
+        "frontend/app/user/components/PaperOrderPanel",
+    ],
+    "broker_integrations": [
+        "backend/app/stacks/broker_integration/",
+        "backend/app/stacks/snaptrade/",
+        "frontend/services/snaptradeService",
+    ],
+    "ai_chat": [
+        "backend/app/stacks/ai_chat/",
+        "backend/app/stacks/chat_public/",
+        "backend/app/stacks/wolfden_ai/",
+        "backend/app/llm_bridge/",
+        "frontend/services/chatService",
+    ],
+    "research_training": [
+        "backend/app/stacks/research/",
+        "backend/app/stacks/learning_research/",
+        "backend/app/stacks/strategy_candidate_sandbox/",
+    ],
+    "database_migrations": [
+        "backend/app/stacks/db_runtime/",
+        "backend/app/stacks/db_model/",
+        "alembic/",
+    ],
+    "frontend": [
+        "frontend/app/",
+        "frontend/components/",
+        "frontend/lib/",
+        "frontend/services/",
+    ],
+    "notifications_support": [
+        "backend/app/stacks/notification/",
+        "backend/app/stacks/support_ticketing/",
+        "backend/app/stacks/news_intelligence/",
+    ],
+    "deployment_operations": [
+        "scripts/",
+        "backend/app/main.py",
+        "frontend/next.config.ts",
+    ],
+}
+
+def run_git(*args):
+    try:
+        p = subprocess.run(
+            ["git", *args],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        return p.stdout.strip() if p.returncode == 0 else None
+    except Exception:
+        return None
+
+def write_json(name, obj):
+    path = OUT / name
+    path.write_text(
+        json.dumps(obj, indent=2, sort_keys=True, default=str) + "\n"
+    )
+    path.chmod(0o600)
+
+def write_text(name, value):
+    path = OUT / name
+    path.write_text(value)
+    path.chmod(0o600)
+
+def domain_for(path):
+    return [
+        name
+        for name, prefixes in DOMAINS.items()
+        if any(path.startswith(prefix) for prefix in prefixes)
+    ]
+
+def find_sources():
+    found = set()
+    skipped = []
+
+    for root_name in SOURCE_ROOTS:
+        base = ROOT / root_name
+
+        if base.is_file():
+            if base.suffix in SOURCE_SUFFIXES and not base.is_symlink():
+                found.add(base.relative_to(ROOT).as_posix())
+            continue
+
+        if not base.is_dir() or base.is_symlink():
+            continue
+
+        for current, directories, filenames in os.walk(base):
+            directories[:] = [
+                item for item in directories
+                if item not in EXCLUDED_DIRS
+                and not item.startswith(".")
+                and not (Path(current) / item).is_symlink()
+            ]
+
+            for filename in filenames:
+                path = Path(current) / filename
+
+                if path.suffix not in SOURCE_SUFFIXES or path.is_symlink():
+                    continue
+
+                if any(token in filename.lower() for token in (
+                    ".before_", ".backup", ".bak", ".old", ".orig"
+                )):
+                    continue
+
+                try:
+                    if path.stat().st_size > MAX_BYTES_PER_FILE:
+                        skipped.append(path.relative_to(ROOT).as_posix())
+                        continue
+                except OSError:
+                    continue
+
+                found.add(path.relative_to(ROOT).as_posix())
+
+                if len(found) > MAX_FILES:
+                    raise RuntimeError(
+                        f"Source scan exceeds safety limit of {MAX_FILES}"
+                    )
+
+    return sorted(found), skipped
+
+def package_module(path):
+    value = path.replace("/", ".")
+    if value.endswith(".py"):
+        value = value[:-3]
+    if value.endswith(".__init__"):
+        value = value[:-9]
+    return value
+
+def resolve_relative(module, level, target, is_package):
+    parts = module.split(".")
+    package_parts = parts if is_package else parts[:-1]
+
+    if level > len(package_parts) + 1:
+        return None
+
+    prefix = package_parts[:len(package_parts) - level + 1]
+    if target:
+        prefix += target.split(".")
+
+    return ".".join(prefix)
+
+def py_analyze(path, content):
+    tree = ast.parse(content, filename=path)
+
+    module = package_module(path)
+    is_package = path.endswith("/__init__.py")
+
+    imports = []
+    bindings = {}
+    definitions = []
+    calls = []
+    routes = []
+    classes = []
+    todo = []
+
+    for node in tree.body:
+        if isinstance(node, ast.Import):
+            for item in node.names:
+                alias = item.asname or item.name.split(".")[0]
+                imports.append(item.name)
+                bindings[alias] = item.name
+
+        elif isinstance(node, ast.ImportFrom):
+            target = (
+                resolve_relative(
+                    module,
+                    node.level,
+                    node.module,
+                    is_package
+                )
+                if node.level
+                else (node.module or "")
+            )
+            if target:
+                imports.append(target)
+
+            for item in node.names:
+                if item.name == "*":
+                    continue
+
+                alias = item.asname or item.name
+                bindings[alias] = (
+                    target + "." + item.name if target else item.name
+                )
+
+    def expr_name(node):
+        if isinstance(node, ast.Name):
+            return node.id
+        if isinstance(node, ast.Attribute):
+            parent = expr_name(node.value)
+            return parent + "." + node.attr if parent else node.attr
+        return None
+
+    def analyze_function(node, owner=""):
+        name = f"{owner}.{node.name}" if owner else node.name
+        definitions.append({
+            "name": name,
+            "line": node.lineno,
+            "async": isinstance(node, ast.AsyncFunctionDef),
+        })
+
+        local_calls = set()
+
+        class Collector(ast.NodeVisitor):
+            def visit_Call(self, call):
+                value = expr_name(call.func)
+                if value:
+                    local_calls.add(value)
+                self.generic_visit(call)
+
+            def visit_FunctionDef(self, nested):
+                return
+
+            def visit_AsyncFunctionDef(self, nested):
+                return
+
+            def visit_Lambda(self, nested):
+                return
+
+        visitor = Collector()
+        for statement in node.body:
+            visitor.visit(statement)
+
+        for callee in sorted(local_calls)[:MAX_EDGES_PER_FILE]:
+            calls.append({
+                "caller": name,
+                "callee": callee,
+                "line": node.lineno,
+            })
+
+        for deco in node.decorator_list:
+            if isinstance(deco, ast.Call):
+                decorator = expr_name(deco.func)
+                if decorator and decorator.split(".")[-1] in {
+                    "get", "post", "put", "delete", "patch", "api_route",
+                    "websocket",
+                }:
+                    url = None
+                    if deco.args and isinstance(deco.args[0], ast.Constant):
+                        if isinstance(deco.args[0].value, str):
+                            url = deco.args[0].value
+
+                    routes.append({
+                        "handler": name,
+                        "method": decorator.split(".")[-1].upper(),
+                        "path_fragment": url,
+                        "line": node.lineno,
+                        "note": "Prefix/router mounting not resolved",
+                    })
+
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            analyze_function(node)
+
+        elif isinstance(node, ast.ClassDef):
+            classes.append({"name": node.name, "line": node.lineno})
+            for child in node.body:
+                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    analyze_function(child, node.name)
+
+    for line_number, line in enumerate(content.splitlines(), 1):
+        if re.search(r"\b(TODO|FIXME|XXX|HACK)\b", line, re.I):
+            todo.append(line_number)
+            if len(todo) >= 100:
+                break
+
+    return {
+        "language": "python",
+        "module": module,
+        "imports": sorted(set(imports)),
+        "bindings": bindings,
+        "functions": definitions,
+        "classes": classes,
+        "calls": calls,
+        "routes": routes,
+        "todo_lines": todo,
+        "syntax": "PASS",
+    }
+
+JS_IMPORT_RE = re.compile(
+    r"""(?:import\s+(?:[\s\S]*?\s+from\s+)?|"""
+    r"""(?:export\s+[\s\S]*?\s+from\s+)|"""
+    r"""(?:require\s*\()\s*['"]([^'"]+)['"]""",
+    re.M,
+)
+
+JS_FUNCTION_RE = re.compile(
+    r"""(?:export\s+)?(?:default\s+)?(?:async\s+)?"""
+    r"""function\s+([A-Za-z_$][\w$]*)\s*\("""
+    r"""|(?:export\s+)?(?:const|let)\s+"""
+    r"""([A-Za-z_$][\w$]*)\s*="""
+    r"""\s*(?:async\s*)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>"""
+    r"""|(?:export\s+)?class\s+([A-Za-z_$][\w$]*)""",
+    re.M,
+)
+
+def js_analyze(path, content):
+    imports = sorted(set(JS_IMPORT_RE.findall(content)))
+    definitions = []
+
+    for match in JS_FUNCTION_RE.finditer(content):
+        name = next(
+            (value for value in match.groups() if value),
+            "anonymous",
+        )
+        definitions.append({
+            "name": name,
+            "line": content.count("\n", 0, match.start()) + 1,
+            "async": False,
+        })
+
+    return {
+        "language": "javascript_typescript",
+        "imports": imports,
+        "functions": definitions,
+        "classes": [],
+        "calls": [],
+        "routes": [],
+        "todo_lines": [
+            i for i, line in enumerate(content.splitlines(), 1)
+            if re.search(r"\b(TODO|FIXME|XXX|HACK)\b", line, re.I)
+        ][:100],
+        "syntax": "NOT_COMPILED",
+        "note": "JS/TS imports and declarations are lexical; not a full compiler AST",
+    }
+
+print("=" * 78)
+print("NEUROVEST — FULL SYSTEM STATIC INVENTORY V1")
+print("=" * 78)
+print("ROOT:", ROOT)
+print("REPORT:", OUT)
+print("MODE: READ-ONLY APPLICATION AND GIT")
+print(flush=True)
+
+files, skipped_files = find_sources()
+file_set = set(files)
+modules = {}
+
+for path in files:
+    if path.endswith(".py"):
+        modules[package_module(path)] = path
+
+inventory = {}
+findings = []
+domain_stats = collections.defaultdict(
+    lambda: {
+        "files": 0,
+        "functions": 0,
+        "tests": 0,
+        "imports": 0,
+        "routes": 0,
+        "parse_errors": 0,
+        "todo_markers": 0,
+    }
+)
+
+for index, relative in enumerate(files, 1):
+    path = ROOT / relative
+
+    try:
+        content = path.read_text(encoding="utf-8", errors="replace")
+        digest = hashlib.sha256(
+            content.encode("utf-8")
+        ).hexdigest()
+
+        if relative.endswith(".py"):
+            info = py_analyze(relative, content)
+        else:
+            info = js_analyze(relative, content)
+
+        info["sha256"] = digest
+
+    except Exception as exc:
+        info = {
+            "language": "unknown",
+            "imports": [],
+            "functions": [],
+            "classes": [],
+            "calls": [],
+            "routes": [],
+            "todo_lines": [],
+            "syntax": "FAIL",
+            "error_type": type(exc).__name__,
+            "error_line": getattr(exc, "lineno", None),
+        }
+
+        findings.append({
+            "severity": "HIGH",
+            "area": "source_integrity",
+            "file": relative,
+            "finding": "Unable to parse or read source",
+            "action": "Investigate source parse failure",
+            "error_type": type(exc).__name__,
+        })
+
+    info["domains"] = domain_for(relative)
+    info["is_test"] = (
+        "/tests/" in relative
+        or "/test/" in relative
+        or Path(relative).name.startswith("test_")
+        or ".test." in relative
+    )
+
+    inventory[relative] = info
+
+    for domain in info["domains"]:
+        stats = domain_stats[domain]
+        stats["files"] += 1
+        stats["functions"] += len(info["functions"])
+        stats["imports"] += len(info["imports"])
+        stats["routes"] += len(info["routes"])
+        stats["todo_markers"] += len(info["todo_lines"])
+        stats["tests"] += int(info["is_test"])
+        stats["parse_errors"] += int(info["syntax"] == "FAIL")
+
+    if index % 500 == 0:
+        print(f"SCANNED={index}/{len(files)}", flush=True)
+
+# Resolve Python imports to repository source where possible.
+module_connections = []
+function_connections = []
+unresolved_calls = []
+
+for path, info in inventory.items():
+    if info["language"] != "python":
+        continue
+
+    for imported in info["imports"]:
+        target = modules.get(imported)
+
+        if target is None:
+            pieces = imported.split(".")
+            for n in range(len(pieces) - 1, 0, -1):
+                target = modules.get(".".join(pieces[:n]))
+                if target:
+                    break
+
+        if target and target != path:
+            module_connections.append({
+                "from": path,
+                "to": target,
+                "import": imported,
+                "type": "static_import",
+            })
+
+    own_names = {
+        entry["name"]
+        for entry in info["functions"]
+    }
+    top_names = {
+        name.split(".")[0]
+        for name in own_names
+    }
+
+    for call in info["calls"]:
+        callee = call["callee"]
+        head = callee.split(".")[0]
+        target = None
+        resolution = "unresolved_or_external"
+
+        if callee in own_names or callee in top_names:
+            target = path
+            resolution = "same_module"
+
+        elif head in info["bindings"]:
+            import_path = info["bindings"][head]
+            parts = import_path.split(".")
+
+            for n in range(len(parts), 0, -1):
+                candidate = modules.get(".".join(parts[:n]))
+                if candidate:
+                    target = candidate
+                    resolution = "import_binding_candidate"
+                    break
+
+        if target:
+            function_connections.append({
+                "from_file": path,
+                "from_function": call["caller"],
+                "call": callee,
+                "to_file": target,
+                "resolution": resolution,
+            })
+        else:
+            unresolved_calls.append({
+                "file": path,
+                "function": call["caller"],
+                "call": callee,
+            })
+
+# Resolve local JS/TS imports to source paths.
+for path, info in inventory.items():
+    if info["language"] != "javascript_typescript":
+        continue
+
+    for imported in info["imports"]:
+        if not imported.startswith((".", "@/")):
+            continue
+
+        if imported.startswith("@/"):
+            base = ROOT / "frontend" / imported[2:]
+        else:
+            base = (ROOT / path).parent / imported
+
+        for suffix in (
+            "", ".ts", ".tsx", ".js", ".jsx", ".mjs",
+            "/index.ts", "/index.tsx",
+        ):
+            candidate = Path(str(base) + suffix)
+
+            try:
+                relative = candidate.resolve().relative_to(ROOT).as_posix()
+            except ValueError:
+                continue
+
+            if relative in file_set:
+                module_connections.append({
+                    "from": path,
+                    "to": relative,
+                    "import": imported,
+                    "type": "static_js_import",
+                })
+                break
+
+# Grade static evidence ONLY.
+# Cap grades at C until runtime/end-to-end verification.
+def letter(score):
+    if score >= 90:
+        return "A"
+    if score >= 80:
+        return "B"
+    if score >= 70:
+        return "C"
+    if score >= 60:
+        return "D"
+    return "F"
+
+grades = {}
+for domain in DOMAINS:
+    stats = dict(domain_stats[domain])
+    code_files = stats.get("files", 0) - stats.get("tests", 0)
+    tests = stats.get("tests", 0)
+    syntax_ok = stats.get("parse_errors", 0) == 0
+
+    score = 0
+    score += 30 if code_files > 0 else 0
+    score += 20 if syntax_ok and code_files > 0 else 0
+    score += 15 if tests > 0 else 0
+    score += 10 if stats.get("functions", 0) > 0 else 0
+
+    # Dynamic execution and product correctness are not established.
+    score = min(score, 70)
+
+    if code_files == 0:
+        reason = "No source identified in configured paths."
+    elif tests == 0:
+        reason = "Source present but no matching test files located."
+    elif not syntax_ok:
+        reason = "Source parse failures require correction."
+    else:
+        reason = (
+            "Static structure and test presence found; "
+            "runtime correctness and coverage not verified."
+        )
+
+    grades[domain] = {
+        "grade": letter(score),
+        "score": score,
+        "confidence": "PRELIMINARY_STATIC_ONLY",
+        "runtime_verified": False,
+        "source_files": code_files,
+        "test_files": tests,
+        "functions": stats.get("functions", 0),
+        "route_fragments": stats.get("routes", 0),
+        "todo_markers": stats.get("todo_markers", 0),
+        "parse_errors": stats.get("parse_errors", 0),
+        "reason": reason,
+    }
+
+    if not code_files:
+        findings.append({
+            "severity": "REVIEW",
+            "area": domain,
+            "finding": "Subsystem source not found in configured scan roots",
+            "action": "Verify module location and update inventory scope",
+        })
+    elif tests == 0:
+        findings.append({
+            "severity": "HIGH",
+            "area": domain,
+            "finding": "No domain test files discovered",
+            "action": "Locate existing tests or create domain regression suite",
+        })
+
+    if stats.get("parse_errors", 0):
+        findings.append({
+            "severity": "HIGH",
+            "area": domain,
+            "finding": "Source integrity failures",
+            "action": "Resolve syntax/read failures before release",
+        })
+
+    findings.append({
+        "severity": "UNVERIFIED",
+        "area": domain,
+        "finding": "End-to-end behavior not qualified in this static audit",
+        "action": "Run isolated integration, authorization and safety tests",
+    })
+
+# Git and configuration hygiene.
+git_data = {
+    "branch": run_git("branch", "--show-current"),
+    "head": run_git("rev-parse", "HEAD"),
+    "origin": run_git("remote", "get-url", "origin"),
+    "tracked_modified_count": None,
+    "tracked_staged_count": None,
+    "untracked_count": None,
+}
+
+for field, args in (
+    ("tracked_modified_count", ("diff", "--name-only")),
+    ("tracked_staged_count", ("diff", "--cached", "--name-only")),
+):
+    data = run_git(*args)
+    if data is not None:
+        git_data[field] = len(data.splitlines()) if data else 0
+
+# Count untracked by git without listing names or contents.
+try:
+    p = subprocess.Popen(
+        ["git", "ls-files", "--others", "--exclude-standard", "-z"],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+    )
+    count = 0
+    while True:
+        block = p.stdout.read(1024 * 1024)
+        if not block:
+            break
+        count += block.count(b"\0")
+    p.wait(timeout=60)
+    if p.returncode == 0:
+        git_data["untracked_count"] = count
+except Exception:
+    git_data["untracked_count"] = "UNKNOWN"
+
+# Private configuration hygiene: filenames only.
+sensitive_names = []
+for candidate in (
+    ".env",
+    ".env.local",
+    "frontend/.env",
+    "frontend/.env.local",
+    "backend/.env",
+    ".aws/credentials",
+):
+    if (ROOT / candidate).exists():
+        sensitive_names.append(candidate)
+
+git_data["sensitive_local_paths_present"] = sensitive_names
+
+if sensitive_names:
+    findings.append({
+        "severity": "REVIEW",
+        "area": "deployment_operations",
+        "finding": "Local sensitive configuration files exist",
+        "action": (
+            "Verify secrets are ignored and absent from tracked "
+            "files and release commit"
+        ),
+        "paths": sensitive_names,
+    })
+
+if isinstance(git_data["untracked_count"], int) and git_data["untracked_count"] > 10000:
+    findings.append({
+        "severity": "HIGH",
+        "area": "deployment_operations",
+        "finding": "Large untracked workspace",
+        "action": (
+            "Create allowlisted release manifest; never stage all "
+            "working-tree files blindly"
+        ),
+        "count": git_data["untracked_count"],
+    })
+
+# Release risks to verify dynamically.
+release_gates = {
+    "registration_terms_e2e": "UNVERIFIED",
+    "login_refresh_logout_revocation_e2e": "UNVERIFIED",
+    "cross_user_and_admin_authorization": "UNVERIFIED",
+    "market_provider_real_data": "UNVERIFIED",
+    "strategy_numerical_oracles": "UNVERIFIED",
+    "portfolio_provider_to_ui_chain": "UNVERIFIED",
+    "paper_orders_and_no_live_order_paths": "UNVERIFIED",
+    "ai_grounding_and_prompt_security": "UNVERIFIED",
+    "database_migration_upgrade_downgrade": "UNVERIFIED",
+    "frontend_build_and_route_smoke": "UNVERIFIED",
+    "production_deployment_and_rollback": "UNVERIFIED",
+    "secret_scan_of_release_manifest": "UNVERIFIED",
+    "full_test_regression": "UNVERIFIED",
+}
+
+# Write full static call tree.
+tree_lines = [
+    "NEUROVEST FULL SOURCE CONNECTION TREE",
+    "STATIC ANALYSIS ONLY — NOT EXECUTION PROOF",
+    f"Scanned source files: {len(files)}",
+    "",
+]
+
+for path in files:
+    info = inventory[path]
+    tree_lines.append(path)
+
+    if info["syntax"] == "FAIL":
+        tree_lines.append(
+            f"  └── PARSE ERROR: {info.get('error_type')}"
+        )
+        tree_lines.append("")
+        continue
+
+    own_connections = collections.defaultdict(list)
+
+    for edge in function_connections:
+        if edge["from_file"] == path:
+            own_connections[edge["from_function"]].append(edge)
+
+    for fn in info["functions"]:
+        name = fn["name"]
+        tree_lines.append(f"  ├── {name}() [line {fn['line']}]")
+
+        edges = own_connections.get(name, [])
+
+        for edge in edges[:100]:
+            tree_lines.append(
+                f"  │   ├── {edge['call']}()"
+                f" ---> {edge['to_file']}"
+                f" [{edge['resolution']}]"
+            )
+
+        if len(edges) > 100:
+            tree_lines.append(
+                f"  │   └── ... {len(edges) - 100} additional connections"
+            )
+
+    own_imports = [
+        edge for edge in module_connections
+        if edge["from"] == path
+    ]
+
+    if own_imports:
+        tree_lines.append("  └── SOURCE IMPORT CONNECTIONS")
+        for edge in own_imports[:150]:
+            tree_lines.append(
+                f"      ├── {edge['import']}"
+                f" ---> {edge['to']}"
+            )
+
+    if not info["functions"] and not own_imports:
+        tree_lines.append("  └── No statically identified source edges")
+
+    tree_lines.append("")
+
+# Graphviz: all source module connections.
+dot_lines = [
+    "digraph NeuroVest {",
+    '  graph [rankdir=LR, overlap=false, splines=true];',
+    '  node [shape=box, fontsize=9];',
+]
+
+for edge in module_connections:
+    a = json.dumps(edge["from"])
+    b = json.dumps(edge["to"])
+    dot_lines.append(f"  {a} -> {b};")
+
+dot_lines.append("}")
+
+# Grade markdown.
+grade_lines = [
+    "# NeuroVest Full-System Audit V1",
+    "",
+    f"Date (UTC): {STAMP}",
+    "",
+    "**Scope:** static source inventory and architecture mapping.",
+    "",
+    "**Not yet performed:** full runtime tests, authenticated E2E, "
+    "external provider validation, DB migrations, production deployment.",
+    "",
+    "**Grade meaning:** preliminary source/readiness evidence only. "
+    "Grades are capped at C until runtime qualification is complete.",
+    "",
+    "| Subsystem | Grade | Score | Source files | Tests | Findings |",
+    "|---|---|---:|---:|---:|---|",
+]
+
+for domain, data in grades.items():
+    grade_lines.append(
+        f"| {domain} | **{data['grade']}** | "
+        f"{data['score']}/100 | {data['source_files']} | "
+        f"{data['test_files']} | {data['reason']} |"
+    )
+
+grade_lines.extend([
+    "",
+    "## Mandatory release gates",
+    "",
+])
+
+for key, value in release_gates.items():
+    grade_lines.append(f"- **{key}:** {value}")
+
+grade_lines.extend([
+    "",
+    "## Priority improvements",
+    "",
+])
+
+for item in sorted(
+    findings,
+    key=lambda x: (
+        {"HIGH": 0, "REVIEW": 1, "UNVERIFIED": 2}.get(
+            x["severity"], 3
+        ),
+        x["area"],
+    ),
+):
+    grade_lines.append(
+        f"- **{item['severity']} | {item['area']}** — "
+        f"{item['finding']}. Action: {item['action']}"
+    )
+
+summary = {
+    "schema": "neurovest_full_system_static_audit_v1",
+    "created_utc": STAMP,
+    "source_file_count": len(files),
+    "python_files": sum(p.endswith(".py") for p in files),
+    "frontend_source_files": sum(
+        p.endswith((".ts", ".tsx", ".js", ".jsx", ".mjs"))
+        for p in files
+    ),
+    "defined_functions": sum(
+        len(x["functions"]) for x in inventory.values()
+    ),
+    "static_module_connections": len(module_connections),
+    "static_function_connections": len(function_connections),
+    "unresolved_or_external_function_calls": len(unresolved_calls),
+    "route_fragments": sum(
+        len(x["routes"]) for x in inventory.values()
+    ),
+    "parse_failures": sum(
+        x["syntax"] == "FAIL" for x in inventory.values()
+    ),
+    "skipped_oversized_files": skipped_files,
+    "grade_scope": "STATIC_ONLY_CAPPED_AT_C",
+    "application_modified": False,
+    "git_modified": False,
+    "database_modified": False,
+    "production_services_modified": False,
+}
+
+write_json("summary.json", summary)
+write_json("grades.json", grades)
+write_json("improvements.json", findings)
+write_json("source_inventory.json", inventory)
+write_json("module_connections.json", module_connections)
+write_json("function_connections.json", function_connections)
+write_json("unresolved_calls.json", unresolved_calls)
+write_json("release_gates.json", release_gates)
+write_json("git_hygiene.json", git_data)
+
+write_text("FULL_CONNECTION_TREE.txt", "\n".join(tree_lines) + "\n")
+write_text("MODULE_GRAPH.dot", "\n".join(dot_lines) + "\n")
+write_text("REPORT_CARD.md", "\n".join(grade_lines) + "\n")
+
+hashes = {}
+for path in sorted(OUT.iterdir()):
+    if path.is_file():
+        hashes[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
+
+write_json("artifact_hashes.json", hashes)
+
+print()
+print("=" * 78)
+print("NEUROVEST — AUDIT RESULTS")
+print("=" * 78)
+
+for key, value in summary.items():
+    if key != "skipped_oversized_files":
+        print(f"{key.upper()}={value}")
+
+print()
+print("FINTECH / AI PRELIMINARY GRADES")
+for domain, data in grades.items():
+    print(
+        f"{domain:24} "
+        f"{data['grade']} ({data['score']}/100) "
+        f"files={data['source_files']} tests={data['test_files']}"
+    )
+
+print()
+print("HIGH_PRIORITY_FINDINGS=",
+      sum(x["severity"] == "HIGH" for x in findings))
+
+print("GIT_BRANCH=", git_data["branch"])
+print("GIT_HEAD=", git_data["head"])
+print("TRACKED_MODIFIED=", git_data["tracked_modified_count"])
+print("UNTRACKED=", git_data["untracked_count"])
+
+print()
+print("FULL_TREE=", OUT / "FULL_CONNECTION_TREE.txt")
+print("GRAPHVIZ_DOT=", OUT / "MODULE_GRAPH.dot")
+print("REPORT_CARD=", OUT / "REPORT_CARD.md")
+print("IMPROVEMENTS=", OUT / "improvements.json")
+print("SOURCE_INVENTORY=", OUT / "source_inventory.json")
+print("REPORT_ROOT=", OUT)
+print()
+print("NEXT_GATE=RUNTIME_INTEGRATION_AND_SECURITY_TESTS")
+print("PUBLIC_BETA_APPROVAL=NOT_GRANTED")
+print("LIVE_TRADING_APPROVAL=NOT_GRANTED")
+print("TERMINAL_REMAINS_OPEN=YES")

@@ -74,6 +74,16 @@ ROUTE_POLICIES: tuple[RoutePolicy, ...] = (
     ),
     RoutePolicy(
         method='GET',
+        path_template='/api/v1/financial-analysis/readonly',
+        policy='AUTHENTICATED',
+    ),
+    RoutePolicy(
+        method='GET',
+        path_template='/api/v1/news',
+        policy='AUTHENTICATED',
+    ),
+    RoutePolicy(
+        method='GET',
         path_template='/api/v1/analytics',
         policy='AUTHENTICATED',
     ),
@@ -106,6 +116,11 @@ ROUTE_POLICIES: tuple[RoutePolicy, ...] = (
         method='GET',
         path_template='/api/v1/market-data/status',
         policy='PUBLIC',
+    ),
+    RoutePolicy(
+        method='GET',
+        path_template='/api/v1/market/live-prices',
+        policy='AUTHENTICATED',
     ),
     RoutePolicy(
         method='GET',

@@ -54,6 +54,73 @@ RESERVED_NON_SYMBOL_WORDS = frozenset(
 )
 
 
+
+def extract_strategy_name(message: str) -> str | None:
+    text = str(
+        message
+        or ""
+    ).strip()
+
+    if not text:
+        return None
+
+    #
+    # Strategy names may contain:
+    #
+    #   letters
+    #   numbers
+    #   underscore
+    #   hyphen
+    #   internal periods
+    #
+    # A period is deliberately NOT allowed as the final character,
+    # preventing normal sentence punctuation from becoming part of
+    # the persisted strategy name.
+    #
+    name_pattern = (
+        r'([A-Za-z0-9]'
+        r'(?:[A-Za-z0-9_.-]{0,126}[A-Za-z0-9_-])?)'
+    )
+
+    patterns = (
+        #
+        # "... named alpha_cross_01"
+        # "... called alpha_cross_01"
+        #
+        rf'(?i)\b(?:named|called)\s+["\']?'
+        rf'{name_pattern}'
+        rf'["\']?',
+
+        #
+        # "strategy name alpha_cross_01"
+        # "strategy name is alpha_cross_01"
+        #
+        rf'(?i)\bstrategy\s+name\s+(?:is\s+)?["\']?'
+        rf'{name_pattern}'
+        rf'["\']?',
+    )
+
+    for pattern in patterns:
+
+        match = re.search(
+            pattern,
+            text,
+        )
+
+        if match is None:
+            continue
+
+        value = str(
+            match.group(1)
+            or ""
+        ).strip()
+
+        if value:
+            return value
+
+    return None
+
+
 def extract_symbol(message: str) -> str | None:
     matches = re.findall(
         r"\b[A-Z]{2,5}(?:\.TO)?\b",
@@ -80,7 +147,38 @@ def capture_strategy_proposal(
     assistant_message: str,
     intent: str | None = None,
     symbol: str | None = None,
+    request_route: str | None = None,
+    *,
+    owner_user_id: str,
 ):
+    normalized_owner_user_id = str(
+        owner_user_id
+        or ""
+    ).strip()
+
+    if not normalized_owner_user_id:
+        raise ValueError(
+            "owner_user_id is required"
+        )
+
+
+    # Strategy Library identity/list/count requests are read-only
+    # account-context questions, never new strategy proposals.
+    #
+    # Fail closed at the persistence boundary even when the legacy
+    # intent classifier labels the request as trading_conversation.
+    if (
+        str(
+            request_route
+            or ""
+        ).strip().lower()
+        in {
+            "strategy_library_identity",
+            "strategy_library_list",
+            "strategy_library_count",
+        }
+    ):
+        return None
 
     if intent == "research_conversation":
         return None
@@ -88,13 +186,15 @@ def capture_strategy_proposal(
     if intent not in STRATEGY_CAPTURE_INTENTS:
         return None
 
-    if not looks_like_strategy_proposal(
-        user_message + "\n" + assistant_message
-    ):
+    if not looks_like_strategy_proposal(user_message):
         return None
 
     candidate_id = f"candidate_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:8]}"
     resolved_symbol = symbol or extract_symbol(user_message) or extract_symbol(assistant_message)
+    resolved_strategy_name = (
+        extract_strategy_name(user_message)
+        or extract_strategy_name(assistant_message)
+    )
 
     candidate = {
         "candidate_id": candidate_id,
@@ -103,6 +203,8 @@ def capture_strategy_proposal(
         "origin": "chat_ollama_proposal",
         "intent": intent,
         "symbol": resolved_symbol,
+        "strategy_name": resolved_strategy_name,
+        "owner_user_id": normalized_owner_user_id,
         "requires_user_approval": True,
         "requires_sandbox_test": True,
         "requires_promotion_review": True,

@@ -1,569 +1,2182 @@
+"use client";
+
 import Link from "next/link";
+import NeuroHeroModel from "@/components/landing/NeuroHeroModel";
 
-const platformFeatures = [
+
+const capabilities = [
   {
-    eyebrow: "Market Intelligence",
-    title: "See more than price.",
+    eyebrow: "PORTFOLIO INTELLIGENCE",
+    title: "See the whole picture.",
     description:
-      "Approved market data, portfolio context, historical observations, and strategy signals are brought together through controlled read paths.",
-    items: [
-      "Live market observation",
-      "Historical context",
-      "Portfolio visibility",
+      "See your positions, market context and portfolio signals together so you can understand what changed and what deserves your attention.",
+    detail:
+      "Positions · Analytics · Market context",
+  },
+  {
+    eyebrow: "AI INVESTMENT RESEARCH",
+    title: "Ask better questions.",
+    description:
+      "Ask Neuro about companies, markets and your portfolio, then bring research and financial context into one understandable conversation.",
+    detail:
+      "Research · Context · AI assistance",
+  },
+  {
+    eyebrow: "STRATEGY INTELLIGENCE",
+    title: "Test the idea before trusting it.",
+    description:
+      "Review evidence, historical behavior and risk before deciding whether an investment idea deserves your trust.",
+    detail:
+      "Strategies · Historical evaluation · Review",
+  },
+];
+
+
+const protections = [
+  {
+    title: "You stay in control",
+    description:
+      "NeuroVest is designed around governed actions and explicit user control rather than unrestricted autonomous execution.",
+  },
+  {
+    title: "Risk checked",
+    description:
+      "Risk controls sit between investment intelligence and execution-capable workflows.",
+  },
+  {
+    title: "Paper first",
+    description:
+      "Strategies can be evaluated in controlled paper workflows before real-world execution is ever considered.",
+  },
+  {
+    title: "Decisions stay traceable",
+    description:
+      "Important system decisions are designed to remain observable so behavior can be reviewed instead of hidden behind the AI.",
+  },
+];
+
+
+const productAreas = [
+  {
+    number: "01",
+    title: "Portfolio",
+    text: "Understand positions, portfolio context and analytics from one secured workspace.",
+  },
+  {
+    number: "02",
+    title: "Research",
+    text: "Bring market data, news and investment research into the same decision environment.",
+  },
+  {
+    number: "03",
+    title: "Neuro",
+    text: "Use AI as an investment-intelligence layer rather than an unexplained black box.",
+  },
+  {
+    number: "04",
+    title: "Strategies",
+    text: "Review ideas, model signals and strategy evidence before treating them as actionable.",
+  },
+  {
+    number: "05",
+    title: "Risk",
+    text: "Keep risk awareness and execution controls attached to the investment workflow.",
+  },
+  {
+    number: "06",
+    title: "Brokerage",
+    text: "Connect supported brokerage information to give NeuroVest useful portfolio context.",
+  },
+];
+
+
+const trustItems = [
+  "Execution stays under your control",
+  "Risk checks remain part of the workflow",
+  "Secure authenticated account access",
+  "Important decisions stay reviewable",
+  "Strategies can be tested before real-world use",
+  "Brokerage connections stay inside protected boundaries",
+];
+
+
+const footerGroups = [
+  {
+    title: "Product",
+    links: [
+      ["Dashboard", "/dashboard"],
+      ["Portfolio", "/user/dashboard"],
+      ["Strategies", "/strategy-library"],
+      ["Neuro AI", "/chat"],
+      ["Support", "/user/support"],
     ],
   },
   {
-    eyebrow: "Strategy and Risk",
-    title: "Every decision meets a boundary.",
-    description:
-      "Independent strategy and risk systems evaluate decisions before anything can progress toward an execution boundary.",
-    items: [
-      "Multi-strategy evaluation",
-      "Risk-gate enforcement",
-      "Decision audit trails",
+    title: "Investing & Trust",
+    links: [
+      ["How NeuroVest works", "#how-it-works"],
+      ["Safety & controls", "#safety"],
+      ["Security", "#security"],
+      ["System architecture", "/architecture"],
+      ["Disclosures", "/disclosures"],
     ],
   },
   {
-    eyebrow: "Neuro Intelligence",
-    title: "Local intelligence. Visible flow.",
-    description:
-      "Neuro combines local inference, controlled context, and observable runtime traces without surrendering authority to the frontend.",
-    items: [
-      "Local Ollama inference",
-      "Context-aware analysis",
-      "Observable execution paths",
+    title: "Account",
+    links: [
+      ["Get started", "/register"],
+      ["Sign in", "/login"],
+      ["Settings", "/user/settings"],
+      ["Brokerage", "/user/brokerage"],
     ],
   },
 ];
 
-const safetyItems = [
-  {
-    title: "Simulation first",
-    detail:
-      "Live trading remains disabled while the platform is qualified.",
-  },
-  {
-    title: "Risk governed",
-    detail:
-      "Frontend requests cannot bypass server-authoritative safety gates.",
-  },
-  {
-    title: "Observable",
-    detail:
-      "Declared architecture and real runtime activity remain distinguishable.",
-  },
-  {
-    title: "User controlled",
-    detail:
-      "Neuro supports decisions without operating beyond approved authority.",
-  },
-];
 
-const systemFlow = [
-  "Frontend",
-  "Authentication",
-  "Context",
-  "Market Data",
-  "Strategy",
-  "Risk",
-  "Neuro",
-  "Validation",
-  "Response",
-];
-
-export default function LandingPage() {
+function CheckIcon() {
   return (
-    <main className="min-h-screen overflow-hidden bg-[#020617] text-white">
-      <div className="landing-grid pointer-events-none fixed inset-0 opacity-50" />
+    <span className="checkIcon" aria-hidden="true">
+      ✓
+    </span>
+  );
+}
 
-      <header className="relative z-20 border-b border-white/5 bg-[#020617]/70 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-5 lg:px-10">
-          <Link
-            href="/"
-            className="group flex items-center gap-3"
-            aria-label="NeuroVest home"
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-300/30 bg-cyan-400/10 shadow-[0_0_28px_rgba(34,211,238,0.16)]">
-              <span className="h-3 w-3 rotate-45 border border-cyan-200" />
-            </span>
 
-            <span>
-              <span className="block text-sm font-black uppercase tracking-[0.36em] text-white">
-                NeuroVest
-              </span>
-              <span className="block text-[10px] uppercase tracking-[0.26em] text-cyan-300/70">
-                Intelligence Platform
-              </span>
-            </span>
+export default function Home() {
+
+  return (
+    <main className="siteShell">
+      <header className="navigation">
+        <Link href="/" className="brand" aria-label="NeuroVest home">
+          <span className="brandMark">N</span>
+
+          <span className="brandText">
+            Neuro<span>Vest</span>
+          </span>
+        </Link>
+
+        <nav className="desktopNav" aria-label="Main navigation">
+          <a href="#product">Product</a>
+          <a href="#safety">Safety</a>
+          <a href="#how-it-works">How it works</a>
+          <a href="#pricing">Pricing</a>
+        </nav>
+
+        <div className="navActions">
+          <Link href="/login" className="signIn">
+            Sign in
           </Link>
 
-          <nav
-            className="hidden items-center gap-7 text-sm text-slate-400 lg:flex"
-            aria-label="Primary navigation"
-          >
-            <a href="#platform" className="transition hover:text-white">
-              Platform
-            </a>
-            <a href="#how-it-works" className="transition hover:text-white">
-              How it works
-            </a>
-            <a href="#safety" className="transition hover:text-white">
-              Safety
-            </a>
-            <a href="#architecture" className="transition hover:text-white">
-              Architecture
-            </a>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="hidden rounded-xl border border-slate-700/80 px-4 py-2.5 text-sm font-bold text-slate-200 transition hover:border-cyan-300/40 hover:text-white sm:inline-flex"
-            >
-              Sign in
-            </Link>
-
-            <Link
-              href="/register"
-              className="inline-flex rounded-xl bg-cyan-300 px-4 py-2.5 text-sm font-black text-slate-950 shadow-[0_0_28px_rgba(34,211,238,0.22)] transition hover:bg-cyan-200"
-            >
-              Create account
-            </Link>
-          </div>
+          <Link href="/register" className="primaryButton smallButton">
+            Get started
+          </Link>
         </div>
       </header>
 
-      <section className="relative">
-        <div className="landing-orb landing-orb-cyan" />
-        <div className="landing-orb landing-orb-violet" />
 
-        <div className="relative mx-auto grid min-h-[770px] max-w-[1440px] items-center gap-16 px-6 py-20 lg:grid-cols-[0.92fr_1.08fr] lg:px-10 lg:py-24">
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-3 rounded-full border border-cyan-300/20 bg-cyan-400/5 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-cyan-200">
-              <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_14px_rgba(34,211,238,0.9)]" />
-              Private · Observable · Controlled
-            </div>
+      <section className="hero">
+        <div className="heroGlow heroGlowOne" />
+        <div className="heroGlow heroGlowTwo" />
 
-            <h1 className="mt-8 max-w-4xl text-5xl font-black leading-[0.98] tracking-[-0.045em] text-white sm:text-6xl xl:text-8xl">
-              Intelligence for
-              <span className="landing-gradient-text block">
-                every market decision.
-              </span>
-            </h1>
-
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-400 sm:text-xl">
-              A locally powered financial intelligence platform built to
-              observe markets, evaluate strategies, enforce risk boundaries,
-              and make system activity visible.
-            </p>
-
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/login"
-                className="inline-flex items-center justify-center rounded-2xl bg-cyan-300 px-6 py-4 text-sm font-black text-slate-950 shadow-[0_0_40px_rgba(34,211,238,0.22)] transition hover:-translate-y-0.5 hover:bg-cyan-200"
-              >
-                Enter NeuroVest
-                <span className="ml-3" aria-hidden="true">
-                  →
-                </span>
-              </Link>
-
-              <a
-                href="#platform"
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-700 bg-slate-950/40 px-6 py-4 text-sm font-bold text-slate-200 transition hover:border-cyan-300/30 hover:bg-slate-900/70"
-              >
-                Explore the platform
-              </a>
-            </div>
-
-            <div className="mt-10 grid max-w-2xl gap-3 sm:grid-cols-3">
-              {[
-                ["Simulation-first", "Controlled qualification"],
-                ["Risk-governed", "Server-authoritative"],
-                ["Locally powered", "Private AI runtime"],
-              ].map(([title, detail]) => (
-                <div
-                  key={title}
-                  className="rounded-2xl border border-white/5 bg-white/[0.025] p-4"
-                >
-                  <p className="text-sm font-black text-white">{title}</p>
-                  <p className="mt-1 text-xs text-slate-500">{detail}</p>
-                </div>
-              ))}
-            </div>
+        <div className="heroContent">
+          <div className="eyebrow">
+            AI INVESTMENT INTELLIGENCE · BUILT AROUND CONTROL
           </div>
 
-          <div className="relative mx-auto w-full max-w-[720px]">
-            <div className="absolute inset-10 rounded-full bg-cyan-400/10 blur-[110px]" />
-            <div className="absolute inset-x-20 bottom-10 top-28 rounded-full bg-fuchsia-500/10 blur-[120px]" />
+          <h1>
+            Invest with intelligence.
+            <span> Stay in control.</span>
+          </h1>
 
-            <div className="neuro-art-frame relative min-h-[560px] overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-950/55 p-5 shadow-[0_0_90px_rgba(34,211,238,0.08)] backdrop-blur-xl sm:min-h-[650px]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(34,211,238,0.12),transparent_36%),radial-gradient(circle_at_50%_72%,rgba(168,85,247,0.10),transparent_38%)]" />
-
-              <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/5 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-200">
-                <span className="h-2 w-2 rounded-full bg-emerald-300" />
-                Runtime protected
-              </div>
-
-              <div className="absolute right-5 top-5 rounded-full border border-amber-300/20 bg-amber-400/5 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-amber-200">
-                Live execution disabled
-              </div>
-
-              <div className="relative flex min-h-[520px] items-center justify-center sm:min-h-[610px]">
-                <div className="relative flex h-[370px] w-[310px] items-center justify-center sm:h-[470px] sm:w-[390px]">
-                  <div className="neuro-placeholder-ring absolute inset-0 rounded-full border border-cyan-300/15" />
-                  <div className="neuro-placeholder-ring neuro-placeholder-ring-delay absolute inset-10 rounded-full border border-fuchsia-300/15" />
-
-                  <div className="relative z-10 max-w-[270px] text-center">
-                    <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[2rem] border border-cyan-300/25 bg-cyan-400/5 shadow-[0_0_50px_rgba(34,211,238,0.12)]">
-                      <span className="text-4xl font-black text-cyan-200">
-                        N
-                      </span>
-                    </div>
-
-                    <p className="mt-7 text-xs font-black uppercase tracking-[0.34em] text-cyan-200">
-                      Neuro Visual
-                    </p>
-
-                    <h2 className="mt-3 text-3xl font-black text-white">
-                      Guardian intelligence
-                    </h2>
-
-                    <p className="mt-4 text-sm leading-6 text-slate-500">
-                      Reserved for the future Neuro artwork. The production
-                      layout remains complete until the final visual is added.
-                    </p>
-
-                    <code className="mt-5 block break-all rounded-xl border border-slate-800 bg-slate-950/70 px-3 py-2 text-[10px] text-slate-500">
-                      /images/neuro/neuro-hero.png
-                    </code>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute bottom-5 left-5 right-5 grid gap-2 sm:grid-cols-3">
-                {[
-                  ["AI", "LOCAL"],
-                  ["BROKER", "LOCKED"],
-                  ["MODE", "READ ONLY"],
-                ].map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="rounded-xl border border-white/5 bg-slate-950/70 px-3 py-3 backdrop-blur"
-                  >
-                    <p className="text-[9px] uppercase tracking-[0.2em] text-slate-600">
-                      {label}
-                    </p>
-                    <p className="mt-1 text-xs font-black text-slate-200">
-                      {value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-white/5 bg-slate-950/60">
-        <div className="mx-auto grid max-w-[1440px] gap-px bg-white/5 px-6 lg:grid-cols-4 lg:px-10">
-          {safetyItems.map((item) => (
-            <div
-              key={item.title}
-              className="bg-[#020617] px-6 py-8"
-            >
-              <p className="text-sm font-black uppercase tracking-[0.18em] text-cyan-200">
-                {item.title}
-              </p>
-              <p className="mt-3 text-sm leading-6 text-slate-500">
-                {item.detail}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section
-        id="platform"
-        className="relative mx-auto max-w-[1440px] px-6 py-28 lg:px-10"
-      >
-        <div className="max-w-3xl">
-          <p className="text-xs font-black uppercase tracking-[0.34em] text-cyan-300">
-            One controlled platform
+          <p className="heroCopy">
+            NeuroVest brings AI-powered research, portfolio intelligence,
+            strategy analysis and risk-aware workflows together in one
+            secured investing workspace.
           </p>
 
-          <h2 className="mt-5 text-4xl font-black tracking-[-0.03em] text-white sm:text-6xl">
-            Built to observe, evaluate, and explain.
+          <div className="heroActions">
+            <Link href="/register" className="primaryButton">
+              Get started
+              <span aria-hidden="true">→</span>
+            </Link>
+
+            <a href="#safety" className="secondaryButton">
+              See how you&apos;re protected
+            </a>
+          </div>
+
+          <div className="heroTrust">
+            <span>
+              <CheckIcon />
+              Human-controlled
+            </span>
+
+            <span>
+              <CheckIcon />
+              Paper-first workflows
+            </span>
+
+            <span>
+              <CheckIcon />
+              Risk-aware
+            </span>
+
+            <span>
+              <CheckIcon />
+              Traceable decisions
+            </span>
+          </div>
+        </div>
+
+
+        <div
+          className="heroProduct neuroHeroProduct"
+          aria-label="Neuro animated product companion"
+        >
+          <div className="neuroHeroHalo neuroHeroHaloOuter" />
+          <div className="neuroHeroHalo neuroHeroHaloInner" />
+
+          <div className="neuroHeroStatus">
+            <span className="statusDot" />
+            <span>NEURO · ACTIVE</span>
+          </div>
+
+          <NeuroHeroModel />
+
+          <div className="neuroHeroMessage neuroHeroMessageTop">
+            Understand your portfolio.
+          </div>
+
+          <div className="neuroHeroMessage neuroHeroMessageBottom">
+            See risk before acting.
+          </div>
+
+          <div className="neuroHeroCaption">
+            <span>AI INVESTMENT INTELLIGENCE</span>
+            <strong>Built to inform. You stay in control.</strong>
+          </div>
+        </div>
+      </section>
+
+
+      <section className="trustStrip" aria-label="NeuroVest protections">
+        <div>
+          <strong>CONTROL</strong>
+          <span>You authorize what matters.</span>
+        </div>
+
+        <div>
+          <strong>RISK</strong>
+          <span>Guardrails stay in the workflow.</span>
+        </div>
+
+        <div>
+          <strong>TRANSPARENCY</strong>
+          <span>Important decisions stay traceable.</span>
+        </div>
+
+        <div>
+          <strong>SECURITY</strong>
+          <span>Secure account access and protected boundaries.</span>
+        </div>
+      </section>
+
+
+      <section className="section productSection" id="product">
+        <div className="sectionIntro centered">
+          <div className="eyebrow">ONE INVESTING WORKSPACE</div>
+
+          <h2>
+            Understand more.
+            <span> Guess less.</span>
           </h2>
 
-          <p className="mt-6 text-lg leading-8 text-slate-400">
-            NeuroVest separates data, domain decisions, runtime orchestration,
-            safety, and presentation through explicit system boundaries.
+          <p>
+            NeuroVest connects the information investors normally chase
+            across different tools and puts it into one intelligent,
+            risk-aware environment.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {platformFeatures.map((feature, index) => (
-            <article
-              key={feature.title}
-              className="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/65 p-7 transition hover:-translate-y-1 hover:border-cyan-300/25"
-            >
-              <div className="absolute right-5 top-4 text-7xl font-black text-white/[0.025]">
-                0{index + 1}
-              </div>
+        <div className="capabilityGrid">
+          {capabilities.map((capability) => (
+            <article className="capabilityCard" key={capability.title}>
+              <div className="cardEyebrow">{capability.eyebrow}</div>
 
-              <p className="relative text-xs font-black uppercase tracking-[0.28em] text-cyan-300">
-                {feature.eyebrow}
-              </p>
+              <h3>{capability.title}</h3>
 
-              <h3 className="relative mt-5 text-2xl font-black text-white">
-                {feature.title}
-              </h3>
+              <p>{capability.description}</p>
 
-              <p className="relative mt-4 min-h-[96px] text-sm leading-7 text-slate-400">
-                {feature.description}
-              </p>
-
-              <div className="relative mt-7 space-y-3">
-                {feature.items.map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-center gap-3 text-sm text-slate-300"
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.8)]" />
-                    {item}
-                  </div>
-                ))}
-              </div>
+              <div className="cardDetail">{capability.detail}</div>
             </article>
           ))}
         </div>
       </section>
 
-      <section
-        id="architecture"
-        className="border-y border-white/5 bg-[#030712]"
-      >
-        <div className="mx-auto max-w-[1440px] px-6 py-28 lg:px-10">
-          <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:items-center">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.34em] text-fuchsia-300">
-                Observable by design
-              </p>
 
-              <h2 className="mt-5 text-4xl font-black tracking-[-0.03em] text-white sm:text-5xl">
-                See how a request moves through NeuroVest.
-              </h2>
+      <section className="section neuroSection">
+        <div className="neuroVisual">
+          <div className="neuroOrb">
+            <div className="orbCore">N</div>
+          </div>
 
-              <p className="mt-6 text-lg leading-8 text-slate-400">
-                Declared architecture stays visible while real runtime traces
-                illuminate only the components and connections that actually
-                execute.
-              </p>
+          <div className="questionCard questionOne">
+            What changed in my portfolio?
+          </div>
 
-              <Link
-                href="/login"
-                className="mt-8 inline-flex items-center text-sm font-black text-cyan-200"
-              >
-                Open the secured dashboard
-                <span className="ml-3">→</span>
-              </Link>
-            </div>
+          <div className="questionCard questionTwo">
+            Where is my risk concentrated?
+          </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-slate-950/75 p-5 sm:p-8">
-              <div className="flex flex-wrap items-center gap-2">
-                {systemFlow.map((item, index) => (
-                  <div
-                    key={item}
-                    className="flex items-center gap-2"
-                  >
-                    <div className="rounded-xl border border-cyan-300/15 bg-cyan-400/5 px-3 py-3 text-xs font-black text-cyan-100 sm:px-4">
-                      {item}
-                    </div>
-
-                    {index < systemFlow.length - 1 && (
-                      <span className="text-cyan-400/50">→</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {[
-                  ["Declared nodes", "Architecture"],
-                  ["Observed nodes", "Runtime"],
-                  ["Trace replay", "Evidence"],
-                ].map(([title, detail]) => (
-                  <div
-                    key={title}
-                    className="rounded-xl border border-slate-800 bg-slate-900/50 p-4"
-                  >
-                    <p className="text-sm font-black text-white">{title}</p>
-                    <p className="mt-1 text-xs text-slate-500">{detail}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="questionCard questionThree">
+            Explain this strategy.
           </div>
         </div>
-      </section>
 
-      <section
-        id="safety"
-        className="mx-auto max-w-[1440px] px-6 py-28 lg:px-10"
-      >
-        <div className="overflow-hidden rounded-[2.5rem] border border-amber-300/15 bg-[linear-gradient(135deg,rgba(120,53,15,0.12),rgba(15,23,42,0.7),rgba(88,28,135,0.08))] p-8 sm:p-12">
-          <div className="grid gap-12 lg:grid-cols-[1fr_0.9fr]">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.34em] text-amber-300">
-                Built to fail closed
-              </p>
+        <div className="sectionIntro">
+          <div className="eyebrow">MEET NEURO</div>
 
-              <h2 className="mt-5 text-4xl font-black tracking-[-0.03em] text-white sm:text-6xl">
-                Safety is part of the architecture.
-              </h2>
-
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-400">
-                Authentication remains server-authoritative. Broker execution,
-                portfolio mutation, and live trading remain unavailable until
-                separately qualified and approved.
-              </p>
-            </div>
-
-            <div className="grid gap-3">
-              {[
-                "Live trading disabled",
-                "Broker execution isolated",
-                "Risk boundaries enforced",
-                "Authentication server-authoritative",
-                "Important decisions auditable",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="flex items-center justify-between rounded-2xl border border-white/5 bg-slate-950/60 px-5 py-4"
-                >
-                  <span className="text-sm font-bold text-slate-200">
-                    {item}
-                  </span>
-                  <span className="text-emerald-300">✓</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="how-it-works"
-        className="border-t border-white/5 bg-slate-950/40"
-      >
-        <div className="mx-auto max-w-[1440px] px-6 py-28 lg:px-10">
-          <div className="text-center">
-            <p className="text-xs font-black uppercase tracking-[0.34em] text-cyan-300">
-              How it works
-            </p>
-
-            <h2 className="mt-5 text-4xl font-black tracking-[-0.03em] text-white sm:text-6xl">
-              Observe. Evaluate. Explain. Record.
-            </h2>
-          </div>
-
-          <div className="mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {[
-              [
-                "01",
-                "Observe",
-                "Gather approved market, portfolio, and account context.",
-              ],
-              [
-                "02",
-                "Evaluate",
-                "Run strategy and risk assessments through controlled services.",
-              ],
-              [
-                "03",
-                "Explain",
-                "Return grounded results with visible operational context.",
-              ],
-              [
-                "04",
-                "Record",
-                "Preserve reviewable decision and runtime evidence.",
-              ],
-            ].map(([number, title, detail]) => (
-              <div
-                key={number}
-                className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-7"
-              >
-                <p className="text-sm font-black text-cyan-300">{number}</p>
-                <h3 className="mt-8 text-2xl font-black text-white">{title}</h3>
-                <p className="mt-4 text-sm leading-7 text-slate-500">
-                  {detail}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative overflow-hidden border-t border-white/5">
-        <div className="landing-orb landing-orb-footer" />
-
-        <div className="relative mx-auto max-w-[1100px] px-6 py-28 text-center">
-          <p className="text-xs font-black uppercase tracking-[0.34em] text-cyan-300">
-            Stay in command
-          </p>
-
-          <h2 className="mt-6 text-4xl font-black tracking-[-0.04em] text-white sm:text-6xl">
-            Your market intelligence should work for you.
+          <h2>
+            AI that works with
+            <span> investment context.</span>
           </h2>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-400">
-            Enter the controlled NeuroVest environment to explore the current
-            dashboard, runtime graph, and read-only intelligence systems.
+          <p>
+            Neuro is designed to help you explore markets, understand
+            portfolio information, investigate strategies and make sense of
+            the signals around your investments.
           </p>
 
-          <Link
-            href="/login"
-            className="mt-10 inline-flex rounded-2xl bg-cyan-300 px-7 py-4 text-sm font-black text-slate-950 shadow-[0_0_38px_rgba(34,211,238,0.22)] transition hover:bg-cyan-200"
-          >
-            Sign in to NeuroVest
+          <ul className="featureList">
+            <li>
+              <CheckIcon />
+              Ask questions about investment and portfolio context
+            </li>
+
+            <li>
+              <CheckIcon />
+              Bring research and market information into the conversation
+            </li>
+
+            <li>
+              <CheckIcon />
+              Explore strategy and risk information in plain language
+            </li>
+
+            <li>
+              <CheckIcon />
+              Keep AI inside governed product boundaries
+            </li>
+          </ul>
+
+          <Link href="/chat" className="textLink">
+            Explore Neuro
+            <span>→</span>
           </Link>
         </div>
       </section>
 
-      <footer className="border-t border-white/5 bg-[#01040c]">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-8 px-6 py-10 lg:flex-row lg:items-center lg:justify-between lg:px-10">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.3em] text-white">
-              NeuroVest
-            </p>
-            <p className="mt-2 text-sm text-slate-600">
-              Private. Observable. Controlled.
+
+      <section className="safetySection" id="safety">
+        <div className="section safetyInner">
+          <div className="sectionIntro safetyIntro">
+            <div className="eyebrow warningEyebrow">
+              SAFETY IS PART OF THE PRODUCT
+            </div>
+
+            <h2>
+              Powerful intelligence.
+              <span> Guardrails included.</span>
+            </h2>
+
+            <p>
+              Financial AI should not require blind trust. NeuroVest is
+              designed so risk controls, review and user authority remain
+              part of the workflow.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-5 text-sm text-slate-500">
-            <a href="#platform" className="hover:text-white">
-              Platform
-            </a>
-            <a href="#safety" className="hover:text-white">
-              Safety
-            </a>
-            <a href="#architecture" className="hover:text-white">
-              Architecture
-            </a>
-            <Link href="/login" className="hover:text-white">
-              Sign in
-            </Link>
+          <div className="protectionGrid">
+            {protections.map((protection) => (
+              <article className="protectionCard" key={protection.title}>
+                <div className="protectionIcon">
+                  <CheckIcon />
+                </div>
+
+                <h3>{protection.title}</h3>
+
+                <p>{protection.description}</p>
+              </article>
+            ))}
           </div>
 
-          <div className="text-xs leading-5 text-slate-600">
-            <p>Broker execution: Disabled</p>
-            <p>Live trading: Disabled</p>
+          <div className="executionBanner">
+            <div>
+              <span className="statusDot" />
+              <div>
+                <small>EXECUTION STATUS</small>
+                <strong>Controlled by design</strong>
+              </div>
+            </div>
+
+            <p>
+              Intelligence can inform a decision without automatically
+              becoming one.
+            </p>
           </div>
         </div>
+      </section>
+
+
+      <section className="section" id="how-it-works">
+        <div className="sectionIntro centered">
+          <div className="eyebrow">WHAT YOU GET</div>
+
+          <h2>
+            One product.
+            <span> Six connected views.</span>
+          </h2>
+
+          <p>
+            Move from understanding your portfolio to researching an idea,
+            evaluating strategy and reviewing risk without losing context.
+          </p>
+        </div>
+
+        <div className="productAreaGrid">
+          {productAreas.map((area) => (
+            <article className="productArea" key={area.number}>
+              <span>{area.number}</span>
+              <h3>{area.title}</h3>
+              <p>{area.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+
+      <section className="section trustSection" id="security">
+        <div className="trustCopy">
+          <div className="eyebrow">TRUST SHOULD BE EARNED</div>
+
+          <h2>
+            Built for people who
+            <span> want control.</span>
+          </h2>
+
+          <p>
+            NeuroVest does not treat security, risk and observability as
+            footnotes. They are part of how the product is designed to
+            operate.
+          </p>
+
+                    <p className="trustNote">
+            Designed so intelligence supports your decisions without taking
+            control away from you.
+          </p>
+        </div>
+
+        <div className="trustChecklist">
+          {trustItems.map((item) => (
+            <div key={item}>
+              <CheckIcon />
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+
+      <section className="section pricingSection" id="pricing">
+        <div className="sectionIntro centered">
+          <div className="eyebrow">NEUROVEST MEMBERSHIP</div>
+
+          <h2>
+            Start with intelligence.
+            <span> Upgrade when you need more.</span>
+          </h2>
+
+          <p>
+            Start with the core NeuroVest experience, then unlock advanced
+            AI, research, strategy and connected portfolio intelligence as
+            your needs grow.
+          </p>
+
+          
+        </div>
+
+        <div className="pricingGrid">
+          <article className="priceCard">
+            <div className="priceTop">
+              <span>START</span>
+              <h3>Explore NeuroVest</h3>
+              <p>
+                Get into the platform and experience the core investing
+                workspace.
+              </p>
+            </div>
+
+            <div className="price">
+              <strong>Free</strong>
+              <span>to get started</span>
+            </div>
+
+            <ul>
+              <li><CheckIcon /> Core dashboard</li>
+              <li><CheckIcon /> Market information</li>
+              <li><CheckIcon /> Portfolio workspace</li>
+              <li><CheckIcon /> Controlled product experience</li>
+            </ul>
+
+            <Link href="/register" className="secondaryButton fullButton">
+              Get started
+            </Link>
+          </article>
+
+          <article className="priceCard featuredPrice">
+            <div className="popularTag">FULL INTELLIGENCE</div>
+
+            <div className="priceTop">
+              <span>NEUROVEST</span>
+              <h3>Unlock the full platform</h3>
+              <p>
+                Advanced AI, strategy, research and connected investment
+                intelligence.
+              </p>
+            </div>
+
+            <div className="price">
+              <strong>Early access</strong>
+              <span>Full membership launching soon</span>
+            </div>
+
+            <ul>
+              <li><CheckIcon /> Neuro AI intelligence</li>
+              <li><CheckIcon /> Strategy analysis</li>
+              <li><CheckIcon /> Research workflows</li>
+              <li><CheckIcon /> Risk-aware tooling</li>
+              <li><CheckIcon /> Brokerage-connected context</li>
+            </ul>
+
+            <Link href="/register" className="primaryButton fullButton">
+              Join early access
+            </Link>
+          </article>
+        </div>
+
+        <p className="pricingDisclosure">
+          Investing involves risk. NeuroVest provides technology and
+          investment-intelligence tools; it does not guarantee investment
+          performance or protection from market losses.
+        </p>
+      </section>
+
+
+      <section className="finalCta">
+        <div className="finalGlow" />
+
+        <div className="eyebrow">INVESTING INTELLIGENCE, WITH CONTROL</div>
+
+        <h2>
+          See more of the picture.
+          <span> Keep the final say.</span>
+        </h2>
+
+        <p>
+          Bring your portfolio, research, AI and strategy intelligence into
+          one controlled workspace.
+        </p>
+
+        <div className="heroActions centeredActions">
+          <Link href="/register" className="primaryButton">
+            Get started
+            <span>→</span>
+          </Link>
+
+          <Link href="/login" className="secondaryButton">
+            Sign in
+          </Link>
+        </div>
+      </section>
+
+
+      <footer className="footer">
+        <div className="footerTop">
+          <div className="footerBrand">
+            <Link href="/" className="brand">
+              <span className="brandMark">N</span>
+
+              <span className="brandText">
+                Neuro<span>Vest</span>
+              </span>
+            </Link>
+
+            <p>
+              AI-powered investment intelligence designed around
+              understanding, risk awareness and user control.
+            </p>
+          </div>
+
+          <div className="footerLinks">
+            {footerGroups.map((group) => (
+              <div key={group.title}>
+                <strong>{group.title}</strong>
+
+                {group.links.map(([label, href]) => (
+                  <Link href={href} key={label}>
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="footerBottom">
+          <span>© 2026 NeuroVest. All rights reserved.</span>
+
+          <span>
+            Investing involves risk, including possible loss of principal.
+          </span>
+        </div>
       </footer>
+
+
+      <style jsx global>{`
+        :root {
+          --background: #020713;
+          --surface: #07101f;
+          --surface-2: #0a1425;
+          --border: rgba(148, 163, 184, 0.16);
+          --border-bright: rgba(82, 229, 255, 0.28);
+          --text: #f7fafc;
+          --muted: #91a0b7;
+          --cyan: #56e8ff;
+          --cyan-soft: #8ff1ff;
+          --purple: #c985ff;
+          --yellow: #ffd84d;
+          --green: #52e6a4;
+        }
+
+        * {
+          box-sizing: border-box;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        body {
+          margin: 0;
+          background: var(--background);
+          color: var(--text);
+          font-family:
+            Inter,
+            ui-sans-serif,
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
+        }
+
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        button {
+          font: inherit;
+        }
+
+        .siteShell {
+          min-height: 100vh;
+          overflow: hidden;
+          background:
+            radial-gradient(
+              circle at 50% -20%,
+              rgba(20, 76, 110, 0.18),
+              transparent 36rem
+            ),
+            #020713;
+        }
+
+        .navigation {
+          position: relative;
+          z-index: 50;
+          height: 76px;
+          max-width: 1240px;
+          margin: 0 auto;
+          padding: 0 28px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .brand {
+          display: inline-flex;
+          align-items: center;
+          gap: 11px;
+          font-weight: 800;
+        }
+
+        .brandMark,
+        .miniMark {
+          display: grid;
+          place-items: center;
+          border: 1px solid rgba(86, 232, 255, 0.5);
+          background:
+            linear-gradient(
+              145deg,
+              rgba(86, 232, 255, 0.18),
+              rgba(201, 133, 255, 0.08)
+            );
+          color: var(--cyan);
+          box-shadow: 0 0 24px rgba(86, 232, 255, 0.1);
+        }
+
+        .brandMark {
+          width: 34px;
+          height: 34px;
+          border-radius: 10px;
+        }
+
+        .brandText {
+          font-size: 19px;
+          letter-spacing: -0.03em;
+        }
+
+        .brandText span {
+          color: var(--cyan);
+        }
+
+        .desktopNav {
+          display: flex;
+          align-items: center;
+          gap: 32px;
+          color: #9ca9bc;
+          font-size: 14px;
+        }
+
+        .desktopNav a:hover,
+        .signIn:hover {
+          color: white;
+        }
+
+        .navActions {
+          display: flex;
+          align-items: center;
+          gap: 18px;
+        }
+
+        .signIn {
+          color: #aab5c6;
+          font-size: 14px;
+        }
+
+        .primaryButton,
+        .secondaryButton {
+          min-height: 48px;
+          padding: 0 21px;
+          border-radius: 11px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          font-weight: 750;
+          font-size: 14px;
+          transition:
+            transform 160ms ease,
+            border-color 160ms ease,
+            background 160ms ease;
+        }
+
+        .primaryButton {
+          color: #001018;
+          background:
+            linear-gradient(
+              135deg,
+              #8ef4ff,
+              #4fdcff
+            );
+          box-shadow:
+            0 10px 35px rgba(71, 221, 255, 0.14);
+        }
+
+        .primaryButton:hover,
+        .secondaryButton:hover {
+          transform: translateY(-2px);
+        }
+
+        .secondaryButton {
+          border: 1px solid rgba(148, 163, 184, 0.22);
+          background: rgba(10, 20, 37, 0.58);
+          color: #dbe5f2;
+        }
+
+        .smallButton {
+          min-height: 39px;
+          padding: 0 16px;
+          border-radius: 9px;
+        }
+
+        .hero {
+          position: relative;
+          max-width: 1240px;
+          min-height: 720px;
+          margin: 0 auto;
+          padding: 88px 28px 72px;
+          display: grid;
+          grid-template-columns: minmax(0, 0.88fr) minmax(560px, 1.12fr);
+          gap: 72px;
+          align-items: center;
+        }
+
+        .heroGlow {
+          position: absolute;
+          pointer-events: none;
+          filter: blur(1px);
+        }
+
+        .heroGlowOne {
+          width: 600px;
+          height: 500px;
+          left: -300px;
+          top: 0;
+          background:
+            radial-gradient(
+              circle,
+              rgba(201, 133, 255, 0.08),
+              transparent 65%
+            );
+        }
+
+        .heroGlowTwo {
+          width: 700px;
+          height: 600px;
+          right: -260px;
+          top: 20px;
+          background:
+            radial-gradient(
+              circle,
+              rgba(86, 232, 255, 0.09),
+              transparent 65%
+            );
+        }
+
+        .heroContent {
+          position: relative;
+          z-index: 2;
+        }
+
+        .eyebrow,
+        .cardEyebrow {
+          color: var(--cyan);
+          font-size: 11px;
+          line-height: 1.4;
+          font-weight: 850;
+          letter-spacing: 0.22em;
+        }
+
+        .hero h1 {
+          max-width: 650px;
+          margin: 20px 0 24px;
+          font-size: clamp(48px, 5.4vw, 78px);
+          line-height: 0.99;
+          letter-spacing: -0.055em;
+        }
+
+        .hero h1 span,
+        .sectionIntro h2 span,
+        .finalCta h2 span,
+        .trustCopy h2 span {
+          color: #a7b6ca;
+        }
+
+        .heroCopy {
+          max-width: 610px;
+          margin: 0;
+          color: #9aa9be;
+          font-size: 18px;
+          line-height: 1.75;
+        }
+
+        .heroActions {
+          margin-top: 34px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+
+        .heroTrust {
+          margin-top: 29px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px 22px;
+          color: #8898ad;
+          font-size: 12px;
+        }
+
+        .heroTrust span {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+        }
+
+        .checkIcon {
+          width: 18px;
+          height: 18px;
+          flex: 0 0 18px;
+          border-radius: 50%;
+          display: inline-grid;
+          place-items: center;
+          color: var(--green);
+          background: rgba(82, 230, 164, 0.09);
+          font-size: 11px;
+          font-weight: 900;
+        }
+
+        .heroProduct {
+          position: relative;
+          z-index: 2;
+          perspective: 1200px;
+        }
+
+        .productWindow {
+          overflow: hidden;
+          border: 1px solid rgba(86, 232, 255, 0.18);
+          border-radius: 18px;
+          background: #060d19;
+          box-shadow:
+            0 50px 120px rgba(0, 0, 0, 0.42),
+            0 0 70px rgba(86, 232, 255, 0.05);
+          transform: rotateY(-2deg) rotateX(1deg);
+        }
+
+        .windowHeader {
+          height: 49px;
+          padding: 0 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid var(--border);
+          background: rgba(255, 255, 255, 0.015);
+          font-size: 11px;
+        }
+
+        .windowBrand {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 750;
+        }
+
+        .miniMark {
+          width: 23px;
+          height: 23px;
+          border-radius: 7px;
+          font-size: 10px;
+        }
+
+        .windowStatus {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          color: #8aa0b5;
+          letter-spacing: 0.08em;
+        }
+
+        .windowStatus > span,
+        .statusDot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: var(--green);
+          box-shadow: 0 0 12px rgba(82, 230, 164, 0.65);
+        }
+
+        .windowBody {
+          min-height: 390px;
+          display: grid;
+          grid-template-columns: 112px 1fr;
+        }
+
+        .previewSidebar {
+          padding: 24px 12px;
+          border-right: 1px solid var(--border);
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          color: #63758c;
+          font-size: 10px;
+        }
+
+        .previewSidebar div {
+          padding: 9px 10px;
+          border-radius: 7px;
+        }
+
+        .previewSidebar .sidebarActive {
+          color: var(--cyan-soft);
+          background: rgba(86, 232, 255, 0.07);
+        }
+
+        .previewMain {
+          padding: 25px;
+        }
+
+        .previewTopline {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 20px;
+        }
+
+        .previewTopline > div {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .previewTopline small,
+        .metricCard small,
+        .intelligenceHeader small,
+        .executionBanner small {
+          color: #65778d;
+          font-size: 9px;
+          letter-spacing: 0.1em;
+        }
+
+        .previewTopline strong {
+          font-size: 20px;
+        }
+
+        .protectedBadge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 7px 9px;
+          border: 1px solid rgba(82, 230, 164, 0.15);
+          border-radius: 999px;
+          color: #82ddb5;
+          background: rgba(82, 230, 164, 0.05);
+          font-size: 9px;
+        }
+
+        .metricGrid {
+          margin-top: 24px;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 10px;
+        }
+
+        .metricCard {
+          min-width: 0;
+          padding: 15px;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          background: #081120;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .metricCard strong {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-size: 15px;
+        }
+
+        .metricCard span {
+          color: #62748a;
+          font-size: 9px;
+        }
+
+        .intelligenceCard {
+          margin-top: 13px;
+          padding: 18px;
+          border: 1px solid rgba(86, 232, 255, 0.14);
+          border-radius: 12px;
+          background:
+            linear-gradient(
+              145deg,
+              rgba(86, 232, 255, 0.035),
+              rgba(201, 133, 255, 0.025)
+            );
+        }
+
+        .intelligenceHeader {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .intelligenceHeader > div {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        .intelligenceHeader strong {
+          font-size: 12px;
+        }
+
+        .intelligenceHeader > span {
+          padding: 6px 8px;
+          border: 1px solid rgba(201, 133, 255, 0.18);
+          border-radius: 7px;
+          color: #d8adff;
+          font-size: 9px;
+        }
+
+        .intelligenceCard p {
+          margin: 22px 0 16px;
+          color: #b4c0d0;
+          font-size: 11px;
+          line-height: 1.6;
+        }
+
+        .responseLine {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #60748b;
+          font-size: 9px;
+        }
+
+        .responseLine span {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--cyan);
+          box-shadow: 0 0 10px rgba(86, 232, 255, 0.7);
+        }
+
+        .neuroHeroProduct {
+          position: relative;
+          min-height: 515px;
+          overflow: hidden;
+          isolation: isolate;
+          display: block;
+          background:
+            radial-gradient(
+              circle at 52% 45%,
+              rgba(86, 232, 255, 0.11),
+              transparent 34%
+            ),
+            linear-gradient(
+              180deg,
+              rgba(8, 18, 34, 0.93),
+              rgba(3, 9, 20, 0.98)
+            );
+        }
+
+        .neuroHeroProduct::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          pointer-events: none;
+          background:
+            linear-gradient(
+              90deg,
+              rgba(86, 232, 255, 0.025) 1px,
+              transparent 1px
+            ),
+            linear-gradient(
+              rgba(86, 232, 255, 0.025) 1px,
+              transparent 1px
+            );
+          background-size: 46px 46px;
+          mask-image:
+            linear-gradient(
+              to bottom,
+              transparent,
+              black 25%,
+              black 75%,
+              transparent
+            );
+        }
+
+        .neuroModelRoot {
+          position: absolute;
+          z-index: 3;
+          inset: 22px 20px 26px;
+        }
+
+        .neuroModelStage,
+        .neuroModelFallback {
+          position: absolute;
+          inset: 0;
+        }
+
+        .neuroModelStage {
+          z-index: 2;
+          pointer-events: none;
+          opacity: 0;
+          transition:
+            opacity 420ms ease;
+        }
+
+        .neuroModelStageVisible {
+          opacity: 1;
+        }
+
+        .neuroModelStageLoading {
+          opacity: 0;
+        }
+
+        .neuroModelFallback {
+          z-index: 1;
+          display: grid;
+          place-items: center;
+          opacity: 1;
+          transition:
+            opacity 420ms ease;
+        }
+
+        .neuroModelFallbackVisible {
+          opacity: 1;
+        }
+
+        .neuroModelFallbackHidden {
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .neuroModelStage model-viewer {
+          --poster-color: transparent;
+        }
+
+        .neuroModelFallback img {
+          width: min(92%, 520px);
+          height: auto;
+          object-fit: contain;
+          filter:
+            drop-shadow(
+              0 32px 45px rgba(0, 0, 0, 0.4)
+            );
+        }
+
+        .neuroHeroHalo {
+          position: absolute;
+          z-index: 1;
+          left: 50%;
+          top: 47%;
+          translate: -50% -50%;
+          border: 1px solid rgba(86, 232, 255, 0.1);
+          border-radius: 50%;
+          pointer-events: none;
+        }
+
+        .neuroHeroHaloOuter {
+          width: 390px;
+          height: 390px;
+          box-shadow:
+            0 0 90px rgba(86, 232, 255, 0.045);
+        }
+
+        .neuroHeroHaloInner {
+          width: 260px;
+          height: 260px;
+          border-color: rgba(86, 232, 255, 0.16);
+        }
+
+        .neuroHeroStatus {
+          position: absolute;
+          z-index: 6;
+          top: 20px;
+          right: 22px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #8296ad;
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: 0.14em;
+        }
+
+        .statusDot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #56e6a6;
+          box-shadow:
+            0 0 14px rgba(86, 230, 166, 0.8);
+        }
+
+        .neuroHeroMessage {
+          position: absolute;
+          z-index: 6;
+          padding: 10px 13px;
+          border:
+            1px solid rgba(86, 232, 255, 0.14);
+          border-radius: 10px;
+          color: #9cb0c7;
+          background: rgba(4, 12, 25, 0.78);
+          backdrop-filter: blur(10px);
+          font-size: 10px;
+          box-shadow:
+            0 18px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .neuroHeroMessageTop {
+          left: 22px;
+          top: 56px;
+        }
+
+        .neuroHeroMessageBottom {
+          right: 22px;
+          bottom: 76px;
+        }
+
+        .neuroHeroCaption {
+          position: absolute;
+          z-index: 6;
+          left: 22px;
+          right: 22px;
+          bottom: 18px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 20px;
+          color: #687d94;
+          font-size: 8px;
+          letter-spacing: 0.11em;
+        }
+
+        .neuroHeroCaption strong {
+          color: #aab9ca;
+          font-size: 9px;
+          font-weight: 600;
+          letter-spacing: 0;
+        }
+
+        .trustStrip {
+          max-width: 1184px;
+          margin: 0 auto;
+          padding: 0 28px 68px;
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+        }
+
+        .trustStrip > div {
+          min-height: 84px;
+          padding: 19px 22px;
+          border-top: 1px solid var(--border);
+          border-bottom: 1px solid var(--border);
+          border-right: 1px solid var(--border);
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+        }
+
+        .trustStrip > div:first-child {
+          border-left: 1px solid var(--border);
+          border-radius: 12px 0 0 12px;
+        }
+
+        .trustStrip > div:last-child {
+          border-radius: 0 12px 12px 0;
+        }
+
+        .trustStrip strong {
+          color: #d8e3ef;
+          font-size: 10px;
+          letter-spacing: 0.16em;
+        }
+
+        .trustStrip span {
+          color: #718298;
+          font-size: 11px;
+          line-height: 1.5;
+        }
+
+        .section {
+          max-width: 1184px;
+          margin: 0 auto;
+          padding: 92px 28px;
+        }
+
+        .sectionIntro {
+          max-width: 590px;
+        }
+
+        .sectionIntro.centered {
+          margin: 0 auto;
+          text-align: center;
+        }
+
+        .sectionIntro h2,
+        .trustCopy h2,
+        .finalCta h2 {
+          margin: 17px 0 20px;
+          font-size: clamp(38px, 4.2vw, 58px);
+          line-height: 1.05;
+          letter-spacing: -0.045em;
+        }
+
+        .sectionIntro p,
+        .trustCopy p,
+        .finalCta p {
+          color: #9eacc0;
+          font-size: 16px;
+          line-height: 1.75;
+        }
+
+        .capabilityGrid {
+          margin-top: 62px;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+        }
+
+        .capabilityCard {
+          min-height: 320px;
+          padding: 30px;
+          border: 1px solid var(--border);
+          border-radius: 17px;
+          background:
+            linear-gradient(
+              160deg,
+              rgba(10, 20, 37, 0.92),
+              rgba(5, 11, 22, 0.8)
+            );
+        }
+
+        .capabilityCard:nth-child(2) {
+          border-color: rgba(86, 232, 255, 0.2);
+        }
+
+        .capabilityCard h3 {
+          margin: 48px 0 16px;
+          font-size: 27px;
+          letter-spacing: -0.035em;
+        }
+
+        .capabilityCard p {
+          margin: 0;
+          color: #95a6ba;
+          line-height: 1.7;
+          font-size: 14px;
+        }
+
+        .cardDetail {
+          margin-top: 26px;
+          padding-top: 17px;
+          border-top: 1px solid var(--border);
+          color: #62758c;
+          font-size: 10px;
+          letter-spacing: 0.04em;
+        }
+
+        .neuroSection {
+          display: grid;
+          grid-template-columns: 1fr 0.85fr;
+          gap: 100px;
+          align-items: center;
+        }
+
+        .neuroVisual {
+          position: relative;
+          min-height: 520px;
+          display: grid;
+          place-items: center;
+          border: 1px solid var(--border);
+          border-radius: 24px;
+          background:
+            radial-gradient(
+              circle at center,
+              rgba(86, 232, 255, 0.07),
+              transparent 44%
+            ),
+            #050b16;
+        }
+
+        .neuroOrb {
+          width: 180px;
+          height: 180px;
+          border: 1px solid rgba(86, 232, 255, 0.2);
+          border-radius: 50%;
+          display: grid;
+          place-items: center;
+          box-shadow:
+            0 0 80px rgba(86, 232, 255, 0.08),
+            inset 0 0 45px rgba(201, 133, 255, 0.04);
+        }
+
+        .orbCore {
+          width: 94px;
+          height: 94px;
+          border-radius: 30px;
+          display: grid;
+          place-items: center;
+          color: var(--cyan);
+          border: 1px solid rgba(86, 232, 255, 0.35);
+          background: rgba(86, 232, 255, 0.06);
+          font-size: 30px;
+          font-weight: 850;
+          box-shadow: 0 0 45px rgba(86, 232, 255, 0.12);
+        }
+
+        .questionCard {
+          position: absolute;
+          padding: 12px 16px;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          color: #9eb0c5;
+          background: rgba(7, 16, 31, 0.94);
+          font-size: 11px;
+          box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .questionOne {
+          top: 85px;
+          left: 32px;
+        }
+
+        .questionTwo {
+          right: 26px;
+          top: 175px;
+        }
+
+        .questionThree {
+          left: 52px;
+          bottom: 75px;
+        }
+
+        .featureList {
+          margin: 28px 0 0;
+          padding: 0;
+          list-style: none;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          color: #a0aec0;
+          font-size: 14px;
+        }
+
+        .featureList li {
+          display: flex;
+          gap: 10px;
+          align-items: flex-start;
+          line-height: 1.5;
+        }
+
+        .textLink {
+          margin-top: 30px;
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+          color: var(--cyan);
+          font-size: 13px;
+          font-weight: 750;
+        }
+
+        .safetySection {
+          border-top: 1px solid rgba(255, 255, 255, 0.04);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+          background:
+            radial-gradient(
+              circle at 50% 0,
+              rgba(255, 216, 77, 0.035),
+              transparent 36rem
+            ),
+            #040914;
+        }
+
+        .safetyInner {
+          padding-top: 120px;
+          padding-bottom: 120px;
+        }
+
+        .safetyIntro {
+          max-width: 720px;
+        }
+
+        .warningEyebrow {
+          color: var(--yellow);
+        }
+
+        .protectionGrid {
+          margin-top: 60px;
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 14px;
+        }
+
+        .protectionCard {
+          min-height: 245px;
+          padding: 26px;
+          border: 1px solid var(--border);
+          border-radius: 15px;
+          background: rgba(8, 16, 30, 0.76);
+        }
+
+        .protectionIcon {
+          margin-bottom: 48px;
+        }
+
+        .protectionCard h3 {
+          margin: 0 0 12px;
+          font-size: 17px;
+        }
+
+        .protectionCard p {
+          margin: 0;
+          color: #8d9eb3;
+          font-size: 12px;
+          line-height: 1.7;
+        }
+
+        .executionBanner {
+          margin-top: 15px;
+          padding: 20px 24px;
+          border: 1px solid rgba(82, 230, 164, 0.14);
+          border-radius: 13px;
+          background: rgba(82, 230, 164, 0.025);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 30px;
+        }
+
+        .executionBanner > div {
+          display: flex;
+          align-items: center;
+          gap: 13px;
+        }
+
+        .executionBanner > div > div {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .executionBanner strong {
+          font-size: 13px;
+        }
+
+        .executionBanner p {
+          margin: 0;
+          color: #899bb0;
+          font-size: 11px;
+        }
+
+        .productAreaGrid {
+          margin-top: 60px;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          border-top: 1px solid var(--border);
+          border-left: 1px solid var(--border);
+        }
+
+        .productArea {
+          min-height: 220px;
+          padding: 28px;
+          border-right: 1px solid var(--border);
+          border-bottom: 1px solid var(--border);
+        }
+
+        .productArea > span {
+          color: #51647b;
+          font-size: 10px;
+          letter-spacing: 0.14em;
+        }
+
+        .productArea h3 {
+          margin: 45px 0 10px;
+          font-size: 20px;
+        }
+
+        .productArea p {
+          margin: 0;
+          color: #8d9eb3;
+          font-size: 12px;
+          line-height: 1.65;
+        }
+
+        .trustSection {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 100px;
+          align-items: center;
+        }
+
+        .trustCopy {
+          max-width: 520px;
+        }
+
+        .trustChecklist {
+          border: 1px solid var(--border);
+          border-radius: 17px;
+          overflow: hidden;
+          background: rgba(7, 16, 31, 0.65);
+        }
+
+        .trustChecklist > div {
+          min-height: 65px;
+          padding: 0 22px;
+          display: flex;
+          align-items: center;
+          gap: 13px;
+          border-bottom: 1px solid var(--border);
+          color: #a3b0c1;
+          font-size: 13px;
+        }
+
+        .trustChecklist > div:last-child {
+          border-bottom: 0;
+        }
+
+        .pricingSection {
+          padding-top: 100px;
+        }
+
+        .trustNote {
+          margin-top: 28px;
+          max-width: 470px;
+          color: #73869d;
+          font-size: 12px;
+          line-height: 1.7;
+        }
+
+        .pricingGrid {
+          max-width: 820px;
+          margin: 40px auto 0;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+        }
+
+        .priceCard {
+          position: relative;
+          min-height: 510px;
+          padding: 31px;
+          border: 1px solid var(--border);
+          border-radius: 18px;
+          background: #07101e;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .featuredPrice {
+          border-color: rgba(86, 232, 255, 0.32);
+          box-shadow: 0 30px 80px rgba(86, 232, 255, 0.05);
+        }
+
+        .popularTag {
+          position: absolute;
+          right: 20px;
+          top: 20px;
+          padding: 6px 8px;
+          border-radius: 6px;
+          color: var(--cyan);
+          background: rgba(86, 232, 255, 0.08);
+          font-size: 8px;
+          font-weight: 850;
+          letter-spacing: 0.12em;
+        }
+
+        .priceTop > span {
+          color: #64768d;
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: 0.15em;
+        }
+
+        .priceTop h3 {
+          margin: 14px 0 10px;
+          font-size: 22px;
+        }
+
+        .priceTop p {
+          margin: 0;
+          min-height: 68px;
+          color: #90a1b6;
+          font-size: 12px;
+          line-height: 1.65;
+        }
+
+        .price {
+          margin: 32px 0;
+          padding: 25px 0;
+          border-top: 1px solid var(--border);
+          border-bottom: 1px solid var(--border);
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        .price strong {
+          font-size: 25px;
+        }
+
+        .price span {
+          color: #64768d;
+          font-size: 10px;
+        }
+
+        .priceCard ul {
+          margin: 0 0 28px;
+          padding: 0;
+          list-style: none;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          color: #94a3b7;
+          font-size: 12px;
+        }
+
+        .priceCard li {
+          display: flex;
+          align-items: center;
+          gap: 9px;
+        }
+
+        .fullButton {
+          width: 100%;
+          margin-top: auto;
+        }
+
+        .pricingDisclosure {
+          max-width: 720px;
+          margin: 28px auto 0;
+          color: #53667d;
+          text-align: center;
+          font-size: 10px;
+          line-height: 1.6;
+        }
+
+        .finalCta {
+          position: relative;
+          max-width: 1128px;
+          margin: 32px auto 82px;
+          padding: 72px 30px;
+          overflow: hidden;
+          border: 1px solid rgba(86, 232, 255, 0.16);
+          border-radius: 24px;
+          background: #06101e;
+          text-align: center;
+        }
+
+        .finalGlow {
+          position: absolute;
+          width: 700px;
+          height: 300px;
+          top: -220px;
+          left: 50%;
+          transform: translateX(-50%);
+          background:
+            radial-gradient(
+              circle,
+              rgba(86, 232, 255, 0.14),
+              transparent 68%
+            );
+        }
+
+        .finalCta > *:not(.finalGlow) {
+          position: relative;
+          z-index: 2;
+        }
+
+        .finalCta h2 {
+          max-width: 720px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .finalCta p {
+          max-width: 580px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .centeredActions {
+          justify-content: center;
+        }
+
+        .footer {
+          max-width: 1184px;
+          margin: 0 auto;
+          padding: 65px 28px 35px;
+          border-top: 1px solid var(--border);
+        }
+
+        .footerTop {
+          display: grid;
+          grid-template-columns: 0.8fr 1.2fr;
+          gap: 100px;
+        }
+
+        .footerBrand p {
+          max-width: 330px;
+          margin-top: 20px;
+          color: #697b91;
+          font-size: 12px;
+          line-height: 1.7;
+        }
+
+        .footerLinks {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 35px;
+        }
+
+        .footerLinks > div {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .footerLinks strong {
+          margin-bottom: 7px;
+          color: #d4dfeb;
+          font-size: 11px;
+        }
+
+        .footerLinks a {
+          color: #687b91;
+          font-size: 11px;
+        }
+
+        .footerLinks a:hover {
+          color: var(--cyan);
+        }
+
+        .footerBottom {
+          margin-top: 60px;
+          padding-top: 25px;
+          border-top: 1px solid var(--border);
+          display: flex;
+          justify-content: space-between;
+          gap: 30px;
+          color: #4f6177;
+          font-size: 9px;
+        }
+
+        @media (max-width: 1000px) {
+          .desktopNav {
+            display: none;
+          }
+
+          .hero {
+            grid-template-columns: 1fr;
+            padding-top: 80px;
+          }
+
+          .heroContent {
+            max-width: 760px;
+          }
+
+          .neuroHeroProduct {
+            min-height: 440px;
+          }
+
+          .neuroModelRoot {
+            inset: 24px 4px 44px;
+          }
+
+          .neuroHeroMessageTop {
+            left: 14px;
+            top: 48px;
+          }
+
+          .neuroHeroMessageBottom {
+            right: 14px;
+            bottom: 70px;
+          }
+
+          .neuroHeroCaption {
+            left: 14px;
+            right: 14px;
+          }
+
+          .heroProduct {
+            max-width: 760px;
+          }
+
+          .trustStrip {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .trustStrip > div:first-child,
+          .trustStrip > div:last-child {
+            border-radius: 0;
+          }
+
+          .capabilityGrid,
+          .protectionGrid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .neuroSection,
+          .trustSection {
+            grid-template-columns: 1fr;
+            gap: 60px;
+          }
+
+          .neuroVisual {
+            order: 2;
+          }
+
+          .productAreaGrid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .footerTop {
+            grid-template-columns: 1fr;
+            gap: 50px;
+          }
+        }
+
+        @media (max-width: 680px) {
+          .navigation {
+            height: 66px;
+            padding: 0 18px;
+          }
+
+          .brandText {
+            font-size: 16px;
+          }
+
+          .brandMark {
+            width: 30px;
+            height: 30px;
+          }
+
+          .signIn {
+            display: none;
+          }
+
+          .hero {
+            min-height: auto;
+            padding: 70px 18px 65px;
+            gap: 55px;
+          }
+
+          .hero h1 {
+            font-size: 49px;
+          }
+
+          .heroCopy {
+            font-size: 16px;
+          }
+
+          .heroActions {
+            flex-direction: column;
+          }
+
+          .heroActions a {
+            width: 100%;
+          }
+
+          .heroTrust {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+          }
+
+          .productWindow {
+            transform: none;
+          }
+
+          .windowBody {
+            grid-template-columns: 1fr;
+          }
+
+          .previewSidebar {
+            display: none;
+          }
+
+          .previewMain {
+            padding: 17px;
+          }
+
+          .metricGrid {
+            grid-template-columns: 1fr;
+          }
+
+          .metricCard:nth-child(3) {
+            display: none;
+          }
+
+          .trustStrip {
+            padding: 0 18px 65px;
+            grid-template-columns: 1fr;
+          }
+
+          .trustStrip > div {
+            border-left: 1px solid var(--border);
+          }
+
+          .section {
+            padding: 85px 18px;
+          }
+
+          .sectionIntro h2,
+          .trustCopy h2,
+          .finalCta h2 {
+            font-size: 39px;
+          }
+
+          .capabilityGrid,
+          .protectionGrid,
+          .productAreaGrid,
+          .pricingGrid {
+            grid-template-columns: 1fr;
+          }
+
+          .capabilityCard {
+            min-height: 280px;
+          }
+
+          .capabilityCard h3 {
+            margin-top: 50px;
+          }
+
+          .neuroVisual {
+            min-height: 440px;
+          }
+
+          .questionOne {
+            left: 14px;
+          }
+
+          .questionTwo {
+            right: 14px;
+          }
+
+          .questionThree {
+            left: 22px;
+          }
+
+          .executionBanner {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .finalCta {
+            margin: 30px 18px 80px;
+            padding: 70px 22px;
+          }
+
+          .footer {
+            padding-left: 18px;
+            padding-right: 18px;
+          }
+
+          .footerLinks {
+            grid-template-columns: 1fr 1fr;
+          }
+
+          .footerBottom {
+            flex-direction: column;
+          }
+        }
+      `}</style>
+          
     </main>
   );
 }

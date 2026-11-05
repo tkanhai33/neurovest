@@ -1,0 +1,34 @@
+[
+  [
+    "/home/tkanhai/Neurovest/File: backend/app/services/auth_service.py",
+    "stacks/auth_identity"
+  ],
+  [
+    "/home/tkanhai/Neurovest/File: backend/app/services/portfolio_service.py",
+    "stacks/portfolio"
+  ],
+  [
+    "/home/tkanhai/Neurovest/File: backend/app/services/strategy_service.py",
+    "stacks/strategy"
+  ],
+  [
+    "/home/tkanhai/Neurovest/File: backend/app/services/market_data_service.py",
+    "stacks/market_data"
+  ],
+  [
+    "/home/tkanhai/Neurovest/File: backend/app/services/notification_service.py",
+    "stacks/notification"
+  ],
+  [
+    "/home/tkanhai/Neurovest/File: backend/app/services/risk_service.py",
+    "stacks/risk"
+  ],
+  [
+    "/home/tkanhai/Neurovest/backend/app/services/__init__.py",
+    "STACK_REVIEW_REQUIRED"
+  ],
+  [
+    "/home/tkanhai/Neurovest/backend/app/services/dashboard_service.py",
+    "stacks/portfolio"
+  ]
+]

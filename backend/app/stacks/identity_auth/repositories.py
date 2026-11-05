@@ -31,6 +31,7 @@ from sqlalchemy.ext.asyncio import (
 
 from backend.app.stacks.identity_auth.models import (
     IdentityRefreshSession,
+    IdentityTermsAcceptance,
     IdentityUser,
 )
 
@@ -84,6 +85,7 @@ class IdentityUserRepository:
         role: str = "user",
         must_change_password: bool = False,
         display_name: str | None = None,
+        terms_version: str = "",
     ) -> IdentityUser:
         if not password_hash:
             raise ValueError(
@@ -110,6 +112,21 @@ class IdentityUserRepository:
 
         self._session.add(
             user
+        )
+
+        await self._session.flush()
+
+        if not terms_version:
+            raise ValueError(
+                "Terms version cannot be empty"
+            )
+
+        self._session.add(
+            IdentityTermsAcceptance(
+                user_id=user.id,
+                document_version=terms_version,
+                accepted_at=datetime.now(UTC),
+            )
         )
 
         await self._session.flush()

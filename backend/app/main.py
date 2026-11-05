@@ -1,3 +1,4 @@
+from backend.app.stacks.strategy.user_activation.api import router as strategy_library_router
 
 from backend.app.stacks.strategy_candidate_sandbox.adaptive_training_controller import (
     get_adaptive_controller_for_owner,
@@ -6,7 +7,14 @@ from backend.app.stacks.strategy_candidate_sandbox.adaptive_training_controller 
 )
 
 from uuid import NAMESPACE_URL, uuid5
+from backend.app.stacks.db_model.strategy_knowledge import StrategyKnowledge as _DeveloperStatsStrategyKnowledge
 from backend.app.stacks.db_runtime.database import async_session
+
+from backend.app.stacks.support_ticketing.api_router import router as support_ticketing_router
+from backend.app.stacks.support_ticketing.admin_api_router import router as support_ticketing_admin_router
+from backend.app.stacks.news_intelligence.api_router import (
+    router as news_intelligence_router,
+)
 from backend.app.stacks.journal_ledger.decision_audit_service import build_decision_audit_service
 from backend.app.stacks.journal_ledger.strategy_decision_audit_adapter import StrategyDecisionAuditAdapter
 from backend.app.stacks.db_runtime.database import init_db
@@ -21,6 +29,7 @@ from backend.app.stacks.strategy_candidate_sandbox.L4_runtime_orchestration.boun
     list_training_health,
     list_training_sessions,
     list_training_sessions_for_owner,
+    list_training_sessions_for_user_profile,
     start_bounded_training_session,
     training_runtime_status,
 )
@@ -97,6 +106,9 @@ from backend.app.stacks.portfolio.reconciliation import (
     run_reconciliation_audit,
     start_periodic_reconciliation_daemon,
 )
+from backend.app.stacks.snaptrade.application.automatic_sync_scheduler import (
+    start_snaptrade_auto_sync_daemon,
+)
 
 
 # =========================
@@ -124,6 +136,13 @@ connected_clients = set()
 
 
 class PaperOrderRequest(BaseModel):
+    # A stable client-generated ID is mandatory for every
+    # authenticated paper-order submission and retry.
+    request_id: str = Field(
+        min_length=36,
+        max_length=36,
+    )
+
     symbol: str = Field(
         min_length=1,
         max_length=15,
@@ -200,7 +219,20 @@ async def lifespan(app: FastAPI):
             "owner-scoped reconciliation."
         )
 
+    snaptrade_auto_sync_task = (
+        start_snaptrade_auto_sync_daemon()
+    )
+
     yield
+
+    if snaptrade_auto_sync_task is not None:
+        snaptrade_auto_sync_task.cancel()
+
+        try:
+            await snaptrade_auto_sync_task
+
+        except asyncio.CancelledError:
+            pass
 
     if daemon_task is not None:
         daemon_task.cancel()
@@ -213,8 +245,23 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# NEUROVEST_V26_SERVER_OWNED_EXECUTION_EVIDENCE
+# This provider belongs to application composition, not public chat.
+# It never transitions operating modes or initiates orders.
+def _v26_server_execution_snapshot():
+    from backend.app.stacks.execution.execution_control import (
+        execution_control,
+    )
+    return execution_control.snapshot_dict()
+
+app.state.neurovest_execution_snapshot_provider = (
+    _v26_server_execution_snapshot
+)
+
 app.include_router(chat_router)
 app.include_router(notification_router)
+app.include_router(support_ticketing_router)
+app.include_router(support_ticketing_admin_router)
 app.include_router(snaptrade_router)
 
 app.add_middleware(
@@ -556,14 +603,13 @@ async def get_authenticated_portfolio_valuation(
             ),
             2,
         ),
-        "net_liquidation_value": round(
-            float(
-                valuation.get(
-                    "net_liquidation_value",
-                    0.0,
-                )
-            ),
-            2,
+        "net_liquidation_value": (
+            round(
+                float(valuation["net_liquidation_value"]),
+                2,
+            )
+            if valuation.get("net_liquidation_value") is not None
+            else None
         ),
         "valuation_basis": "cash_ledger",
         "live_market_marking": False,
@@ -754,6 +800,24 @@ async def submit_authenticated_paper_order(
     symbol = request.symbol
     action = request.action
 
+    normalized_request_id = None
+
+    if request.request_id is not None:
+        from backend.app.stacks.execution.paper_order_identity import (
+            normalize_request_id,
+            PaperOrderIdentityError,
+        )
+
+        try:
+            normalized_request_id = normalize_request_id(
+                request.request_id
+            )
+        except PaperOrderIdentityError as exc:
+            raise HTTPException(
+                status_code=422,
+                detail="Invalid paper-order request_id",
+            ) from exc
+
     portfolio_matrix = [
         {
             "symbol": symbol,
@@ -769,13 +833,33 @@ async def submit_authenticated_paper_order(
         "source": "authenticated_user_order",
     }
 
+    from backend.app.stacks.execution.paper_order_identity import (
+        PaperOrderIdentityConflict,
+    )
+
     try:
-        await process_portfolio_output(
+        outcome = await process_portfolio_output(
             portfolio_matrix,
             portfolio_output,
             user_id=principal.subject,
             trace_id=trace_id,
+            **(
+                {"request_id": normalized_request_id}
+                if normalized_request_id is not None
+                else {}
+            ),
         )
+    except PaperOrderIdentityConflict as error:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "status": "conflict",
+                "reason": "paper_order_request_id_conflict",
+                "message": str(error),
+                "live_execution": False,
+                "trace_id": trace_id,
+            },
+        ) from error
     except ExecutionBlockedError as error:
         raise HTTPException(
             status_code=409,
@@ -790,7 +874,41 @@ async def submit_authenticated_paper_order(
             },
         ) from error
 
+    if not isinstance(outcome, dict):
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "status": "error",
+                "reason": "paper_execution_outcome_missing",
+                "execution_mode": "paper",
+                "live_execution": False,
+                "trace_id": trace_id,
+            },
+        )
+
+    trade_status = str(outcome.get("status", "unknown"))
+
+    if trade_status != "executed":
+        rejected = (
+            trade_status.startswith("rejected")
+            or trade_status.startswith("blocked")
+        )
+        raise HTTPException(
+            status_code=409 if rejected else 502,
+            detail={
+                "status": trade_status,
+                "reason": outcome.get(
+                    "reason",
+                    "paper_execution_not_completed",
+                ),
+                "execution_mode": "paper",
+                "live_execution": False,
+                "trace_id": trace_id,
+            },
+        )
+
     return {
+        "trade_status": "executed",
         "status": "processed",
         "symbol": symbol,
         "action": action,
@@ -798,6 +916,15 @@ async def submit_authenticated_paper_order(
         "live_execution": False,
         "owner_scope": "authenticated_account",
         "trace_id": trace_id,
+        **(
+            {
+                "request_id": normalized_request_id,
+                "replayed": bool(outcome.get("replayed", False)),
+                "order_id": outcome.get("order_id"),
+            }
+            if normalized_request_id is not None
+            else {}
+        ),
     }
 
 
@@ -811,6 +938,24 @@ async def websocket_orders_endpoint(websocket: WebSocket):
             await websocket.receive_text()
     except WebSocketDisconnect:
         connected_clients.remove(websocket)
+
+
+from backend.app.stacks.market_data.market_data_service import (
+    get_live_market_prices_for_api,
+)
+
+
+@app.get("/api/v1/market/live-prices")
+async def api_live_market_prices(
+    symbols: str = "",
+):
+    return await get_live_market_prices_for_api(
+        [
+            value.strip()
+            for value in symbols.split(",")
+            if value.strip()
+        ]
+    )
 
 
 @app.get("/api/v1/market/live-price/{symbol}")
@@ -830,17 +975,35 @@ async def api_portfolio_positions(
 
 
 @app.get("/api/v1/strategy/decision/{symbol}")
-async def api_strategy_decision(symbol: str):
-    return await get_strategy_decision_for_api(symbol)
+async def api_strategy_decision(
+    symbol: str,
+    principal=Depends(
+        require_authenticated_principal
+    ),
+):
+    return await get_strategy_decision_for_api(
+        symbol,
+        owner_subject=principal.subject,
+    )
 
 
 @app.get("/api/v1/risk/gate/{symbol}")
-async def api_risk_gate(symbol: str):
-    return await get_risk_gate_for_api(symbol)
+async def api_risk_gate(
+    symbol: str,
+    principal: AuthenticatedPrincipal = Depends(
+        require_authenticated_principal
+    ),
+):
+    return await get_risk_gate_for_api(
+        symbol,
+        owner_subject=principal.subject,
+    )
 
 # Read-only canonical market-data runtime.
 app.include_router(market_data_router)
 app.include_router(auth_router)
+from backend.app.stacks.identity_auth.account_security_router import router as account_security_router
+app.include_router(account_security_router)
 app.middleware("http")(enforce_route_policy)
 
 # WORKSTREAM 3 STAGE 9D-C2 ADMINISTRATIVE ROUTER START
@@ -861,6 +1024,9 @@ from backend.app.stacks.identity_auth.admin_mutation_router import (
 app.include_router(
     administrative_mutation_router
 )
+
+from backend.app.stacks.strategy.model_inference.router import router as frozen25_router
+app.include_router(frozen25_router)
 # WORKSTREAM 3 STAGE 9D-C5-B ADMIN MUTATION ROUTER END
 
 # BEGIN NEUROVEST AUTHENTICATED OWNER-SCOPED READONLY PORTFOLIO API
@@ -1121,6 +1287,7 @@ from datetime import datetime as _admin_stats_datetime
 from datetime import timedelta as _admin_stats_timedelta
 
 from sqlalchemy import text as _admin_stats_text
+
 
 
 @app.get(
@@ -1881,6 +2048,385 @@ async def list_authenticated_user_training_runs(
 
 
 @app.get(
+    "/api/v1/training/learning-summary",
+    tags=["training"],
+)
+async def get_authenticated_user_learning_summary(
+    principal: AuthenticatedPrincipal = Depends(
+        require_authenticated_principal
+    ),
+):
+    owner_user_id = (
+        _training_principal_subject(
+            principal
+        )
+    )
+
+    runs = (
+        list_training_sessions_for_user_profile(
+            owner_user_id=owner_user_id,
+            limit=100,
+        )
+    )
+
+    completed = [
+        run
+        for run in runs
+        if run.get("status")
+        == "completed"
+    ]
+
+    latest = (
+        completed[0]
+        if completed
+        else (
+            runs[0]
+            if runs
+            else None
+        )
+    )
+
+    lifetime_rows = sum(
+        int(
+            run.get(
+                "rows_evaluated",
+                0,
+            )
+            or 0
+        )
+        for run in completed
+    )
+
+    lifetime_decisions: dict[str, int] = {}
+
+    lifetime_reward_total = 0.0
+
+    for run in completed:
+        decisions = run.get(
+            "decision_counts"
+        )
+
+        if isinstance(
+            decisions,
+            dict,
+        ):
+            for decision, count in decisions.items():
+                try:
+                    normalized_count = int(
+                        count
+                    )
+                except (
+                    TypeError,
+                    ValueError,
+                ):
+                    continue
+
+                lifetime_decisions[
+                    str(decision)
+                ] = (
+                    lifetime_decisions.get(
+                        str(decision),
+                        0,
+                    )
+                    +
+                    normalized_count
+                )
+
+        contribution = run.get(
+            "sanitized_learning_contribution"
+        )
+
+        if not isinstance(
+            contribution,
+            dict,
+        ):
+            continue
+
+        symbol_confidence = contribution.get(
+            "symbol_confidence"
+        )
+
+        if not isinstance(
+            symbol_confidence,
+            list,
+        ):
+            continue
+
+        for symbol in symbol_confidence:
+            if not isinstance(
+                symbol,
+                dict,
+            ):
+                continue
+
+            try:
+                average_reward = float(
+                    symbol.get(
+                        "average_reward",
+                        0.0,
+                    )
+                    or 0.0
+                )
+
+                observations = int(
+                    symbol.get(
+                        "observations",
+                        0,
+                    )
+                    or 0
+                )
+
+            except (
+                TypeError,
+                ValueError,
+            ):
+                continue
+
+            lifetime_reward_total += (
+                average_reward
+                *
+                observations
+            )
+
+    current_run = None
+
+    if latest is not None:
+        contribution = latest.get(
+            "sanitized_learning_contribution"
+        )
+
+        if not isinstance(
+            contribution,
+            dict,
+        ):
+            contribution = {}
+
+        confidence_rows = contribution.get(
+            "symbol_confidence"
+        )
+
+        if not isinstance(
+            confidence_rows,
+            list,
+        ):
+            confidence_rows = []
+
+        confidence_by_symbol = {}
+
+        for row in confidence_rows:
+            if not isinstance(
+                row,
+                dict,
+            ):
+                continue
+
+            symbol = row.get(
+                "symbol"
+            )
+
+            if isinstance(
+                symbol,
+                str,
+            ):
+                confidence_by_symbol[
+                    symbol
+                ] = row
+
+        symbols = []
+
+        per_symbol = latest.get(
+            "per_symbol"
+        )
+
+        if isinstance(
+            per_symbol,
+            dict,
+        ):
+            for symbol, values in per_symbol.items():
+                if not isinstance(
+                    values,
+                    dict,
+                ):
+                    continue
+
+                confidence = (
+                    confidence_by_symbol.get(
+                        str(symbol),
+                        {}
+                    )
+                )
+
+                decisions = {}
+
+                for decision in (
+                    "BUY_SIGNAL",
+                    "HOLD",
+                    "SELL_SIGNAL",
+                ):
+                    value = values.get(
+                        decision
+                    )
+
+                    if isinstance(
+                        value,
+                        (int, float),
+                    ):
+                        decisions[
+                            decision
+                        ] = int(
+                            value
+                        )
+
+                symbols.append({
+                    "symbol":
+                        str(symbol),
+
+                    "decisions":
+                        decisions,
+
+                    "cycles":
+                        values.get(
+                            "cycles"
+                        ),
+
+                    "last_close":
+                        values.get(
+                            "last_close"
+                        ),
+
+                    "last_timestamp":
+                        values.get(
+                            "last_timestamp"
+                        ),
+
+                    "observations":
+                        confidence.get(
+                            "observations"
+                        ),
+
+                    "average_reward":
+                        confidence.get(
+                            "average_reward"
+                        ),
+
+                    "average_confidence":
+                        confidence.get(
+                            "average_confidence"
+                        ),
+                })
+
+        current_reward_total = 0.0
+
+        for row in confidence_rows:
+            if not isinstance(
+                row,
+                dict,
+            ):
+                continue
+
+            try:
+                current_reward_total += (
+                    float(
+                        row.get(
+                            "average_reward",
+                            0.0,
+                        )
+                        or 0.0
+                    )
+                    *
+                    int(
+                        row.get(
+                            "observations",
+                            0,
+                        )
+                        or 0
+                    )
+                )
+
+            except (
+                TypeError,
+                ValueError,
+            ):
+                continue
+
+        current_run = {
+            "run_id":
+                latest.get(
+                    "run_id"
+                ),
+
+            "status":
+                latest.get(
+                    "status"
+                ),
+
+            "rows":
+                int(
+                    latest.get(
+                        "rows_evaluated",
+                        0,
+                    )
+                    or 0
+                ),
+
+            "reward_total":
+                round(
+                    current_reward_total,
+                    8,
+                ),
+
+            "average_confidence":
+                latest.get(
+                    "average_confidence"
+                ),
+
+            "decision_counts":
+                (
+                    latest.get(
+                        "decision_counts"
+                    )
+                    if isinstance(
+                        latest.get(
+                            "decision_counts"
+                        ),
+                        dict,
+                    )
+                    else {}
+                ),
+
+            "symbols":
+                symbols,
+        }
+
+    return {
+        "current_run":
+            current_run,
+
+        "lifetime": {
+            "runs":
+                len(
+                    completed
+                ),
+
+            "rows_processed":
+                lifetime_rows,
+
+            "reward_total":
+                round(
+                    lifetime_reward_total,
+                    8,
+                ),
+
+            "decision_counts":
+                lifetime_decisions,
+        },
+
+        "scope":
+            "authenticated_user_profile",
+    }
+
+
+@app.get(
     "/api/v1/training/runs/{run_id}",
     tags=["training"],
 )
@@ -1933,6 +2479,7 @@ async def start_authenticated_user_adaptive_controller(
     duration_seconds_per_round: int = 1,
     lookback_rows: int = 120,
     row_offset: int = 0,
+    strategy_name: str = ...,
     principal: AuthenticatedPrincipal = Depends(
         require_authenticated_principal
     ),
@@ -1985,6 +2532,9 @@ async def start_authenticated_user_adaptive_controller(
             ),
             requested_by_role=(
                 role
+            ),
+            strategy_name=(
+                strategy_name
             ),
         )
 
@@ -2182,11 +2732,15 @@ async def list_developer_training_runs(
         principal
     )
 
+    # NEUROVEST_SYSTEM_TRAINING_VISIBILITY_V1
+    # Developer endpoints must not expose customer-owned runs.
     return {
-        "runs":
-            list_training_sessions(
-                limit=limit
-            ),
+        "runs": [
+            run
+            for run in list_training_sessions(limit=limit)
+            if isinstance(run, dict)
+            and run.get("scope") == "system"
+        ],
     }
 
 
@@ -2208,7 +2762,12 @@ async def get_developer_training_run(
         run_id
     )
 
-    if result is None:
+    # NEUROVEST_SYSTEM_TRAINING_VISIBILITY_V1
+    # Private USER runs are accessible only through owner-scoped routes.
+    if (
+        not isinstance(result, dict)
+        or result.get("scope") != "system"
+    ):
         raise HTTPException(
             status_code=404,
             detail=(
@@ -2221,3 +2780,477 @@ async def get_developer_training_run(
 
 # END BOUNDED TRAINING RUNTIME API
 
+
+# BEGIN DEVELOPER CHAT STATISTICS API
+
+from sqlalchemy import func as _chat_stats_func
+
+from backend.app.stacks.chat_public.persistence.chat_models import (
+    ChatMessageRecord as _ChatStatsMessageRecord,
+    ChatThreadRecord as _ChatStatsThreadRecord,
+    ToolEvidenceRecord as _ChatStatsToolEvidenceRecord,
+)
+
+
+@app.get(
+    "/api/v1/developer/chat/statistics",
+    tags=[
+        "developer",
+        "chat",
+        "statistics",
+    ],
+)
+async def get_developer_chat_statistics(
+    principal: AdministrativePrincipal = Depends(
+        require_administrative_principal
+    ),
+):
+    """
+    Developer-only server-authoritative Chat statistics.
+
+    Database access is SELECT-only.
+    """
+
+    _require_developer_training_role(
+        principal
+    )
+
+    async with async_session() as session:
+
+        thread_count = int(
+            (
+                await session.execute(
+                    select(
+                        _chat_stats_func.count()
+                    ).select_from(
+                        _ChatStatsThreadRecord
+                    )
+                )
+            ).scalar_one()
+            or 0
+        )
+
+        message_count = int(
+            (
+                await session.execute(
+                    select(
+                        _chat_stats_func.count()
+                    ).select_from(
+                        _ChatStatsMessageRecord
+                    )
+                )
+            ).scalar_one()
+            or 0
+        )
+
+        user_message_count = int(
+            (
+                await session.execute(
+                    select(
+                        _chat_stats_func.count()
+                    )
+                    .select_from(
+                        _ChatStatsMessageRecord
+                    )
+                    .where(
+                        _ChatStatsMessageRecord.role
+                        == "user"
+                    )
+                )
+            ).scalar_one()
+            or 0
+        )
+
+        assistant_message_count = int(
+            (
+                await session.execute(
+                    select(
+                        _chat_stats_func.count()
+                    )
+                    .select_from(
+                        _ChatStatsMessageRecord
+                    )
+                    .where(
+                        _ChatStatsMessageRecord.role
+                        == "assistant"
+                    )
+                )
+            ).scalar_one()
+            or 0
+        )
+
+        tool_evidence_count = int(
+            (
+                await session.execute(
+                    select(
+                        _chat_stats_func.count()
+                    ).select_from(
+                        _ChatStatsToolEvidenceRecord
+                    )
+                )
+            ).scalar_one()
+            or 0
+        )
+
+        tool_evidence_success_count = int(
+            (
+                await session.execute(
+                    select(
+                        _chat_stats_func.count()
+                    )
+                    .select_from(
+                        _ChatStatsToolEvidenceRecord
+                    )
+                    .where(
+                        _ChatStatsToolEvidenceRecord.status
+                        == "success"
+                    )
+                )
+            ).scalar_one()
+            or 0
+        )
+
+        intent_rows = (
+            await session.execute(
+                select(
+                    _ChatStatsMessageRecord.intent,
+                    _chat_stats_func.count(),
+                )
+                .where(
+                    _ChatStatsMessageRecord.role
+                    == "assistant"
+                )
+                .group_by(
+                    _ChatStatsMessageRecord.intent
+                )
+                .order_by(
+                    _chat_stats_func.count().desc()
+                )
+            )
+        ).all()
+
+        provider_rows = (
+            await session.execute(
+                select(
+                    _ChatStatsMessageRecord.provider,
+                    _chat_stats_func.count(),
+                )
+                .where(
+                    _ChatStatsMessageRecord.role
+                    == "assistant"
+                )
+                .group_by(
+                    _ChatStatsMessageRecord.provider
+                )
+                .order_by(
+                    _chat_stats_func.count().desc()
+                )
+            )
+        ).all()
+
+        model_rows = (
+            await session.execute(
+                select(
+                    _ChatStatsMessageRecord.model,
+                    _chat_stats_func.count(),
+                )
+                .where(
+                    _ChatStatsMessageRecord.role
+                    == "assistant"
+                )
+                .group_by(
+                    _ChatStatsMessageRecord.model
+                )
+                .order_by(
+                    _chat_stats_func.count().desc()
+                )
+            )
+        ).all()
+
+        tool_status_rows = (
+            await session.execute(
+                select(
+                    _ChatStatsToolEvidenceRecord.status,
+                    _chat_stats_func.count(),
+                )
+                .group_by(
+                    _ChatStatsToolEvidenceRecord.status
+                )
+                .order_by(
+                    _chat_stats_func.count().desc()
+                )
+            )
+        ).all()
+
+        tool_rows = (
+            await session.execute(
+                select(
+                    _ChatStatsToolEvidenceRecord.tool_name,
+                    _chat_stats_func.count(),
+                )
+                .group_by(
+                    _ChatStatsToolEvidenceRecord.tool_name
+                )
+                .order_by(
+                    _chat_stats_func.count().desc()
+                )
+            )
+        ).all()
+
+        learned_strategy_rows = (
+            await session.execute(
+                select(
+                    _DeveloperStatsStrategyKnowledge
+                )
+                .order_by(
+                    _DeveloperStatsStrategyKnowledge.updated_at.desc(),
+                    _DeveloperStatsStrategyKnowledge.created_at.desc(),
+                )
+                .limit(
+                    25
+                )
+            )
+        ).scalars().all()
+
+    qualified_statistics = {
+        "conversation_count":
+            thread_count,
+
+        "total_message_count":
+            message_count,
+
+        "user_message_count":
+            user_message_count,
+
+        "assistant_message_count":
+            assistant_message_count,
+
+        "tool_evidence_count":
+            tool_evidence_count,
+
+        "tool_evidence_success_count":
+            tool_evidence_success_count,
+
+        "intent_distribution": [
+            {
+                "intent":
+                    (
+                        str(value)
+                        if value
+                        else "unclassified"
+                    ),
+                "count":
+                    int(count),
+            }
+            for value, count
+            in intent_rows
+        ],
+
+        "provider_distribution_internal": [
+            {
+                "value":
+                    (
+                        str(value)
+                        if value is not None
+                        else "none"
+                    ),
+                "count":
+                    int(count),
+            }
+            for value, count
+            in provider_rows
+        ],
+
+        "model_distribution_internal": [
+            {
+                "value":
+                    (
+                        str(value)
+                        if value is not None
+                        else "none"
+                    ),
+                "count":
+                    int(count),
+            }
+            for value, count
+            in model_rows
+        ],
+
+        "tool_status_distribution": [
+            {
+                "status":
+                    (
+                        str(value)
+                        if value is not None
+                        else "none"
+                    ),
+                "count":
+                    int(count),
+            }
+            for value, count
+            in tool_status_rows
+        ],
+
+        "tool_distribution": [
+            {
+                "tool":
+                    (
+                        str(value)
+                        if value is not None
+                        else "none"
+                    ),
+                "count":
+                    int(count),
+            }
+            for value, count
+            in tool_rows
+        ],
+
+        "learned_strategy_knowledge": [
+            {
+                "id":
+                    str(
+                        row.id
+                    ),
+
+                "strategy_id":
+                    row.strategy_id,
+
+                "strategy_version":
+                    int(
+                        row.strategy_version
+                    ),
+
+                "strategy_name":
+                    row.strategy_name,
+
+                "name":
+                    row.name,
+
+                "strategy_family":
+                    row.strategy_family,
+
+                "asset_class":
+                    row.asset_class,
+
+                "generation_source":
+                    row.generation_source,
+
+                "validation_status":
+                    row.validation_status,
+
+                "lifecycle_state":
+                    row.lifecycle_state,
+
+                "admission_decision":
+                    row.admission_decision,
+
+                "promotion_status":
+                    row.promotion_status,
+
+                "history_row_count":
+                    row.history_row_count,
+
+                "feature_count":
+                    row.feature_count,
+
+                "symbols":
+                    list(
+                        row.symbols
+                        or []
+                    ),
+
+                "created_at":
+                    (
+                        row.created_at.isoformat()
+                        if row.created_at
+                        is not None
+                        else None
+                    ),
+
+                "updated_at":
+                    (
+                        row.updated_at.isoformat()
+                        if row.updated_at
+                        is not None
+                        else None
+                    ),
+            }
+            for row
+            in learned_strategy_rows
+        ],
+    }
+
+    return {
+        "status":
+            "ok",
+
+        "classification":
+            "developer_chat_statistics",
+
+        "source":
+            "server-authoritative-postgresql",
+
+        "scope":
+            "system",
+
+        "visibility":
+            "developer_internal",
+
+        "read_only":
+            True,
+
+        "database_mutation":
+            False,
+
+        "qualified_statistics":
+            qualified_statistics,
+
+        "not_yet_qualified": [
+            "systemwide_chat_request_count",
+            "systemwide_chat_success_count",
+            "systemwide_chat_failure_count",
+            "systemwide_chat_average_latency_ms",
+            "systemwide_chat_p95_latency_ms",
+        ],
+
+        "broker_execution":
+            False,
+
+        "live_execution":
+            False,
+    }
+
+
+# END DEVELOPER CHAT STATISTICS API
+
+app.include_router(strategy_library_router)
+
+
+# BEGIN NEUROVEST AUTHENTICATED CAPTURED-CANDIDATE REVIEW PREVIEW ROUTER
+from backend.app.stacks.strategy_candidate_sandbox.captured_candidate_review_api import (
+    router as captured_candidate_review_router,
+)
+
+app.include_router(
+    captured_candidate_review_router
+)
+
+app.include_router(
+    news_intelligence_router
+)
+
+# END NEUROVEST AUTHENTICATED CAPTURED-CANDIDATE REVIEW PREVIEW ROUTER
+
+# NEUROVEST_DEVELOPER_CODE_API_V1
+from backend.app.stacks.chat_public.developer_code_api import router as developer_code_router
+app.include_router(developer_code_router)
+
+
+# NeuroVest read-only financial analysis.
+# Proposed B40 integration; requires release authorization.
+from backend.app.stacks.financial_analysis_readonly.router import (
+    build_router as build_financial_analysis_readonly_router,
+)
+
+app.include_router(build_financial_analysis_readonly_router())

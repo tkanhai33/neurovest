@@ -1,0 +1,742 @@
+./
+├── .aider.tags.cache.v4/
+│   ├── cache.db
+│   ├── cache.db-shm
+│   └── cache.db-wal
+├── .github/
+│   └── workflows/
+│       └── architecture_ci.yml
+├── architecture_backup/
+│   └── dashboard_service.py
+├── backend/
+│   ├── app/
+│   │   ├── analysis/
+│   │   │   └── architecture.py
+│   │   ├── api/
+│   │   │   └── graph_ws.py
+│   │   ├── core/
+│   │   │   ├── __init__.py
+│   │   │   ├── cognitive_event_bus.py
+│   │   │   ├── cognitive_graph_state.py
+│   │   │   ├── cognitive_nodes.py
+│   │   │   ├── cognitive_types.py
+│   │   │   ├── config.py
+│   │   │   ├── global_firewall_v1.py
+│   │   │   └── runtime_firewall_v1.py
+│   │   ├── models/
+│   │   ├── routers/
+│   │   │   └── __init__.py
+│   │   ├── schemas/
+│   │   │   ├── __init__.py
+│   │   │   └── dashboard.py
+│   │   ├── services/
+│   │   │   └── __init__.py
+│   │   ├── snaptrade/
+│   │   │   └── executions/
+│   │   ├── stacks/
+│   │   │   ├── auth_identity/
+│   │   │   ├── chat_public/
+│   │   │   ├── db_model/
+│   │   │   ├── events/
+│   │   │   ├── execution/
+│   │   │   ├── journal_ledger/
+│   │   │   ├── learning_research/
+│   │   │   ├── market_data/
+│   │   │   ├── notification/
+│   │   │   ├── portfolio/
+│   │   │   ├── risk/
+│   │   │   ├── snaptrade/
+│   │   │   ├── strategy/
+│   │   │   ├── strategy_candidate_sandbox/
+│   │   │   ├── wolfden_ai/
+│   │   │   ├── __init__.py
+│   │   │   └── registry.json
+│   │   ├── test/
+│   │   │   ├── test_neuro_repo_companion.py
+│   │   │   └── test_trading_pipeline.py
+│   │   ├── __init__.py
+│   │   └── main.py
+│   ├── scripts/
+│   │   └── backup_db.sh
+│   ├── __init__.py
+│   └── requirements.txt
+├── backups/
+│   └── neurovest_backup_20260703_215801.sql.gz
+├── frontend/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── v1/
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── public/
+│   │   ├── file.svg
+│   │   ├── globe.svg
+│   │   ├── next.svg
+│   │   ├── vercel.svg
+│   │   └── window.svg
+│   ├── services/
+│   │   ├── backendHealthService.ts
+│   │   ├── chatService.ts
+│   │   ├── graphService.ts
+│   │   ├── marketService.ts
+│   │   ├── observabilityTimelineService.ts
+│   │   ├── portfolioService.ts
+│   │   ├── requestNormalizer.ts
+│   │   ├── requestObservability.ts
+│   │   ├── riskService.ts
+│   │   └── strategyService.ts
+│   ├── .gitignore
+│   ├── AGENTS.md
+│   ├── CLAUDE.md
+│   ├── eslint.config.mjs
+│   ├── next-env.d.ts
+│   ├── next.config.ts
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.mjs
+│   ├── README.md
+│   └── tsconfig.json
+├── handoff/
+├── runtime/
+│   ├── certifications/
+│   │   ├── phase10_domain_subsystem_visualization_certification_latest.json
+│   │   ├── phase10c_runtime_flow_overlay_certification_latest.json
+│   │   ├── phase10d_runtime_static_dependency_diff_certification_latest.json
+│   │   ├── phase10e_diff_classification_certification_latest.json
+│   │   ├── phase10f_architecture_drift_watch_certification_latest.json
+│   │   ├── phase10g_architecture_drift_dashboard_certification_latest.json
+│   │   ├── phase10h_architecture_dashboard_command_certification_latest.json
+│   │   ├── phase11_live_market_price_api_bridge_certification_latest.json
+│   │   ├── phase11b_frontend_live_price_card_certification_latest.json
+│   │   ├── phase11c_frontend_polling_api_cleanup_certification_latest.json
+│   │   ├── phase11d_next_api_proxy_live_price_certification_latest.json
+│   │   ├── phase11e_frontend_build_type_certification_latest.json
+│   │   ├── phase11f_frontend_type_lint_repair_certification_latest.json
+│   │   ├── phase11g_live_market_dashboard_expansion_certification_latest.json
+│   │   ├── phase12f_service_chain_certification_latest.json
+│   │   ├── phase12g_service_chain_dashboard_certification_latest.json
+│   │   ├── phase13f_portfolio_positions_service_chain_certification_latest.json
+│   │   ├── phase13g_portfolio_chain_dashboard_certification_latest.json
+│   │   ├── phase14f_strategy_decision_service_chain_certification_latest.json
+│   │   ├── phase14g_strategy_chain_dashboard_certification_latest.json
+│   │   ├── phase15f_risk_gate_service_chain_certification_latest.json
+│   │   ├── phase15g_risk_chain_dashboard_certification_latest.json
+│   │   ├── phase16_api_route_separation_certification_latest.json
+│   │   ├── phase17_dashboard_route_map_certification_latest.json
+│   │   ├── phase18_real_positions_panel_certification_latest.json
+│   │   ├── phase19_dashboard_visual_layout_certification_latest.json
+│   │   ├── phase19c_endpoint_activation_certification_latest.json
+│   │   ├── phase20f_floating_chat_widget_certification_latest.json
+│   │   ├── phase21ab_chat_cache_history_certification_latest.json
+│   │   ├── phase21cd_chat_ux_persistent_cache_certification_latest.json
+│   │   ├── phase22_live_graph_tab_certification_latest.json
+│   │   ├── phase22b_live_graph_visualization_certification_latest.json
+│   │   ├── phase23a_frontend_request_normalizer_certification_latest.json
+│   │   ├── phase23b_polling_governor_certification_latest.json
+│   │   ├── phase24a_frontend_observability_dashboard_certification_latest.json
+│   │   ├── phase24b_persist_observability_backend_health_certification_latest.json
+│   │   ├── phase24c_observability_event_timeline_certification_latest.json
+│   │   ├── phase24d_observability_lock_handoff_snapshot_latest.json
+│   │   ├── phase25a_dashboard_tab_shell_layout_navigation_certification_latest.json
+│   │   ├── phase25b_tab_layout_polish_chat_panel_certification_latest.json
+│   │   ├── phase25c_split_dashboard_panels_into_tab_workspaces_certification_latest.json
+│   │   ├── phase26c_chat_safety_prompt_live_execution_guard_certification_latest.json
+│   │   ├── phase26d_frontend_chat_response_normalizer_certification_latest.json
+│   │   ├── phase26e_chat_metadata_chips_typing_enter_certification_latest.json
+│   │   ├── phase26f_chat_ui_state_cleanup_metadata_rendering_certification_latest.json
+│   │   ├── phase27a_strategy_proposal_capture_certification_latest.json
+│   │   ├── phase27b_strategy_candidate_review_index_certification_latest.json
+│   │   ├── phase27c_candidate_sandbox_dry_run_stub_certification_latest.json
+│   │   ├── phase27d_candidate_sandbox_result_schema_certification_latest.json
+│   │   ├── phase27e_candidate_sandbox_result_stub_generator_certification_latest.json
+│   │   ├── phase27f_candidate_sandbox_readiness_lock_snapshot_latest.json
+│   │   ├── phase28a_candidate_sandbox_simulation_harness_stub_certification_latest.json
+│   │   ├── phase28b_candidate_sandbox_mock_metrics_generator_certification_latest.json
+│   │   ├── phase28c_candidate_sandbox_mock_scorecard_certification_latest.json
+│   │   ├── phase28d_candidate_sandbox_execution_contract_certification_latest.json
+│   │   ├── phase29a_historical_replay_engine_stub_certification_latest.json
+│   │   ├── phase29b_historical_replay_input_contract_certification_latest.json
+│   │   ├── phase29c_historical_replay_validation_stub_certification_latest.json
+│   │   ├── phase29d_historical_replay_readiness_snapshot_latest.json
+│   │   ├── phase29e_historical_replay_market_data_provider_contract_certification_latest.json
+│   │   ├── phase29f_historical_replay_provider_adapter_stub_certification_latest.json
+│   │   ├── phase29g_historical_replay_provider_readiness_snapshot_latest.json
+│   │   ├── phase30a_yfinance_historical_bars_provider_probe_certification_latest.json
+│   │   ├── phase30b_yfinance_provider_selection_snapshot_latest.json
+│   │   ├── phase30c_historical_bars_contract_certification_latest.json
+│   │   ├── phase30d_yfinance_historical_bars_adapter_stub_certification_latest.json
+│   │   ├── phase30e_yfinance_historical_bars_adapter_shape_validation_certification_latest.json
+│   │   ├── phase30f_yfinance_historical_bars_adapter_wire_preview_certification_latest.json
+│   │   ├── phase30g_yfinance_historical_bars_adapter_wire_certification_latest.json
+│   │   ├── phase3m_graph_certification_latest.json
+│   │   ├── phase4g_repo_memory_certification_latest.json
+│   │   ├── phase5c_repo_memory_certification_v2_latest.json
+│   │   ├── phase6b_dependency_validation_certification_latest.json
+│   │   ├── phase6d_dependency_graph_certification_latest.json
+│   │   ├── phase7g_graph_visualization_certification_latest.json
+│   │   ├── phase8c_neuro_cli_hotspots_certification_latest.json
+│   │   ├── phase9e_canonical_graph_certification_latest.json
+│   │   └── phase9m_canonical_graph_certification_v2_latest.json
+│   ├── graph_history/
+│   │   ├── current_snapshot.json
+│   │   └── events.jsonl
+│   ├── handoff_snapshot/
+│   │   ├── file_manifest_latest.txt
+│   │   ├── live_graph_validate_latest.json
+│   │   ├── neurovest_training_handoff_bundle_latest.json
+│   │   ├── simulate_trade_guard_latest.json
+│   │   └── topology_tree_latest.txt
+│   ├── market_warehouse/
+│   │   ├── history/
+│   │   │   ├── AAPL_history.csv
+│   │   │   ├── MSFT_history.csv
+│   │   │   ├── NVDA_history.csv
+│   │   │   ├── RY_TO_history.csv
+│   │   │   ├── TD_TO_history.csv
+│   │   │   ├── TSLA_history.csv
+│   │   │   ├── VFV_TO_history.csv
+│   │   │   └── VUN_TO_history.csv
+│   │   ├── live/
+│   │   │   ├── AAPL_live.json
+│   │   │   ├── MSFT_live.json
+│   │   │   ├── NVDA_live.json
+│   │   │   ├── RY_TO_live.json
+│   │   │   ├── TD_TO_live.json
+│   │   │   ├── TSLA_live.json
+│   │   │   ├── VFV_TO_live.json
+│   │   │   └── VUN_TO_live.json
+│   │   └── symbol_registry.json
+│   ├── repo_memory/
+│   │   ├── architecture_drift_dashboard_v1.json
+│   │   ├── architecture_drift_dashboard_v1.txt
+│   │   ├── canonical_layer_graph_v1.json
+│   │   ├── chat_service_chain_graph_v1.json
+│   │   ├── component_overlay_v1.json
+│   │   ├── dashboard_route_map_v1.json
+│   │   ├── dependency_graph_v1.json
+│   │   ├── dependency_topology_overlay_v1.json
+│   │   ├── domain_subsystem_graph_v1.json
+│   │   ├── phase4c_loose_root_duplicate_quarantine_plan_latest.json
+│   │   ├── phase4d_root_shadow_diff_report_latest.json
+│   │   ├── phase4d_root_shadow_diff_report_latest.txt
+│   │   ├── phase4e_quarantine_root_shadows_latest.json
+│   │   ├── portfolio_service_chain_graph_v1.json
+│   │   ├── repo_index.json
+│   │   ├── repo_index_v2.json
+│   │   ├── risk_service_chain_graph_v1.json
+│   │   ├── runtime_flow_overlay_v1.json
+│   │   ├── runtime_static_dependency_diff_v1.json
+│   │   ├── runtime_static_diff_classification_v1.json
+│   │   ├── service_chain_graph_v1.json
+│   │   ├── stack_layer_sankey_v1.json
+│   │   └── strategy_service_chain_graph_v1.json
+│   ├── research_db/
+│   │   └── research_seed.json
+│   ├── strategy_candidate_sandbox/
+│   │   ├── 31A_historical_bars_fetch_validation_latest.json
+│   │   ├── 31B_historical_bars_multi_symbol_validation_latest.json
+│   │   ├── 31C_historical_replay_executor_stub_latest.json
+│   │   ├── 31D_historical_replay_bar_iterator_latest.json
+│   │   ├── 31E_first_single_candidate_replay_dry_run_latest.json
+│   │   ├── 31F_replay_metrics_contract_latest.json
+│   │   ├── 32A_real_metrics_generation_latest.json
+│   │   ├── 32B_candidate_scorecard_from_replay_metrics_latest.json
+│   │   ├── 32C_manual_promotion_gate_stub_latest.json
+│   │   ├── 32D_pipeline_rollup_certification_latest.json
+│   │   ├── 32E_handoff_bundle_refresh_latest.json
+│   │   ├── 33A_trade_simulation_contract_stub_latest.json
+│   │   ├── 33B_trade_event_validation_stub_latest.json
+│   │   ├── 33C_trade_simulation_dry_run_stub_latest.json
+│   │   ├── 33D_entry_exit_signal_contract_stub_latest.json
+│   │   ├── 33E_hold_signal_generator_stub_latest.json
+│   │   ├── 33F_entry_exit_decision_engine_stub_latest.json
+│   │   ├── 33G_hold_decision_to_hold_event_bridge_latest.json
+│   │   ├── 33H_trade_simulation_pipeline_rollup_certification_latest.json
+│   │   ├── 33I_handoff_bundle_refresh_latest.json
+│   │   ├── 34A_entry_signal_rule_contract_stub_latest.json
+│   │   ├── 34B_entry_signal_rule_validation_stub_latest.json
+│   │   ├── 34C_entry_signal_generator_disabled_stub_latest.json
+│   │   ├── 34D_entry_signal_pipeline_rollup_certification_latest.json
+│   │   ├── 34E_handoff_bundle_refresh_latest.json
+│   │   ├── 35A_exit_signal_rule_contract_stub_latest.json
+│   │   ├── 35B_exit_signal_rule_validation_stub_latest.json
+│   │   ├── 35C_exit_signal_generator_disabled_stub_latest.json
+│   │   ├── 35D_exit_signal_pipeline_rollup_certification_latest.json
+│   │   ├── 35E_strategy_sandbox_wiregraph_latest.json
+│   │   ├── 35E_strategy_sandbox_wiregraph_latest.mmd
+│   │   ├── 35F_handoff_bundle_refresh_latest.json
+│   │   ├── 36A_strategy_rule_enablement_gate_contract_stub_latest.json
+│   │   ├── 36B_enablement_gate_validation_stub_latest.json
+│   │   ├── 36C_enablement_gate_pipeline_rollup_certification_latest.json
+│   │   ├── 36D_handoff_bundle_refresh_latest.json
+│   │   ├── 37A_trade_simulation_enablement_gate_contract_stub_latest.json
+│   │   ├── 37B_trade_simulation_enablement_gate_validation_stub_latest.json
+│   │   ├── 37C_trade_simulation_enablement_gate_pipeline_rollup_certification_latest.json
+│   │   ├── 37D_handoff_bundle_refresh_latest.json
+│   │   ├── 38A_risk_gate_contract_stub_latest.json
+│   │   ├── 38B_risk_gate_validation_stub_latest.json
+│   │   ├── 38C_risk_gate_pipeline_rollup_certification_latest.json
+│   │   ├── 38D_handoff_bundle_refresh_latest.json
+│   │   ├── 39A_master_sandbox_gate_wiregraph_latest.json
+│   │   ├── 39A_master_sandbox_gate_wiregraph_latest.mmd
+│   │   ├── 39B_master_sandbox_gate_wiregraph_rollup_certification_latest.json
+│   │   ├── 39C_handoff_bundle_refresh_latest.json
+│   │   ├── 40A_sandbox_runtime_dependency_trace_stub_latest.json
+│   │   ├── 40B_sandbox_runtime_dependency_trace_rollup_certification_latest.json
+│   │   ├── 40C_handoff_bundle_refresh_latest.json
+│   │   ├── 41A_safe_read_only_architecture_inspector_stub_latest.json
+│   │   ├── 41B_safe_read_only_architecture_inspector_rollup_certification_latest.json
+│   │   ├── 41C_handoff_bundle_refresh_latest.json
+│   │   ├── 42A_qwen_read_only_architecture_context_stub_latest.json
+│   │   ├── 42B_qwen_read_only_architecture_context_rollup_certification_latest.json
+│   │   ├── 42C_handoff_bundle_refresh_latest.json
+│   │   ├── 43A_qwen_context_response_contract_stub_latest.json
+│   │   ├── 43B_qwen_context_response_contract_rollup_certification_latest.json
+│   │   ├── 43C_handoff_bundle_refresh_latest.json
+│   │   ├── 44A_qwen_read_only_response_sample_stub_latest.json
+│   │   ├── 44B_qwen_read_only_response_sample_rollup_certification_latest.json
+│   │   ├── 44C_handoff_bundle_refresh_latest.json
+│   │   ├── 45A_qwen_read_only_architecture_summary_gate_stub_latest.json
+│   │   ├── 45B_qwen_read_only_architecture_summary_gate_rollup_certification_latest.json
+│   │   ├── 45C_handoff_bundle_refresh_latest.json
+│   │   ├── 46A_qwen_read_only_missing_context_detector_stub_latest.json
+│   │   ├── 46B_qwen_read_only_missing_context_detector_rollup_certification_latest.json
+│   │   ├── 46C_handoff_bundle_refresh_latest.json
+│   │   ├── 47A_qwen_read_only_recommendation_filter_stub_latest.json
+│   │   ├── 47B_qwen_read_only_recommendation_filter_rollup_certification_latest.json
+│   │   ├── 47C_handoff_bundle_refresh_latest.json
+│   │   ├── 48A_qwen_read_only_response_validator_stub_latest.json
+│   │   ├── 48B_qwen_read_only_response_validator_rollup_certification_latest.json
+│   │   ├── 48C_handoff_bundle_refresh_latest.json
+│   │   ├── 49A_qwen_read_only_architecture_session_contract_stub_latest.json
+│   │   ├── 49B_qwen_read_only_architecture_session_contract_rollup_certification_latest.json
+│   │   ├── 49C_handoff_bundle_refresh_latest.json
+│   │   ├── 50A_qwen_read_only_session_response_bridge_stub_latest.json
+│   │   ├── 50B_qwen_read_only_session_response_bridge_rollup_certification_latest.json
+│   │   ├── 50C_handoff_bundle_refresh_latest.json
+│   │   ├── 51A_qwen_read_only_architecture_loop_boundary_stub_latest.json
+│   │   ├── 51B_qwen_read_only_architecture_loop_boundary_rollup_certification_latest.json
+│   │   ├── 51C_handoff_bundle_refresh_latest.json
+│   │   ├── 52A_qwen_read_only_final_guardrail_summary_stub_latest.json
+│   │   ├── 52B_qwen_read_only_final_guardrail_summary_rollup_certification_latest.json
+│   │   ├── 52C_handoff_bundle_refresh_latest.json
+│   │   ├── 53A_qwen_read_only_handoff_freeze_stub_latest.json
+│   │   ├── 53B_qwen_read_only_handoff_freeze_rollup_certification_latest.json
+│   │   ├── 53C_handoff_bundle_refresh_latest.json
+│   │   ├── 54A_qwen_read_only_handoff_export_summary_stub_latest.json
+│   │   ├── 54B_qwen_read_only_handoff_export_summary_rollup_certification_latest.json
+│   │   ├── 54C_handoff_bundle_refresh_latest.json
+│   │   ├── 55A_qwen_read_only_architecture_state_machine_stub_latest.json
+│   │   ├── 55B_qwen_read_only_architecture_state_machine_rollup_certification_latest.json
+│   │   ├── 55C_handoff_bundle_refresh_latest.json
+│   │   ├── 56A_qwen_read_only_architecture_policy_map_stub_latest.json
+│   │   ├── 56B_qwen_read_only_architecture_policy_map_rollup_certification_latest.json
+│   │   ├── 56C_handoff_bundle_refresh_latest.json
+│   │   ├── 57A_qwen_read_only_policy_boundary_matrix_stub_latest.json
+│   │   ├── 57B_qwen_read_only_policy_boundary_matrix_rollup_certification_latest.json
+│   │   ├── 57C_handoff_bundle_refresh_latest.json
+│   │   ├── 58A_qwen_read_only_final_context_package_stub_latest.json
+│   │   ├── 58B_qwen_read_only_final_context_package_rollup_certification_latest.json
+│   │   ├── 58C_handoff_bundle_refresh_latest.json
+│   │   ├── 59A_qwen_read_only_final_handoff_certification_stub_latest.json
+│   │   ├── 59B_qwen_read_only_final_handoff_certification_rollup_certification_latest.json
+│   │   ├── 59C_handoff_bundle_refresh_latest.json
+│   │   ├── 60A_qwen_read_only_terminal_freeze_stub_latest.json
+│   │   ├── 60B_qwen_read_only_terminal_freeze_rollup_certification_latest.json
+│   │   ├── 60C_handoff_bundle_refresh_latest.json
+│   │   ├── 61A_archive_or_new_chat_handoff_summary_latest.json
+│   │   ├── candidate_20260706_144431_8a545b3c_mock_metrics.json
+│   │   ├── candidate_20260706_144431_8a545b3c_mock_scorecard.json
+│   │   ├── candidate_20260706_144431_8a545b3c_sandbox_result_stub.json
+│   │   ├── candidate_20260706_144431_8a545b3c_sandbox_stub.json
+│   │   ├── candidate_20260706_145350_816903d1_mock_metrics.json
+│   │   ├── candidate_20260706_145350_816903d1_mock_scorecard.json
+│   │   ├── candidate_20260706_145350_816903d1_sandbox_result_stub.json
+│   │   ├── candidate_20260706_145350_816903d1_sandbox_stub.json
+│   │   ├── candidate_20260706_150540_4fc7b8ab_mock_metrics.json
+│   │   ├── candidate_20260706_150540_4fc7b8ab_mock_scorecard.json
+│   │   ├── candidate_20260706_150540_4fc7b8ab_sandbox_result_stub.json
+│   │   ├── candidate_20260706_150540_4fc7b8ab_sandbox_stub.json
+│   │   ├── candidate_20260706_151330_9f852272_mock_metrics.json
+│   │   ├── candidate_20260706_151330_9f852272_mock_scorecard.json
+│   │   ├── candidate_20260706_151330_9f852272_sandbox_result_stub.json
+│   │   ├── candidate_20260706_151330_9f852272_sandbox_stub.json
+│   │   ├── candidate_20260706_152354_e2129e4e_mock_metrics.json
+│   │   ├── candidate_20260706_152354_e2129e4e_mock_scorecard.json
+│   │   ├── candidate_20260706_152354_e2129e4e_sandbox_result_stub.json
+│   │   ├── candidate_20260706_152354_e2129e4e_sandbox_stub.json
+│   │   ├── candidate_20260706_152930_73031c40_mock_metrics.json
+│   │   ├── candidate_20260706_152930_73031c40_mock_scorecard.json
+│   │   ├── candidate_20260706_152930_73031c40_sandbox_result_stub.json
+│   │   ├── candidate_20260706_152930_73031c40_sandbox_stub.json
+│   │   ├── candidate_sandbox_execution_contract_v1.json
+│   │   ├── candidate_sandbox_execution_contract_v1.txt
+│   │   ├── candidate_sandbox_mock_metrics_index_latest.json
+│   │   ├── candidate_sandbox_mock_metrics_index_latest.txt
+│   │   ├── candidate_sandbox_mock_scorecard_latest.json
+│   │   ├── candidate_sandbox_mock_scorecard_latest.txt
+│   │   ├── candidate_sandbox_result_example_latest.json
+│   │   ├── candidate_sandbox_result_schema_v1.json
+│   │   ├── candidate_sandbox_result_stub_index_latest.json
+│   │   ├── candidate_sandbox_result_stub_index_latest.txt
+│   │   ├── historical_bars_contract_v1.json
+│   │   ├── historical_bars_contract_v1.txt
+│   │   ├── historical_replay_engine_stub_latest.json
+│   │   ├── historical_replay_engine_stub_latest.txt
+│   │   ├── historical_replay_input_contract_v1.json
+│   │   ├── historical_replay_input_contract_v1.txt
+│   │   ├── historical_replay_market_data_provider_contract_v1.json
+│   │   ├── historical_replay_market_data_provider_contract_v1.txt
+│   │   ├── historical_replay_provider_adapter_stub_latest.json
+│   │   ├── historical_replay_provider_adapter_stub_latest.txt
+│   │   ├── historical_replay_validation_stub_latest.json
+│   │   ├── historical_replay_validation_stub_latest.txt
+│   │   ├── sandbox_dry_run_index_latest.json
+│   │   ├── sandbox_dry_run_index_latest.txt
+│   │   ├── simulation_harness_stub_latest.json
+│   │   ├── simulation_harness_stub_latest.txt
+│   │   ├── yfinance_historical_bars_adapter_shape_validation_latest.json
+│   │   ├── yfinance_historical_bars_adapter_shape_validation_latest.txt
+│   │   ├── yfinance_historical_bars_adapter_stub_latest.json
+│   │   ├── yfinance_historical_bars_adapter_stub_latest.txt
+│   │   ├── yfinance_historical_bars_adapter_wire_latest.json
+│   │   ├── yfinance_historical_bars_adapter_wire_preview_latest.json
+│   │   ├── yfinance_historical_bars_adapter_wire_preview_latest.txt
+│   │   ├── yfinance_historical_bars_provider_probe_latest.json
+│   │   └── yfinance_historical_bars_provider_probe_latest.txt
+│   └── strategy_candidates/
+│       ├── candidate_20260706_144431_8a545b3c.json
+│       ├── candidate_20260706_145350_816903d1.json
+│       ├── candidate_20260706_150540_4fc7b8ab.json
+│       ├── candidate_20260706_151330_9f852272.json
+│       ├── candidate_20260706_152354_e2129e4e.json
+│       ├── candidate_20260706_152930_73031c40.json
+│       ├── candidate_20260706_171550_aca89979.json
+│       ├── candidate_20260706_171803_7979fee4.json
+│       ├── candidate_20260706_171835_2412645f.json
+│       ├── candidate_20260706_190850_245c152e.json
+│       ├── candidate_20260706_190919_18dff139.json
+│       ├── candidate_20260706_190955_47174fc4.json
+│       ├── candidate_20260706_201713_2d8f8e9e.json
+│       ├── candidate_20260706_201808_d90bd687.json
+│       ├── candidate_20260706_221600_b8f7600a.json
+│       ├── candidate_20260706_234404_20bfeb59.json
+│       ├── review_index_latest.json
+│       └── review_index_latest.txt
+├── scripts/
+│   ├── ci/
+│   │   └── architecture_ci_guard_v1.py
+│   ├── apply_service_relocation_v1.py
+│   ├── architecture_enforcement_v1.py
+│   ├── architecture_normalization_engine_v1.py
+│   ├── orphan_finalizer_v1.py
+│   ├── orphan_resolution_engine_v1.py
+│   ├── phase10_domain_subsystem_visualization.py
+│   ├── phase10_domain_subsystem_visualization_certification.py
+│   ├── phase10c_domain_runtime_overlay_visualization.py
+│   ├── phase10c_runtime_flow_overlay_certification.py
+│   ├── phase10c_runtime_flow_overlay_export.py
+│   ├── phase10d_runtime_static_dependency_diff.py
+│   ├── phase10d_runtime_static_dependency_diff_certification.py
+│   ├── phase10e_classify_runtime_static_diff_edges.py
+│   ├── phase10e_diff_classification_certification.py
+│   ├── phase10f_architecture_drift_watch_certification.py
+│   ├── phase10g_architecture_drift_dashboard_certification.py
+│   ├── phase10g_architecture_drift_dashboard_summary.py
+│   ├── phase10h_architecture_dashboard_command_certification.py
+│   ├── phase11_live_market_price_api_bridge.py
+│   ├── phase11_live_market_price_api_bridge_certification.py
+│   ├── phase11b_frontend_live_price_card.py
+│   ├── phase11b_frontend_live_price_card_certification.py
+│   ├── phase11c_frontend_polling_api_cleanup.py
+│   ├── phase11c_frontend_polling_api_cleanup_certification.py
+│   ├── phase11d_next_api_proxy_live_price.py
+│   ├── phase11d_next_api_proxy_live_price_certification.py
+│   ├── phase11e_frontend_build_type_certification.py
+│   ├── phase11f_frontend_type_lint_repair.py
+│   ├── phase11f_frontend_type_lint_repair_certification.py
+│   ├── phase11g_live_market_dashboard_expansion.py
+│   ├── phase11g_live_market_dashboard_expansion_certification.py
+│   ├── phase12_service_layer_alignment.py
+│   ├── phase12e_service_chain_graph_export.py
+│   ├── phase12f_service_chain_certification.py
+│   ├── phase12g_add_service_chain_to_dashboard.py
+│   ├── phase12g_service_chain_dashboard_certification.py
+│   ├── phase12g_service_chain_repair.py
+│   ├── phase13_portfolio_positions_service_chain.py
+│   ├── phase13e_portfolio_service_chain_graph_export.py
+│   ├── phase13f_portfolio_positions_service_chain_certification.py
+│   ├── phase13g_add_portfolio_chain_to_dashboard.py
+│   ├── phase13g_portfolio_chain_dashboard_certification.py
+│   ├── phase14_strategy_decision_service_chain.py
+│   ├── phase14e_strategy_service_chain_graph_export.py
+│   ├── phase14f_strategy_decision_service_chain_certification.py
+│   ├── phase14g_add_strategy_chain_to_dashboard.py
+│   ├── phase14g_strategy_chain_dashboard_certification.py
+│   ├── phase15_risk_gate_service_chain.py
+│   ├── phase15e_risk_service_chain_graph_export.py
+│   ├── phase15f_risk_gate_service_chain_certification.py
+│   ├── phase15g_add_risk_chain_to_dashboard.py
+│   ├── phase15g_risk_chain_dashboard_certification.py
+│   ├── phase16_api_route_separation_certification.py
+│   ├── phase17_dashboard_route_map_certification.py
+│   ├── phase17_dashboard_route_map_frontend_card_verification.py
+│   ├── phase18_real_positions_panel_certification.py
+│   ├── phase18_real_positions_panel_component.py
+│   ├── phase19_dashboard_visual_layout_certification.py
+│   ├── phase19_dashboard_visual_layout_hardening.py
+│   ├── phase19b_endpoint_activation_probe_repair.py
+│   ├── phase19c_endpoint_activation_certification.py
+│   ├── phase1_repo_research_market_bootstrap.py
+│   ├── phase20_floating_chat_widget_service_chain.py
+│   ├── phase20e_chat_service_chain_graph_export.py
+│   ├── phase20f_floating_chat_widget_certification.py
+│   ├── phase21_fix_chat_service_generator.py
+│   ├── phase21ab_chat_cache_history.py
+│   ├── phase21ab_chat_cache_history_certification.py
+│   ├── phase21cd_chat_ux_persistent_cache.py
+│   ├── phase21cd_chat_ux_persistent_cache_certification.py
+│   ├── phase22_live_graph_tab.py
+│   ├── phase22_live_graph_tab_certification.py
+│   ├── phase22b_live_graph_visualization.py
+│   ├── phase22b_live_graph_visualization_certification.py
+│   ├── phase23a_frontend_request_normalizer.py
+│   ├── phase23a_frontend_request_normalizer_certification.py
+│   ├── phase23b_polling_governor_certification.py
+│   ├── phase24a_frontend_observability_dashboard.py
+│   ├── phase24a_frontend_observability_dashboard_certification.py
+│   ├── phase24b_persist_observability_backend_health.py
+│   ├── phase24b_persist_observability_backend_health_certification.py
+│   ├── phase24c_observability_event_timeline.py
+│   ├── phase24c_observability_event_timeline_certification.py
+│   ├── phase24d_observability_lock_handoff_snapshot.py
+│   ├── phase25a_dashboard_tab_shell_layout_navigation.py
+│   ├── phase25a_dashboard_tab_shell_layout_navigation_certification.py
+│   ├── phase25b_tab_layout_polish_chat_panel.py
+│   ├── phase25b_tab_layout_polish_chat_panel_certification.py
+│   ├── phase25c_split_dashboard_panels_into_tab_workspaces.py
+│   ├── phase25c_split_dashboard_panels_into_tab_workspaces_certification.py
+│   ├── phase26a_chat_intent_regex_ollama_router.py
+│   ├── phase26b_wire_ollama_into_chat_runtime.py
+│   ├── phase26c_chat_safety_prompt_live_execution_guard_certification.py
+│   ├── phase26d_frontend_chat_response_normalizer.py
+│   ├── phase26d_frontend_chat_response_normalizer_certification.py
+│   ├── phase26e_chat_metadata_chips_typing_enter.py
+│   ├── phase26e_chat_metadata_chips_typing_enter_certification.py
+│   ├── phase26f_chat_ui_state_cleanup_metadata_rendering.py
+│   ├── phase26f_chat_ui_state_cleanup_metadata_rendering_certification.py
+│   ├── phase27a_strategy_proposal_capture.py
+│   ├── phase27a_strategy_proposal_capture_certification.py
+│   ├── phase27b_strategy_candidate_review_index.py
+│   ├── phase27b_strategy_candidate_review_index_certification.py
+│   ├── phase27c_candidate_sandbox_dry_run_stub.py
+│   ├── phase27c_candidate_sandbox_dry_run_stub_certification.py
+│   ├── phase27d_candidate_sandbox_result_schema.py
+│   ├── phase27d_candidate_sandbox_result_schema_certification.py
+│   ├── phase27e_candidate_sandbox_result_stub_generator.py
+│   ├── phase27e_candidate_sandbox_result_stub_generator_certification.py
+│   ├── phase27f_candidate_sandbox_readiness_lock_snapshot.py
+│   ├── phase28a_candidate_sandbox_simulation_harness_stub.py
+│   ├── phase28a_candidate_sandbox_simulation_harness_stub_certification.py
+│   ├── phase28b_candidate_sandbox_mock_metrics_generator.py
+│   ├── phase28b_candidate_sandbox_mock_metrics_generator_certification.py
+│   ├── phase28c_candidate_sandbox_mock_scorecard.py
+│   ├── phase28c_candidate_sandbox_mock_scorecard_certification.py
+│   ├── phase28d_candidate_sandbox_execution_contract.py
+│   ├── phase28d_candidate_sandbox_execution_contract_certification.py
+│   ├── phase29a_historical_replay_engine_stub.py
+│   ├── phase29a_historical_replay_engine_stub_certification.py
+│   ├── phase29b_historical_replay_input_contract.py
+│   ├── phase29b_historical_replay_input_contract_certification.py
+│   ├── phase29c_historical_replay_validation_stub.py
+│   ├── phase29c_historical_replay_validation_stub_certification.py
+│   ├── phase29d_historical_replay_readiness_snapshot.py
+│   ├── phase29e_historical_replay_market_data_provider_contract.py
+│   ├── phase29e_historical_replay_market_data_provider_contract_certification.py
+│   ├── phase29f_historical_replay_provider_adapter_stub.py
+│   ├── phase29f_historical_replay_provider_adapter_stub_certification.py
+│   ├── phase29g_historical_replay_provider_readiness_snapshot.py
+│   ├── phase2_yfinance_market_warehouse.py
+│   ├── phase30a_yfinance_historical_bars_provider_probe.py
+│   ├── phase30a_yfinance_historical_bars_provider_probe_certification.py
+│   ├── phase30b_yfinance_provider_selection_snapshot.py
+│   ├── phase30c_historical_bars_contract.py
+│   ├── phase30c_historical_bars_contract_certification.py
+│   ├── phase30d_yfinance_historical_bars_adapter_stub.py
+│   ├── phase30d_yfinance_historical_bars_adapter_stub_certification.py
+│   ├── phase30e_yfinance_historical_bars_adapter_shape_validation.py
+│   ├── phase30e_yfinance_historical_bars_adapter_shape_validation_certification.py
+│   ├── phase30f_yfinance_historical_bars_adapter_wire_preview.py
+│   ├── phase30f_yfinance_historical_bars_adapter_wire_preview_certification.py
+│   ├── phase30g_yfinance_historical_bars_adapter_wire.py
+│   ├── phase30g_yfinance_historical_bars_adapter_wire_certification.py
+│   ├── phase31a_historical_bars_fetch_validation.py
+│   ├── phase31b_historical_bars_multi_symbol_validation.py
+│   ├── phase31c_historical_replay_executor_stub.py
+│   ├── phase31d_historical_replay_bar_iterator.py
+│   ├── phase31e_first_single_candidate_replay_dry_run.py
+│   ├── phase31f_replay_metrics_contract.py
+│   ├── phase32a_real_metrics_generation.py
+│   ├── phase32b_candidate_scorecard_from_replay_metrics.py
+│   ├── phase32c_manual_promotion_gate_stub.py
+│   ├── phase32d_pipeline_rollup_certification.py
+│   ├── phase32e_handoff_bundle_refresh.py
+│   ├── phase33a_trade_simulation_contract_stub.py
+│   ├── phase33b_trade_event_validation_stub.py
+│   ├── phase33c_trade_simulation_dry_run_stub.py
+│   ├── phase33d_entry_exit_signal_contract_stub.py
+│   ├── phase33e_hold_signal_generator_stub.py
+│   ├── phase33f_entry_exit_decision_engine_stub.py
+│   ├── phase33g_hold_decision_to_hold_event_bridge.py
+│   ├── phase33h_trade_simulation_pipeline_rollup_certification.py
+│   ├── phase33i_handoff_bundle_refresh.py
+│   ├── phase34a_entry_signal_rule_contract_stub.py
+│   ├── phase34b_entry_signal_rule_validation_stub.py
+│   ├── phase34c_entry_signal_generator_disabled_stub.py
+│   ├── phase34d_entry_signal_pipeline_rollup_certification.py
+│   ├── phase34e_handoff_bundle_refresh.py
+│   ├── phase35a_exit_signal_rule_contract_stub.py
+│   ├── phase35b_exit_signal_rule_validation_stub.py
+│   ├── phase35c_exit_signal_generator_disabled_stub.py
+│   ├── phase35d_exit_signal_pipeline_rollup_certification.py
+│   ├── phase35e_strategy_sandbox_wiregraph_certification.py
+│   ├── phase35f_handoff_bundle_refresh.py
+│   ├── phase36a_strategy_rule_enablement_gate_contract_stub.py
+│   ├── phase36b_enablement_gate_validation_stub.py
+│   ├── phase36c_enablement_gate_pipeline_rollup_certification.py
+│   ├── phase36d_handoff_bundle_refresh.py
+│   ├── phase37a_trade_simulation_enablement_gate_contract_stub.py
+│   ├── phase37b_trade_simulation_enablement_gate_validation_stub.py
+│   ├── phase37c_trade_simulation_enablement_gate_pipeline_rollup_certification.py
+│   ├── phase37d_handoff_bundle_refresh.py
+│   ├── phase38a_risk_gate_contract_stub.py
+│   ├── phase38b_risk_gate_validation_stub.py
+│   ├── phase38c_risk_gate_pipeline_rollup_certification.py
+│   ├── phase38d_handoff_bundle_refresh.py
+│   ├── phase39a_master_sandbox_gate_wiregraph_refresh.py
+│   ├── phase39b_master_sandbox_gate_wiregraph_rollup_certification.py
+│   ├── phase39c_handoff_bundle_refresh.py
+│   ├── phase3m_graph_certification.py
+│   ├── phase40a_sandbox_runtime_dependency_trace_stub.py
+│   ├── phase40b_sandbox_runtime_dependency_trace_rollup_certification.py
+│   ├── phase40c_handoff_bundle_refresh.py
+│   ├── phase41a_safe_read_only_architecture_inspector_stub.py
+│   ├── phase41b_safe_read_only_architecture_inspector_rollup_certification.py
+│   ├── phase41c_handoff_bundle_refresh.py
+│   ├── phase42a_qwen_read_only_architecture_context_stub.py
+│   ├── phase42b_qwen_read_only_architecture_context_rollup_certification.py
+│   ├── phase42c_handoff_bundle_refresh.py
+│   ├── phase43a_qwen_context_response_contract_stub.py
+│   ├── phase43b_qwen_context_response_contract_rollup_certification.py
+│   ├── phase43c_handoff_bundle_refresh.py
+│   ├── phase44a_qwen_read_only_response_sample_stub.py
+│   ├── phase44b_qwen_read_only_response_sample_rollup_certification.py
+│   ├── phase44c_handoff_bundle_refresh.py
+│   ├── phase45a_qwen_read_only_architecture_summary_gate_stub.py
+│   ├── phase45b_qwen_read_only_architecture_summary_gate_rollup_certification.py
+│   ├── phase45c_handoff_bundle_refresh.py
+│   ├── phase46a_qwen_read_only_missing_context_detector_stub.py
+│   ├── phase46b_qwen_read_only_missing_context_detector_rollup_certification.py
+│   ├── phase46c_handoff_bundle_refresh.py
+│   ├── phase47a_qwen_read_only_recommendation_filter_stub.py
+│   ├── phase47b_qwen_read_only_recommendation_filter_rollup_certification.py
+│   ├── phase47c_handoff_bundle_refresh.py
+│   ├── phase48a_qwen_read_only_response_validator_stub.py
+│   ├── phase48b_qwen_read_only_response_validator_rollup_certification.py
+│   ├── phase48c_handoff_bundle_refresh.py
+│   ├── phase49a_qwen_read_only_architecture_session_contract_stub.py
+│   ├── phase49b_qwen_read_only_architecture_session_contract_rollup_certification.py
+│   ├── phase49c_handoff_bundle_refresh.py
+│   ├── phase4_repo_memory_indexer_v2.py
+│   ├── phase4c_loose_root_duplicate_quarantine_plan.py
+│   ├── phase4d_root_shadow_diff_report.py
+│   ├── phase4e_quarantine_root_shadows.py
+│   ├── phase4g_repo_memory_certification.py
+│   ├── phase50a_qwen_read_only_session_response_bridge_stub.py
+│   ├── phase50b_qwen_read_only_session_response_bridge_rollup_certification.py
+│   ├── phase50c_handoff_bundle_refresh.py
+│   ├── phase51a_qwen_read_only_architecture_loop_boundary_stub.py
+│   ├── phase51b_qwen_read_only_architecture_loop_boundary_rollup_certification.py
+│   ├── phase51c_handoff_bundle_refresh.py
+│   ├── phase52a_qwen_read_only_final_guardrail_summary_stub.py
+│   ├── phase52b_qwen_read_only_final_guardrail_summary_rollup_certification.py
+│   ├── phase52c_handoff_bundle_refresh.py
+│   ├── phase53a_qwen_read_only_handoff_freeze_stub.py
+│   ├── phase53b_qwen_read_only_handoff_freeze_rollup_certification.py
+│   ├── phase53c_handoff_bundle_refresh.py
+│   ├── phase54a_qwen_read_only_handoff_export_summary_stub.py
+│   ├── phase54b_qwen_read_only_handoff_export_summary_rollup_certification.py
+│   ├── phase54c_handoff_bundle_refresh.py
+│   ├── phase55a_qwen_read_only_architecture_state_machine_stub.py
+│   ├── phase55b_qwen_read_only_architecture_state_machine_rollup_certification.py
+│   ├── phase55c_handoff_bundle_refresh.py
+│   ├── phase56a_qwen_read_only_architecture_policy_map_stub.py
+│   ├── phase56b_qwen_read_only_architecture_policy_map_rollup_certification.py
+│   ├── phase56c_handoff_bundle_refresh.py
+│   ├── phase57a_qwen_read_only_policy_boundary_matrix_stub.py
+│   ├── phase57b_qwen_read_only_policy_boundary_matrix_rollup_certification.py
+│   ├── phase57c_handoff_bundle_refresh.py
+│   ├── phase58a_qwen_read_only_final_context_package_stub.py
+│   ├── phase58b_qwen_read_only_final_context_package_rollup_certification.py
+│   ├── phase58c_handoff_bundle_refresh.py
+│   ├── phase59a_qwen_read_only_final_handoff_certification_stub.py
+│   ├── phase59b_qwen_read_only_final_handoff_certification_rollup_certification.py
+│   ├── phase59c_handoff_bundle_refresh.py
+│   ├── phase5c_repo_memory_certification_v2.py
+│   ├── phase60a_qwen_read_only_terminal_freeze_stub.py
+│   ├── phase60b_qwen_read_only_terminal_freeze_rollup_certification.py
+│   ├── phase60c_handoff_bundle_refresh.py
+│   ├── phase61a_archive_or_new_chat_handoff_summary.py
+│   ├── phase62a_master_architecture_handoff_controller.py
+│   ├── phase6b_dependency_validation_certification.py
+│   ├── phase6c_dependency_graph_export.py
+│   ├── phase6d_dependency_graph_certification.py
+│   ├── phase7a_dependency_topology_overlay_export.py
+│   ├── phase7g_graph_visualization_certification.py
+│   ├── phase8c_neuro_cli_hotspots_certification.py
+│   ├── phase9a_canonical_layer_graph_export.py
+│   ├── phase9b_component_overlay_export.py
+│   ├── phase9c_generate_layer_colored_wire_graph.py
+│   ├── phase9e_canonical_graph_certification.py
+│   ├── phase9k_domain_subsystem_graph_export.py
+│   ├── phase9l_stack_layer_sankey_export.py
+│   ├── phase9m_canonical_graph_certification_v2.py
+│   ├── reconcile_repo_state_v1.py
+│   ├── service_stack_relocator_v1.py
+│   └── topology_state_lock_v1.py
+├── $OUTPUT
+├── .aider.chat.history.md
+├── .aider.input.history
+├── .env
+├── .env.example
+├── .gitignore
+├── ARCH_ENFORCEMENT_REPORT.json
+├── ARCH_GOVERNANCE.md
+├── ARCHITECTURE_REPAIR_PLAN.json
+├── cursor.AppImage
+├── Directory Structure
+├── docker-compose.yml
+├── domain_runtime_overlay_graph.png
+├── domain_subsystem_graph.png
+├── FINAL_ARCHITECTURE_STATE.json
+├── fix_phase9_self_fingerprint.sh
+├── generate_wire_graph.py
+├── neuro
+├── neuro_cli.py
+├── neuro_cli_file_inspection.json
+├── neuro_engineer.py
+├── neuro_health.sh
+├── neurovest_repo_context.md
+├── ORPHAN_RESOLUTION_PLAN.json
+├── OUTPUT
+├── pytest.ini
+├── SERVICE_RELOCATION_PLAN.json
+├── SERVICE_RELOCATION_PLAN_RECONCILED.json
+├── spine_mvp_full.sh
+├── system_tree.txt
+├── TOPOLOGY_NORMALIZED_STATE.json
+├── TOPOLOGY_STATE.json
+├── topology_wire_graph.png
+└── topology_wire_graph_canonical.png

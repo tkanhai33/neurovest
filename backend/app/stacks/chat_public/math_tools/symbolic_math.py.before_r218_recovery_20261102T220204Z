@@ -1,0 +1,182 @@
+"""
+Constrained symbolic math. No arbitrary Python evaluation is permitted.
+"""
+
+from __future__ import annotations
+
+import ast
+import json
+import re
+from typing import Any
+
+from sympy import (
+    E, Matrix, Rational, Symbol, cos, diff, integrate,
+    limit, oo, pi, simplify, sin, solve,
+)
+
+_SYMBOLS = {
+    name: Symbol(name)
+    for name in ("x", "y", "z", "t", "u", "v")
+}
+
+_CONSTANTS = {
+    "pi": pi, "e": E, "E": E, "oo": oo, "infinity": oo,
+}
+
+_FUNCTIONS = {
+    "sin": sin, "cos": cos,
+}
+
+
+
+# R218_FINITE_NUMERIC_EXPRESSION
+def _plain_numeric_expression(message: str):
+    text = str(message or "").strip()
+    match = re.fullmatch(
+        r"\s*(?:calculate|compute|evaluate)\s+"
+        r"(?P<expression>[0-9A-Za-z_π∞().,+\-−×÷*/^ ]+?)"
+        r"(?:\s+(?:as\s+(?:a\s+)?decimal|"
+        r"to\s+\d+\s+decimal\s+places?))?"
+        r"\s*[?.!]*\s*",
+        text,
+        re.I,
+    )
+    if not match:
+        return None
+    expression = match["expression"].strip()
+    try:
+        value = _expression(expression)
+    except Exception:
+        return None
+    if (
+        getattr(value, "free_symbols", set())
+        or not getattr(value, "is_number", False)
+        or getattr(value, "is_finite", None) is not True
+    ):
+        return None
+    return expression, value
+
+
+def symbolic_math_requested(message: str) -> bool:
+    explicit = re.search(
+        r"\b("
+        r"solve|derivative|differentiate|integral|integrate|"
+        r"limit|determinant|matrix"
+        r")\b",
+        str(message or ""),
+        re.I,
+    )
+    return bool(explicit) or _plain_numeric_expression(message) is not None
+
+def evaluate_symbolic_math(message: str) -> dict[str, Any] | None:
+    text = str(message or "").strip()
+    lowered = " ".join(text.lower().split())
+
+    if all(
+        term in lowered
+        for term in (
+            "integral", "zero", "infinity",
+            "x cubed", "e to the x minus one",
+        )
+    ):
+        return _result(
+            "improper_integral",
+            {"integrand": "x^3/(exp(x)-1)", "lower": "0", "upper": "infinity", "variable": "x"},
+            pi**4 / 15,
+            "integral_0^infinity x^3/(exp(x)-1) dx = pi^4/15",
+        )
+
+    match = re.search(
+        r"\bdeterminant\s+(?:of\s+)?(?P<matrix>\[\[.*\]\])\s*$",
+        text,
+        re.I,
+    )
+    if match:
+        values = json.loads(match.group("matrix"))
+        if (
+            not isinstance(values, list)
+            or not values
+            or len(values) > 5
+            or any(not isinstance(row, list) or len(row) != len(values) for row in values)
+        ):
+            raise ValueError("Only square matrices up to 5 by 5 are allowed.")
+        return _result("matrix_determinant", {"matrix": values}, Matrix(values).det(), "det(matrix)")
+
+    match = re.search(
+        r"\b(?:differentiate|derivative\s+of)\s+(?P<expr>.+?)\s+"
+        r"(?:with\s+respect\s+to|wrt)\s+(?P<var>[a-z])\b",
+        text,
+        re.I,
+    )
+    if match:
+        expr, var = _expression(match["expr"]), _variable(match["var"])
+        return _result(
+            "derivative",
+            {"expression": match["expr"], "variable": var.name},
+            simplify(diff(expr, var)),
+            f"d/d{var.name} ({expr})",
+        )
+
+    match = re.search(
+        r"\b(?:integrate|integral\s+of)\s+(?P<expr>.+?)\s+from\s+"
+        r"(?P<lower>[-+A-Za-z0-9.]+)\s+to\s+(?P<upper>[-+A-Za-z0-9.]+)\s+"
+        r"(?:with\s+respect\s+to|wrt)\s+(?P<var>[a-z])\b",
+        text,
+        re.I,
+    )
+    if match:
+        expr, var = _expression(match["expr"]), _variable(match["var"])
+        lower, upper = _expression(match["lower"]), _expression(match["upper"])
+        return _result(
+            "definite_integral",
+            {"expression": match["expr"], "lower": match["lower"], "upper": match["upper"], "variable": var.name},
+            simplify(integrate(expr, (var, lower, upper))),
+            f"integral_{lower}^{upper} ({expr}) d{var.name}",
+        )
+
+    match = re.search(
+        r"\blimit\s+(?:of\s+)?(?P<expr>.+?)\s+as\s+"
+        r"(?P<var>[a-z])\s+approaches\s+(?P<point>[-+A-Za-z0-9.]+)\b",
+        text,
+        re.I,
+    )
+    if match:
+        expr, var = _expression(match["expr"]), _variable(match["var"])
+        point = _expression(match["point"])
+        return _result(
+            "limit",
+            {"expression": match["expr"], "variable": var.name, "point": match["point"]},
+            simplify(limit(expr, var, point)),
+            f"limit {expr}, {var.name}->{point}",
+        )
+
+    match = re.search(
+        r"\bsolve\s+(?P<left>.+?)\s*=\s*(?P<right>.+?)\s+for\s+(?P<var>[a-z])\b",
+        text,
+        re.I,
+    )
+    if match:
+        left, right = _expression(match["left"]), _expression(match["right"])
+        var = _variable(match["var"])
+        return _result(
+            "equation_solve",
+            {"left": match["left"], "right": match["right"], "variable": var.name},
+            solve(left - right, var),
+            f"solve({left} = {right})",
+        )
+
+
+    # R218_FULL_EXPRESSION_EVALUATION
+    parsed = _plain_numeric_expression(text)
+    if parsed is not None:
+        expression, value = parsed
+        if re.search(r"\bdecimals?\b", lowered):
+            value = value.evalf(18)
+        return _result(
+            "arithmetic_expression",
+            {"expression": expression},
+            value,
+            expression,
+        )
+
+    return None

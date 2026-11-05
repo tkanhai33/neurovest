@@ -13,6 +13,13 @@ import {
   csrfHeaders,
 } from "../../lib/clientCsrf";
 
+import {
+  Button,
+  Input,
+  Panel,
+  StatusMessage,
+} from "../../components/ui";
+
 export default function ChangePasswordPage() {
   const router = useRouter();
 
@@ -90,75 +97,118 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 py-16 text-white">
-      <section className="w-full max-w-xl rounded-[2rem] border border-white/10 bg-slate-950/80 p-8 shadow-2xl backdrop-blur-xl sm:p-12">
-        <p className="text-xs font-black uppercase tracking-[0.3em] text-cyan-300">
-          Required security step
-        </p>
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#020617] px-4 py-10 text-white sm:px-6 sm:py-16">
+      <div className="landing-grid pointer-events-none absolute inset-0 opacity-30" />
+      <div className="landing-orb landing-orb-cyan" />
+      <div className="landing-orb landing-orb-violet" />
 
-        <h1 className="mt-4 text-4xl font-black">
-          Replace temporary password
-        </h1>
-
-        <p className="mt-4 leading-7 text-slate-400">
-          Your temporary credentials cannot access
-          the NeuroVest dashboard. Create a private
-          replacement password to continue.
-        </p>
-
-        <form
-          onSubmit={submit}
-          className="mt-9 space-y-5"
+      <div className="relative z-10 w-full max-w-2xl">
+        <Panel
+          variant="elevated"
+          className="p-7 sm:p-10 lg:p-12"
         >
-          <input
-            name="current_password"
-            type="password"
-            required
-            autoComplete="current-password"
-            placeholder="Temporary password"
-            className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-4"
-          />
+          <p className="nv-eyebrow">
+            Required security step
+          </p>
 
-          <input
-            name="new_password"
-            type="password"
-            required
-            minLength={12}
-            autoComplete="new-password"
-            placeholder="New password"
-            className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-4"
-          />
+          <h1 className="nv-page-title mt-3">
+            Replace temporary password
+          </h1>
 
-          <input
-            name="confirmation"
-            type="password"
-            required
-            minLength={12}
-            autoComplete="new-password"
-            placeholder="Confirm new password"
-            className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-4"
-          />
+          <p className="nv-page-description mt-4">
+            Temporary credentials cannot continue into the authenticated
+            NeuroVest workspace. Create your private replacement password
+            to complete account setup.
+          </p>
 
-          {error && (
-            <div
-              role="alert"
-              className="rounded-2xl border border-red-300/20 bg-red-400/5 p-4 text-sm text-red-200"
-            >
-              {error}
-            </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-2xl bg-cyan-300 px-5 py-4 font-black text-slate-950 disabled:opacity-60"
+          <div className="mt-6 rounded-xl border border-cyan-400/10 bg-cyan-400/[0.035] p-4">
+            <p className="text-sm leading-6 text-slate-400">
+              Your new password must contain at least 12 characters,
+              including uppercase, lowercase, a number, and a symbol.
+            </p>
+          </div>
+
+
+          <form
+            onSubmit={submit}
+            className="mt-8 space-y-5"
           >
-            {submitting
-              ? "Updating…"
-              : "Replace password"}
-          </button>
-        </form>
-      </section>
+            <label className="block">
+              <span className="nv-eyebrow">
+                Temporary password
+              </span>
+
+              <Input
+                name="current_password"
+                type="password"
+                required
+                autoComplete="current-password"
+                placeholder="Temporary password"
+                disabled={submitting}
+                className="mt-2"
+              />
+            </label>
+
+
+            <label className="block">
+              <span className="nv-eyebrow">
+                New password
+              </span>
+
+              <Input
+                name="new_password"
+                type="password"
+                required
+                minLength={12}
+                autoComplete="new-password"
+                placeholder="New password"
+                disabled={submitting}
+                className="mt-2"
+              />
+            </label>
+
+
+            <label className="block">
+              <span className="nv-eyebrow">
+                Confirm new password
+              </span>
+
+              <Input
+                name="confirmation"
+                type="password"
+                required
+                minLength={12}
+                autoComplete="new-password"
+                placeholder="Confirm new password"
+                disabled={submitting}
+                className="mt-2"
+              />
+            </label>
+
+
+            {error ? (
+              <StatusMessage tone="danger">
+                {error}
+              </StatusMessage>
+            ) : null}
+
+
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={submitting}
+              className="w-full"
+            >
+              {
+                submitting
+                  ? "Updating…"
+                  : "Replace password"
+              }
+            </Button>
+          </form>
+        </Panel>
+      </div>
     </main>
   );
 }

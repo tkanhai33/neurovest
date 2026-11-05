@@ -15,6 +15,14 @@ def test_session_lifecycle_runtime_builds_user_repository() -> None:
     with (
         patch(
             "backend.app.stacks.identity_auth.runtime_adapter."
+            "load_jwt_secret",
+            return_value=(
+                b"neurovest-test-session-lifecycle-secret-"
+                b"minimum-32-bytes"
+            ),
+        ),
+        patch(
+            "backend.app.stacks.identity_auth.runtime_adapter."
             "IdentityUserRepository"
         ) as user_repository_type,
         patch(
@@ -54,6 +62,14 @@ def test_session_lifecycle_runtime_uses_one_shared_session() -> None:
     )
 
     with (
+        patch(
+            "backend.app.stacks.identity_auth.runtime_adapter."
+            "load_jwt_secret",
+            return_value=(
+                b"neurovest-test-session-lifecycle-secret-"
+                b"minimum-32-bytes"
+            ),
+        ),
         patch(
             "backend.app.stacks.identity_auth.runtime_adapter."
             "IdentityUserRepository"

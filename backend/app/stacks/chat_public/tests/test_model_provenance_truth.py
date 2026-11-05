@@ -20,12 +20,21 @@ RUNTIME = (
 )
 
 
-def test_neuro_reason_alias_resolves_to_executed_model() -> None:
+def test_neuro_reason_model_resolves_to_its_real_local_tag() -> None:
     assert (
         resolve_runtime_model(
             "neuro-reason:latest"
         )
-        == "llama3.1:latest"
+        == "neuro-reason:latest"
+    )
+
+
+def test_neuro_fast_model_resolves_to_its_real_local_tag() -> None:
+    assert (
+        resolve_runtime_model(
+            "neuro-fast-no-think:latest"
+        )
+        == "neuro-fast-no-think:latest"
     )
 
 
@@ -68,3 +77,8 @@ def test_outward_chat_response_uses_resolved_model() -> None:
             matches.append(node.lineno)
 
     assert len(matches) == 1
+
+
+def test_missing_model_remains_none_without_inference() -> None:
+    assert resolve_runtime_model(None) is None
+

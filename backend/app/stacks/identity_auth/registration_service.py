@@ -41,6 +41,15 @@ class RegistrationService:
         command: RegistrationCommand,
     ) -> RegisteredIdentity:
         try:
+            if (
+                command.terms_accepted is not True
+                or command.terms_version
+                != "neurovest-beta-terms-2026-10-09-v1"
+            ):
+                raise RegistrationRejectedError(
+                    "Registration could not be completed"
+                )
+
             normalized_email = (
                 normalize_email(
                     command.email
@@ -98,6 +107,7 @@ class RegistrationService:
                 email=normalized_email,
                 password_hash=password_hash,
                 display_name=display_name,
+                terms_version=command.terms_version,
             )
 
             await self._commit()

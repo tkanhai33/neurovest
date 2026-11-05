@@ -16,6 +16,17 @@ def _fetch_yf_snapshot(symbol: str) -> dict:
         current_price = fast_info.get("last_price")
         prev_close = fast_info.get("previous_close")
 
+        # Use provider-supplied currency only. Never guess USD/CAD.
+        try:
+            currency = fast_info.get("currency")
+        except (AttributeError, KeyError, TypeError, ValueError):
+            currency = None
+
+        if not isinstance(currency, str) or not currency.strip():
+            currency = None
+        else:
+            currency = currency.strip().upper()
+
         # If fast_info yields empty fields, pull from standard history matrices safely
         if current_price is None:
             hist = ticker.history(period="1d", interval="1m")
@@ -29,7 +40,8 @@ def _fetch_yf_snapshot(symbol: str) -> dict:
             "status": "ok",
             "symbol": symbol,
             "price": float(current_price),
-            "previous_close": float(prev_close) if prev_close else float(current_price)
+            "previous_close": float(prev_close) if prev_close else float(current_price),
+            "currency": currency,
         }
     except Exception as e:
         return {
@@ -70,6 +82,7 @@ async def get_live_price_quote(symbol: str):
             "symbol": symbol,
             "price": price,
             "previous_close": previous_close,
+            "currency": quote.get("currency"),
             "provider": quote.get("provider", "yfinance"),
             "timestamp": quote.get("timestamp"),
             "error": quote.get("error"),

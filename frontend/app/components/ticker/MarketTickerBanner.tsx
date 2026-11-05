@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -12,36 +13,13 @@ import {
   type LiveQuote,
 } from "../../../services/marketService";
 
-const CAD_TICKER_SYMBOLS = [
-  "CNR.TO",
-  "ENB.TO",
-  "VFV.TO",
-  "VUN.TO",
-  "RY.TO",
-  "TD.TO",
-  "BNS.TO",
-  "BAM.TO",
-  "SHOP.TO",
-  "ATZ.TO",
-];
-
-const US_TICKER_SYMBOLS = [
-  "AAPL",
-  "MSFT",
-  "NVDA",
-  "TSLA",
-  "AMD",
-  "META",
-  "GOOGL",
-  "AMZN",
-];
-
-const CRYPTO_TICKER_SYMBOLS = [
-  "BTC-CAD",
-  "ETH-CAD",
-  "SOL-CAD",
-  "XRP-CAD",
-];
+import {
+  CAD_TICKER_SYMBOLS,
+  CRYPTO_TICKER_SYMBOLS,
+  MARKET_TICKER_SYMBOLS,
+  TICKER_REFRESH_BATCH_SIZE,
+  US_TICKER_SYMBOLS,
+} from "../../../lib/marketUniverse";
 
 type TickerItem = {
   group: "CAD" | "US" | "CRYPTO";
@@ -134,53 +112,192 @@ function displayPrice(
 }
 
 function MarketTickerBanner() {
-  const [quotes, setQuotes] =
-    useState<
-      Record<string, LiveQuote>
-    >({});
+  const [
+    initialQuotes,
+    setInitialQuotes,
+  ] = useState<Record<string, LiveQuote>>({});
+
+  const [tickerReady, setTickerReady] =
+    useState(false);
+
+  const tickerTrackRef =
+    useRef<HTMLDivElement | null>(null);
+
+  const pendingQuotesRef =
+    useRef<Record<string, LiveQuote>>({});
+
+  const applyQuotesToTicker =
+    useCallback(
+      (loaded: Record<string, LiveQuote>) => {
+        const track = tickerTrackRef.current;
+
+        if (!track) {
+          return;
+        }
+
+        for (
+          const [symbol, quote]
+          of Object.entries(loaded)
+        ) {
+          const change = priceChange(quote);
+          const positive = Boolean(
+            change && change.absolute > 0,
+          );
+          const negative = Boolean(
+            change && change.absolute < 0,
+          );
+          const changeClass = positive
+            ? "text-emerald-300"
+            : negative
+              ? "text-red-300"
+              : "text-slate-400";
+          const arrow = positive
+            ? "▲"
+            : negative
+              ? "▼"
+              : "—";
+          const sign = positive ? "+" : "";
+          const changeText = change
+            ? `${arrow} ${sign}${change.absolute.toFixed(
+                2,
+              )} (${sign}${change.percentage.toFixed(
+                2,
+              )}%)`
+            : "—";
+
+          for (
+            const node
+            of track.querySelectorAll<HTMLElement>(
+              "[data-price-symbol]",
+            )
+          ) {
+            if (node.dataset.priceSymbol === symbol) {
+              node.textContent = displayPrice(quote);
+            }
+          }
+
+          for (
+            const node
+            of track.querySelectorAll<HTMLElement>(
+              "[data-change-symbol]",
+            )
+          ) {
+            if (node.dataset.changeSymbol === symbol) {
+              node.textContent = changeText;
+              node.className =
+                `font-black ${changeClass}`;
+            }
+          }
+        }
+      },
+      [],
+    );
+
+  const tickerCursor = useRef(0);
 
   const loadTicker =
     useCallback(async () => {
+      const symbolCount =
+        MARKET_TICKER_SYMBOLS.length;
+
+      const batchSize = Math.min(
+        TICKER_REFRESH_BATCH_SIZE,
+        symbolCount,
+      );
+
+      const symbols = Array.from(
+        { length: batchSize },
+        (_, offset) =>
+          MARKET_TICKER_SYMBOLS[
+            (tickerCursor.current + offset) %
+              symbolCount
+          ],
+      );
+
+      tickerCursor.current =
+        (tickerCursor.current + batchSize) %
+        symbolCount;
+
       try {
         const loaded =
-          await getLivePrices([
-            ...CAD_TICKER_SYMBOLS,
-            ...US_TICKER_SYMBOLS,
-            ...CRYPTO_TICKER_SYMBOLS,
-          ]);
+          await getLivePrices([...symbols]);
 
-        setQuotes(loaded);
+        pendingQuotesRef.current = {
+          ...pendingQuotesRef.current,
+          ...loaded,
+        };
       } catch {
         // Read-only market ribbon.
         // Existing values remain visible.
       }
-    }, []);
+    }, [applyQuotesToTicker]);
+
+  const bootstrapTicker =
+    useCallback(async () => {
+      const loadedQuotes: Record<
+        string,
+        LiveQuote
+      > = {};
+
+      for (
+        let start = 0;
+        start < MARKET_TICKER_SYMBOLS.length;
+        start += TICKER_REFRESH_BATCH_SIZE
+      ) {
+        const batch = MARKET_TICKER_SYMBOLS.slice(
+          start,
+          start + TICKER_REFRESH_BATCH_SIZE,
+        );
+
+        try {
+          const loaded =
+            await getLivePrices([...batch]);
+
+          Object.assign(loadedQuotes, loaded);
+        } catch {
+          // Continue loading the remaining read-only batches.
+        }
+      }
+
+      setInitialQuotes(loadedQuotes);
+
+      window.requestAnimationFrame(() => {
+        applyQuotesToTicker(loadedQuotes);
+        setTickerReady(true);
+      });
+    }, [applyQuotesToTicker]);
 
   useEffect(() => {
-    const firstLoad =
-      window.setTimeout(
-        () => {
-          void loadTicker();
-        },
-        0,
-      );
+    let active = true;
+    let timer: number | undefined;
 
-    const timer =
-      window.setInterval(
-        () => {
-          void loadTicker();
-        },
-        30000,
-      );
+    queueMicrotask(() => {
+      if (!active) {
+        return;
+      }
+
+      void bootstrapTicker().finally(() => {
+        if (!active) {
+          return;
+        }
+
+        timer = window.setInterval(
+          () => {
+            void loadTicker();
+          },
+          15000,
+        );
+      });
+    });
 
     return () => {
-      window.clearTimeout(
-        firstLoad,
-      );
+      active = false;
 
-      window.clearInterval(timer);
+      if (timer !== undefined) {
+        window.clearInterval(timer);
+      }
     };
-  }, [loadTicker]);
+  }, [bootstrapTicker, loadTicker]);
 
   const tickerItems =
     useMemo<TickerItem[]>(
@@ -218,11 +335,31 @@ function MarketTickerBanner() {
       aria-label="Live market prices"
       className="nv-market-ribbon overflow-hidden rounded-3xl border border-cyan-300/20 bg-slate-950/80 px-3 py-3 shadow-[0_0_40px_rgba(34,211,238,0.10)]"
     >
-      <div className="neurovest-ticker-track nv-market-ribbon-track flex w-max items-center gap-3 whitespace-nowrap">
+      <div
+        ref={tickerTrackRef}
+        onAnimationIteration={() => {
+          const pending =
+            pendingQuotesRef.current;
+
+          if (Object.keys(pending).length === 0) {
+            return;
+          }
+
+          pendingQuotesRef.current = {};
+          applyQuotesToTicker(pending);
+        }}
+        className="neurovest-ticker-track nv-market-ribbon-track flex w-max items-center gap-3 whitespace-nowrap"
+        style={{
+          animationPlayState: tickerReady
+            ? "running"
+            : "paused",
+          opacity: tickerReady ? 1 : 0,
+        }}
+      >
         {renderItems.map(
           (item, index) => {
             const quote =
-              quotes[item.symbol];
+              initialQuotes[item.symbol];
 
             const change =
               priceChange(quote);
@@ -265,13 +402,15 @@ function MarketTickerBanner() {
                   {item.symbol}
                 </span>
 
-                <span className="font-black text-slate-200">
-                  {displayPrice(
-                    quote,
-                  )}
+                <span
+                  data-price-symbol={item.symbol}
+                  className="font-black text-slate-200"
+                >
+                  {displayPrice(quote)}
                 </span>
 
                 <span
+                  data-change-symbol={item.symbol}
                   className={`font-black ${changeClass}`}
                 >
                   {change

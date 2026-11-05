@@ -1,9 +1,13 @@
 """DOMAIN_LOGIC_V1 strategy engine."""
 
 from backend.app.stacks.market_data.price import get_latest_price
-from backend.app.stacks.market_data.bars import get_bars
+from backend.app.stacks.market_data.bars import (
+    HistoricalBarsUnavailableError,
+    get_bars,
+)
 from backend.app.stacks.strategy.signal import generate_signal
 from backend.app.stacks.portfolio.rebalance import rebalance_portfolio  # Import the rebalance function
+from backend.app.stacks.strategy.model_inference.decision_facade import StrategyDecisionInferenceFacade
 
 def generate_strategy_decision(
     symbol: str,
@@ -22,18 +26,69 @@ def generate_strategy_decision(
     )
 
     if replay_bars is None:
-        bars = get_bars(
-            symbol,
-            limit=50,
-        )
+        try:
+            bars = get_bars(
+                symbol,
+                limit=50,
+            )
+        except HistoricalBarsUnavailableError as exc:
+            strategy_signal = {
+                "status": "historical_data_unavailable",
+                "symbol": symbol,
+                "action": "hold",
+                "decision": "ABSTAIN",
+                "confidence": 0.0,
+                "reason": "truthful_historical_bars_unavailable",
+                "error": str(exc),
+            }
+
+            return {
+                "status": "abstained",
+                "symbol": symbol,
+                "signal": "hold",
+                "decision": "ABSTAIN",
+                "confidence": 0.0,
+                "strategy_signal": strategy_signal,
+                "portfolio_output": None,
+            }
     else:
         bars = replay_bars
 
-    strategy_signal = generate_signal(
-        symbol,
-        price,
-        bars,
+    if not bars:
+        strategy_signal = {
+            "status": "insufficient_historical_data",
+            "symbol": symbol,
+            "action": "hold",
+            "decision": "ABSTAIN",
+            "confidence": 0.0,
+            "reason": "no_truthful_historical_bars",
+        }
+
+        return {
+            "status": "abstained",
+            "symbol": symbol,
+            "signal": "hold",
+            "decision": "ABSTAIN",
+            "confidence": 0.0,
+            "strategy_signal": strategy_signal,
+            "portfolio_output": None,
+        }
+
+    decision_facade = StrategyDecisionInferenceFacade(
+        allow_learned_inference=False,
     )
+
+    facade_result = decision_facade.decide(
+        fixed_rsi_fallback=lambda: generate_signal(
+            symbol,
+            price,
+            bars,
+        ),
+        feature_frame=None,
+        learned_decider=None,
+    )
+
+    strategy_signal = facade_result.signal
 
     status = strategy_signal.get(
         "status",

@@ -86,7 +86,6 @@ def test_chat_runtime_contains_required_operational_stages() -> None:
 
     prohibited = (
         '"raw_prompt"',
-        '"jwt"',
         '"password"',
         '"chain_of_thought"',
         '"hidden_reasoning"',

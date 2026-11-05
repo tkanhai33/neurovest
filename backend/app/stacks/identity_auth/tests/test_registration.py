@@ -40,6 +40,8 @@ async def test_successful_registration():
 
     # Test registration
     command = RegistrationCommand(
+        terms_accepted=True,
+        terms_version='neurovest-beta-terms-2026-10-09-v1',
         email="test@example.com",
         password="securepassword123",
     )
@@ -74,6 +76,8 @@ async def test_registration_with_existing_email():
 
     # Test registration with existing email
     command = RegistrationCommand(
+        terms_accepted=True,
+        terms_version='neurovest-beta-terms-2026-10-09-v1',
         email="test@example.com",
         password="securepassword123",
     )
@@ -107,6 +111,8 @@ async def test_registration_with_invalid_password():
 
     # Test registration with invalid password
     command = RegistrationCommand(
+        terms_accepted=True,
+        terms_version='neurovest-beta-terms-2026-10-09-v1',
         email="test@example.com",
         password="",  # Empty password
     )

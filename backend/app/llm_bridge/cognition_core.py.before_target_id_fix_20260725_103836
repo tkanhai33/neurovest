@@ -1,0 +1,1047 @@
+from __future__ import annotations
+
+import ast
+import json
+import math
+import os
+import re
+import subprocess
+import sys
+import urllib.error
+import urllib.request
+from collections import defaultdict, deque
+from pathlib import Path
+from typing import Any
+
+
+INVALID_PARTS = {
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".pytest_cache",
+    "node_modules",
+    "snapshots",
+    "archive",
+    "runtime",
+}
+
+DEFAULT_MODEL = os.environ.get(
+    "NEURO_OLLAMA_MODEL",
+    "qwen3-coder:latest",
+)
+
+OLLAMA_BASE_URL = os.environ.get(
+    "OLLAMA_BASE_URL",
+    "http://127.0.0.1:11434",
+).rstrip("/")
+
+
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _module_name(path: Path, repo_root: Path) -> str:
+    relative = path.relative_to(repo_root).with_suffix("")
+    parts = list(relative.parts)
+
+    if parts and parts[-1] == "__init__":
+        parts.pop()
+
+    return ".".join(parts)
+
+
+def _resolve_relative_import(
+    current_module: str,
+    imported_module: str | None,
+    level: int,
+) -> str | None:
+    if level <= 0:
+        return imported_module
+
+    current_parts = current_module.split(".")
+
+    if current_parts and current_parts[-1] != "__init__":
+        current_parts = current_parts[:-1]
+
+    remove_count = max(level - 1, 0)
+
+    if remove_count:
+        current_parts = current_parts[:-remove_count]
+
+    if imported_module:
+        current_parts.extend(imported_module.split("."))
+
+    resolved = ".".join(part for part in current_parts if part)
+    return resolved or None
+
+
+def extract_imports(
+    source: str,
+    current_module: str,
+) -> tuple[list[str], str | None]:
+    imports: set[str] = set()
+
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as exc:
+        return [], f"SyntaxError: {exc}"
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name:
+                    imports.add(alias.name)
+
+        elif isinstance(node, ast.ImportFrom):
+            resolved = _resolve_relative_import(
+                current_module=current_module,
+                imported_module=node.module,
+                level=node.level,
+            )
+
+            if resolved:
+                imports.add(resolved)
+
+    return sorted(imports), None
+
+
+def build_graph(
+    root: str | Path = "backend/app",
+) -> dict[str, dict[str, Any]]:
+    repo_root = Path.cwd().resolve()
+    scan_root = Path(root)
+
+    if not scan_root.is_absolute():
+        scan_root = repo_root / scan_root
+
+    scan_root = scan_root.resolve()
+
+    if not scan_root.is_dir():
+        raise FileNotFoundError(
+            f"Scan root does not exist: {scan_root}"
+        )
+
+    graph: dict[str, dict[str, Any]] = {}
+
+    for path in sorted(scan_root.rglob("*.py")):
+        if any(part in INVALID_PARTS for part in path.parts):
+            continue
+
+        relative_path = path.relative_to(repo_root).as_posix()
+        module = _module_name(path, repo_root)
+
+        try:
+            source = path.read_text(
+                encoding="utf-8",
+                errors="replace",
+            )
+        except OSError as exc:
+            graph[relative_path] = {
+                "node": relative_path,
+                "module": module,
+                "imports": [],
+                "risk_score": 1.0,
+                "metadata": {
+                    "read_error": str(exc),
+                },
+            }
+            continue
+
+        imports, syntax_error = extract_imports(
+            source=source,
+            current_module=module,
+        )
+
+        metadata: dict[str, Any] = {
+            "line_count": len(source.splitlines()),
+            "import_count": len(imports),
+        }
+
+        if syntax_error:
+            metadata["syntax_error"] = syntax_error
+
+        graph[relative_path] = {
+            "node": relative_path,
+            "module": module,
+            "imports": imports,
+            "risk_score": 1.0,
+            "metadata": metadata,
+        }
+
+    return graph
+
+
+def map_dependencies(
+    graph: dict[str, dict[str, Any]],
+) -> dict[str, list[str]]:
+    module_to_path: dict[str, str] = {}
+
+    for path, node in graph.items():
+        module = str(node.get("module") or "").strip()
+
+        if module:
+            module_to_path[module] = path
+
+    modules_by_length = sorted(
+        module_to_path,
+        key=len,
+        reverse=True,
+    )
+
+    dependencies: dict[str, list[str]] = {}
+
+    for path, node in graph.items():
+        resolved: set[str] = set()
+
+        for imported in node.get("imports", []):
+            if not isinstance(imported, str):
+                continue
+
+            imported = imported.strip()
+
+            if not imported:
+                continue
+
+            exact = module_to_path.get(imported)
+
+            if exact and exact != path:
+                resolved.add(exact)
+                continue
+
+            for module in modules_by_length:
+                if imported == module or imported.startswith(module + "."):
+                    target = module_to_path[module]
+
+                    if target != path:
+                        resolved.add(target)
+
+                    break
+
+        dependencies[path] = sorted(resolved)
+
+    return dependencies
+
+
+def reverse_dependencies(
+    dependencies: dict[str, list[str]],
+) -> dict[str, list[str]]:
+    reverse: defaultdict[str, set[str]] = defaultdict(set)
+
+    for source, targets in dependencies.items():
+        for target in targets:
+            reverse[target].add(source)
+
+    return {
+        node: sorted(parents)
+        for node, parents in reverse.items()
+    }
+
+
+def multi_hop_dependents(
+    target: str,
+    reverse: dict[str, list[str]],
+    max_depth: int = 4,
+    decay: float = 0.6,
+) -> dict[str, Any]:
+    visited = {target}
+    frontier = {target}
+    layers: dict[int, list[str]] = {}
+    influence = 0.0
+    weight = 1.0
+
+    for depth in range(1, max_depth + 1):
+        next_frontier: set[str] = set()
+
+        for node in frontier:
+            next_frontier.update(reverse.get(node, []))
+
+        next_frontier -= visited
+
+        if not next_frontier:
+            break
+
+        layers[depth] = sorted(next_frontier)
+        influence += len(next_frontier) * weight
+
+        visited.update(next_frontier)
+        frontier = next_frontier
+        weight *= decay
+
+    return {
+        "influence": round(influence, 6),
+        "layers": layers,
+        "affected": sorted(visited - {target}),
+    }
+
+
+def analyze_graph(
+    graph: dict[str, dict[str, Any]],
+    dependencies: dict[str, list[str]],
+) -> dict[str, Any]:
+    reverse = reverse_dependencies(dependencies)
+    graph_size = len(graph)
+    scale = 1.0 / (1.0 + math.sqrt(max(graph_size, 1)))
+
+    ranking: list[dict[str, Any]] = []
+
+    for path, node in graph.items():
+        direct_dependencies = dependencies.get(path, [])
+        direct_dependents = reverse.get(path, [])
+
+        multi_hop = multi_hop_dependents(
+            target=path,
+            reverse=reverse,
+        )
+
+        local_risk = _safe_float(
+            node.get("risk_score"),
+            1.0,
+        )
+
+        structural_score = (
+            local_risk
+            + len(direct_dependencies) * 1.6
+            + len(direct_dependents) * 1.3
+        ) * scale
+
+        final_score = (
+            structural_score * 0.80
+            + multi_hop["influence"] * 0.20
+        )
+
+        ranking.append({
+            "node": path,
+            "module": node.get("module"),
+            "imports": node.get("imports", []),
+            "dependencies": direct_dependencies,
+            "dependents": direct_dependents,
+            "fanin": len(direct_dependents),
+            "fanout": len(direct_dependencies),
+            "multi_hop": multi_hop["influence"],
+            "risk_score": round(final_score, 6),
+            "metadata": node.get("metadata", {}),
+        })
+
+    ranking.sort(
+        key=lambda item: (
+            -item["risk_score"],
+            item["node"],
+        )
+    )
+
+    hubs = [
+        item["node"]
+        for item in ranking
+        if item["fanin"] >= 5
+    ]
+
+    sources = [
+        item["node"]
+        for item in ranking
+        if item["fanout"] >= 5
+    ]
+
+    bridges = [
+        item["node"]
+        for item in ranking
+        if item["fanin"] >= 2 and item["fanout"] >= 2
+    ]
+
+    isolated = [
+        item["node"]
+        for item in ranking
+        if item["fanin"] == 0 and item["fanout"] == 0
+    ]
+
+    syntax_failures = [
+        item["node"]
+        for item in ranking
+        if item.get("metadata", {}).get("syntax_error")
+    ]
+
+    return {
+        "graph_size": graph_size,
+        "edge_count": sum(
+            len(targets)
+            for targets in dependencies.values()
+        ),
+        "ranking": ranking,
+        "structure": {
+            "hubs": hubs,
+            "sources": sources,
+            "bridges": bridges,
+            "isolated": isolated,
+            "syntax_failures": syntax_failures,
+            "summary": {
+                "hub_count": len(hubs),
+                "source_count": len(sources),
+                "bridge_count": len(bridges),
+                "isolated_count": len(isolated),
+                "syntax_failure_count": len(syntax_failures),
+            },
+        },
+    }
+
+
+def simulate_cascade(
+    target: str,
+    dependencies: dict[str, list[str]],
+    max_depth: int = 5,
+) -> dict[str, Any]:
+    reverse = reverse_dependencies(dependencies)
+    visited = {target}
+    queue: deque[tuple[str, int]] = deque([(target, 0)])
+    layers: defaultdict[int, list[str]] = defaultdict(list)
+
+    while queue:
+        node, depth = queue.popleft()
+        layers[depth].append(node)
+
+        if depth >= max_depth:
+            continue
+
+        neighbors = set(reverse.get(node, []))
+        neighbors.update(dependencies.get(node, []))
+
+        for neighbor in sorted(neighbors):
+            if neighbor in visited:
+                continue
+
+            visited.add(neighbor)
+            queue.append((neighbor, depth + 1))
+
+    impact_score = 0.0
+
+    for depth, nodes in layers.items():
+        weight = 1.0 / (1.0 + depth)
+        impact_score += len(nodes) * weight
+
+    affected_count = max(len(visited) - 1, 0)
+
+    if impact_score >= 25:
+        stability = "CRITICAL"
+    elif impact_score >= 10:
+        stability = "DEGRADED"
+    else:
+        stability = "STABLE"
+
+    return {
+        "target": target,
+        "impact_score": round(impact_score, 6),
+        "affected_count": affected_count,
+        "affected_nodes": sorted(visited - {target}),
+        "cascade_layers": {
+            depth: sorted(nodes)
+            for depth, nodes in layers.items()
+        },
+        "stability": stability,
+    }
+
+
+def _ollama_json_request(
+    endpoint: str,
+    payload: dict[str, Any],
+    timeout: int = 180,
+) -> dict[str, Any]:
+    request = urllib.request.Request(
+        url=f"{OLLAMA_BASE_URL}{endpoint}",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    with urllib.request.urlopen(
+        request,
+        timeout=timeout,
+    ) as response:
+        body = response.read().decode("utf-8")
+
+    parsed = json.loads(body)
+
+    if not isinstance(parsed, dict):
+        raise ValueError("Ollama returned a non-object response.")
+
+    return parsed
+
+
+def select_ollama_model() -> str:
+    request = urllib.request.Request(
+        url=f"{OLLAMA_BASE_URL}/api/tags",
+        method="GET",
+    )
+
+    with urllib.request.urlopen(
+        request,
+        timeout=10,
+    ) as response:
+        payload = json.loads(
+            response.read().decode("utf-8")
+        )
+
+    models = [
+        str(item.get("name"))
+        for item in payload.get("models", [])
+        if item.get("name")
+    ]
+
+    if DEFAULT_MODEL in models:
+        return DEFAULT_MODEL
+
+    for candidate in models:
+        lowered = candidate.lower()
+
+        if "coder" in lowered:
+            return candidate
+
+    if models:
+        return models[0]
+
+    raise RuntimeError("No Ollama models are installed.")
+
+
+def _extract_json_object(text: str) -> dict[str, Any]:
+    text = text.strip()
+
+    try:
+        parsed = json.loads(text)
+
+        if isinstance(parsed, dict):
+            return parsed
+    except json.JSONDecodeError:
+        pass
+
+    match = re.search(
+        r"\{.*\}",
+        text,
+        flags=re.DOTALL,
+    )
+
+    if not match:
+        raise ValueError(
+            "Ollama response did not contain a JSON object."
+        )
+
+    parsed = json.loads(match.group(0))
+
+    if not isinstance(parsed, dict):
+        raise ValueError(
+            "Ollama JSON response was not an object."
+        )
+
+    return parsed
+
+
+def _collect_plan_targets(
+    plan: dict[str, Any],
+) -> list[str]:
+    targets: list[str] = []
+
+    for section_name in ("findings", "ordered_steps"):
+        section = plan.get(section_name, [])
+
+        if not isinstance(section, list):
+            continue
+
+        for item in section:
+            if not isinstance(item, dict):
+                continue
+
+            target = item.get("target")
+
+            if isinstance(target, str) and target.strip():
+                targets.append(target.strip())
+
+    expectations = plan.get(
+        "simulation_expectations",
+        {},
+    )
+
+    if isinstance(expectations, dict):
+        expectation_targets = expectations.get(
+            "targets",
+            [],
+        )
+
+        if isinstance(expectation_targets, list):
+            for target in expectation_targets:
+                if isinstance(target, str) and target.strip():
+                    targets.append(target.strip())
+
+    return sorted(set(targets))
+
+
+def _validate_architecture_plan(
+    plan: dict[str, Any],
+    allowed_targets: set[str] | None = None,
+) -> tuple[bool, list[str]]:
+    errors: list[str] = []
+
+    if not isinstance(plan, dict):
+        return False, [
+            "Planner response was not a JSON object."
+        ]
+
+    if "error" in plan:
+        errors.append(
+            "Planner returned an error object."
+        )
+
+    required_keys = {
+        "goal",
+        "current_state",
+        "findings",
+        "ordered_steps",
+        "simulation_expectations",
+        "safe_to_apply",
+        "apply_reason",
+    }
+
+    missing_keys = sorted(
+        required_keys - set(plan)
+    )
+
+    if missing_keys:
+        errors.append(
+            "Missing required keys: "
+            + ", ".join(missing_keys)
+        )
+
+    if not isinstance(plan.get("current_state"), list):
+        errors.append(
+            "current_state must be a list."
+        )
+
+    if not isinstance(plan.get("findings"), list):
+        errors.append(
+            "findings must be a list."
+        )
+
+    if not isinstance(plan.get("ordered_steps"), list):
+        errors.append(
+            "ordered_steps must be a list."
+        )
+
+    if not isinstance(
+        plan.get("simulation_expectations"),
+        dict,
+    ):
+        errors.append(
+            "simulation_expectations must be an object."
+        )
+
+    if plan.get("safe_to_apply") is not False:
+        errors.append(
+            "safe_to_apply must remain false."
+        )
+
+    if allowed_targets is not None:
+        plan_targets = _collect_plan_targets(plan)
+
+        if not plan_targets:
+            errors.append(
+                "Planner supplied no repository targets."
+            )
+
+        invalid_targets = sorted(
+            target
+            for target in plan_targets
+            if target not in allowed_targets
+        )
+
+        if invalid_targets:
+            errors.append(
+                "Nonexistent repository targets: "
+                + ", ".join(invalid_targets)
+            )
+
+    return not errors, errors
+
+
+def request_architecture_plan(
+    user_request: str,
+    analysis: dict[str, Any],
+    cascades: list[dict[str, Any]],
+) -> dict[str, Any]:
+    model = select_ollama_model()
+
+    allowed_targets = {
+        str(item["node"])
+        for item in analysis.get("ranking", [])
+        if isinstance(item, dict)
+        and isinstance(item.get("node"), str)
+    }
+
+    allowed_target_list = sorted(allowed_targets)
+
+    compact_context = {
+        "graph_size": analysis["graph_size"],
+        "edge_count": analysis["edge_count"],
+        "structure": analysis["structure"]["summary"],
+        "hubs": analysis["structure"]["hubs"][:20],
+        "sources": analysis["structure"]["sources"][:20],
+        "bridges": analysis["structure"]["bridges"][:20],
+        "syntax_failures": analysis["structure"][
+            "syntax_failures"
+        ],
+        "top_risks": analysis["ranking"][:20],
+        "cascade_samples": cascades,
+        "allowed_repository_targets": allowed_target_list,
+    }
+
+    system_prompt = """
+You are NeuroVest's repository architecture planner.
+
+Use only the verified evidence supplied from the current repository.
+
+Critical, degraded, unstable, or high-risk evidence is a reason to
+produce a remediation plan. It is never a reason to reject planning.
+
+STRICT PATH RULES:
+- Every target must exactly match an entry in
+  allowed_repository_targets.
+- Copy repository paths exactly.
+- Never invent example paths.
+- Never use src/, lib/, tests/, app/, or shortened paths unless that
+  exact path appears in allowed_repository_targets.
+- Do not return an error object.
+- Keep safe_to_apply false because no real patch has been generated
+  or tested.
+
+Produce one focused plan for the highest-value existing subsystem.
+
+Return JSON only with this exact structure:
+{
+  "goal": "string",
+  "current_state": ["string"],
+  "findings": [
+    {
+      "severity": "critical|high|medium|low",
+      "target": "exact existing repository path",
+      "evidence": "string"
+    }
+  ],
+  "ordered_steps": [
+    {
+      "step": 1,
+      "action": "inspect|test|refactor|move|split|wire|remove",
+      "target": "exact existing repository path",
+      "reason": "string",
+      "expected_effect": "string",
+      "verification": ["command or check"]
+    }
+  ],
+  "simulation_expectations": {
+    "targets": ["exact existing repository path"],
+    "acceptable_affected_ratio": 0.25,
+    "required_checks": ["string"]
+  },
+  "safe_to_apply": false,
+  "apply_reason": "string"
+}
+""".strip()
+
+    user_prompt = json.dumps(
+        {
+            "request": user_request,
+            "repository_evidence": compact_context,
+        },
+        indent=2,
+    )
+
+    def call_planner(
+        correction: str | None = None,
+    ) -> dict[str, Any]:
+        messages = [
+            {
+                "role": "system",
+                "content": system_prompt,
+            },
+            {
+                "role": "user",
+                "content": user_prompt,
+            },
+        ]
+
+        if correction:
+            messages.append(
+                {
+                    "role": "user",
+                    "content": correction,
+                }
+            )
+
+        response = _ollama_json_request(
+            endpoint="/api/chat",
+            payload={
+                "model": model,
+                "stream": False,
+                "format": "json",
+                "messages": messages,
+                "options": {
+                    "temperature": 0.0,
+                },
+            },
+        )
+
+        content = (
+            response.get("message", {})
+            .get("content", "")
+        )
+
+        if not isinstance(content, str) or not content.strip():
+            raise ValueError(
+                "Ollama returned an empty response."
+            )
+
+        return _extract_json_object(content)
+
+    first_plan = call_planner()
+
+    first_valid, first_errors = _validate_architecture_plan(
+        first_plan,
+        allowed_targets=allowed_targets,
+    )
+
+    if first_valid:
+        first_plan["_model"] = model
+        first_plan["_planner_attempts"] = 1
+        return first_plan
+
+    correction = """
+Your previous response failed validation:
+
+- {errors}
+
+Return the complete plan again.
+
+Use only exact paths copied from allowed_repository_targets.
+Do not invent or shorten paths.
+Do not return an error object.
+Keep safe_to_apply false.
+""".format(
+        errors="\n- ".join(first_errors)
+    ).strip()
+
+    second_plan = call_planner(correction)
+
+    second_valid, second_errors = _validate_architecture_plan(
+        second_plan,
+        allowed_targets=allowed_targets,
+    )
+
+    if not second_valid:
+        raise ValueError(
+            "Planner remained invalid after retry: "
+            + "; ".join(second_errors)
+        )
+
+    second_plan["_model"] = model
+    second_plan["_planner_attempts"] = 2
+    second_plan[
+        "_first_attempt_validation_errors"
+    ] = first_errors
+
+    return second_plan
+
+
+def simulate_plan(
+    plan: dict[str, Any],
+    graph: dict[str, dict[str, Any]],
+    dependencies: dict[str, list[str]],
+) -> dict[str, Any]:
+    requested_targets: list[str] = []
+
+    for step in plan.get("ordered_steps", []):
+        if not isinstance(step, dict):
+            continue
+
+        target = step.get("target")
+
+        if isinstance(target, str) and target:
+            requested_targets.append(target)
+
+    requested_targets.extend(
+        target
+        for target in plan.get(
+            "simulation_expectations",
+            {},
+        ).get("targets", [])
+        if isinstance(target, str) and target
+    )
+
+    targets = sorted(set(requested_targets))
+    existing = [
+        target
+        for target in targets
+        if target in graph
+    ]
+
+    missing = [
+        target
+        for target in targets
+        if target not in graph
+    ]
+
+    cascades = [
+        simulate_cascade(
+            target=target,
+            dependencies=dependencies,
+        )
+        for target in existing
+    ]
+
+    affected_union: set[str] = set()
+
+    for cascade in cascades:
+        affected_union.update(
+            cascade.get("affected_nodes", [])
+        )
+
+    graph_size = max(len(graph), 1)
+    affected_ratio = len(affected_union) / graph_size
+
+    acceptable_ratio = _safe_float(
+        plan.get(
+            "simulation_expectations",
+            {},
+        ).get("acceptable_affected_ratio"),
+        0.25,
+    )
+
+    structurally_admissible = (
+        bool(existing)
+        and not missing
+        and affected_ratio <= acceptable_ratio
+    )
+
+    return {
+        "targets": targets,
+        "existing_targets": existing,
+        "missing_targets": missing,
+        "affected_node_count": len(affected_union),
+        "affected_ratio": round(affected_ratio, 6),
+        "acceptable_affected_ratio": acceptable_ratio,
+        "structurally_admissible": structurally_admissible,
+        "cascades": cascades,
+        "important_limit": (
+            "This is a structural pre-change simulation. "
+            "It does not prove a future code patch will pass tests."
+        ),
+    }
+
+
+def verify_current_repository() -> dict[str, Any]:
+    compile_result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "compileall",
+            "-q",
+            "backend/app",
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    return {
+        "compileall_exit_code": compile_result.returncode,
+        "compileall_passed": compile_result.returncode == 0,
+        "stdout": compile_result.stdout.strip(),
+        "stderr": compile_result.stderr.strip(),
+    }
+
+
+def run_cognition(
+    user_request: str,
+    root: str | Path = "backend/app",
+) -> dict[str, Any]:
+    graph = build_graph(root)
+    dependencies = map_dependencies(graph)
+    analysis = analyze_graph(
+        graph=graph,
+        dependencies=dependencies,
+    )
+
+    cascade_samples = [
+        simulate_cascade(
+            target=item["node"],
+            dependencies=dependencies,
+        )
+        for item in analysis["ranking"][:5]
+    ]
+
+    repository_verification = verify_current_repository()
+
+    try:
+        plan = request_architecture_plan(
+            user_request=user_request,
+            analysis=analysis,
+            cascades=cascade_samples,
+        )
+        ollama_status = "AVAILABLE"
+        ollama_error = None
+
+    except (
+        urllib.error.URLError,
+        TimeoutError,
+        RuntimeError,
+        ValueError,
+        json.JSONDecodeError,
+    ) as exc:
+        plan = {
+            "goal": user_request,
+            "current_state": [
+                "Repository structure was analyzed.",
+                "Ollama planning was unavailable.",
+            ],
+            "findings": [],
+            "ordered_steps": [],
+            "simulation_expectations": {
+                "targets": [],
+                "acceptable_affected_ratio": 0.25,
+                "required_checks": [],
+            },
+            "safe_to_apply": False,
+            "apply_reason": (
+                "No Ollama-generated plan was available."
+            ),
+        }
+        ollama_status = "UNAVAILABLE"
+        ollama_error = f"{type(exc).__name__}: {exc}"
+
+    simulation = simulate_plan(
+        plan=plan,
+        graph=graph,
+        dependencies=dependencies,
+    )
+
+    final_safe_to_apply = (
+        bool(plan.get("safe_to_apply"))
+        and simulation["structurally_admissible"]
+        and repository_verification["compileall_passed"]
+    )
+
+    return {
+        "request": user_request,
+        "graph_size": analysis["graph_size"],
+        "edge_count": analysis["edge_count"],
+        "structure": analysis["structure"],
+        "top_risks": analysis["ranking"][:10],
+        "cascade_samples": cascade_samples,
+        "ollama_status": ollama_status,
+        "ollama_error": ollama_error,
+        "plan": plan,
+        "simulation": simulation,
+        "repository_verification": repository_verification,
+        "safe_to_apply": final_safe_to_apply,
+        "status": (
+            "PLAN_READY_FOR_PATCH_GENERATION"
+            if simulation["structurally_admissible"]
+            and repository_verification["compileall_passed"]
+            else "PLAN_BLOCKED"
+        ),
+    }

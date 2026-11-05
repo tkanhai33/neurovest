@@ -1,0 +1,176 @@
+```text
+.
+`backend
+  app
+    config
+    config.py
+      settings.py
+    main.py
+  config
+    settings.py
+  main.py
+$OUTPUT
+ARCH_GOVERNANCE.md
+backend
+  app
+    analysis
+      architecture.py
+    api
+    core
+      config.py
+      __init__.py
+    __init__.py
+    main.py
+    models
+    routers
+      __init__.py
+    schemas
+      dashboard.py
+      __init__.py
+    services
+      dashboard_service.py
+      __init__.py
+    snaptrade
+      executions
+    stacks
+      auth_identity
+      chat_public
+      db_model
+      events
+      execution
+      __init__.py
+      journal_ledger
+      learning_research
+      market_data
+      notification
+      portfolio
+      registry.json
+      risk
+      snaptrade
+      strategy
+      wolfden_ai
+    test
+      test_neuro_repo_companion.py
+      test_trading_pipeline.py
+  __init__.py
+  requirements.txt
+  scripts
+    backup_db.sh
+cursor.AppImage
+Directory Structure
+docker-compose.yml
+File: backend
+  app
+    main.py
+    services
+      auth_service.py
+      market_data_service.py
+      notification_service.py
+      portfolio_service.py
+      risk_service.py
+      strategy_service.py
+    stacks
+      market_data
+      strategy
+fix_phase9_self_fingerprint.sh
+frontend
+  AGENTS.md
+  app
+    favicon.ico
+    globals.css
+    layout.tsx
+    page.tsx
+  CLAUDE.md
+  eslint.config.mjs
+  next.config.ts
+  next-env.d.ts
+  package.json
+  package-lock.json
+  postcss.config.mjs
+  public
+    file.svg
+    globe.svg
+    next.svg
+    vercel.svg
+    window.svg
+  README.md
+  tsconfig.json
+generate_context.sh
+generate_wire_graph.py
+ledger.py
+neuro_cli_file_inspection.json
+neuro_engineer.py
+neuro_health.sh
+neurovest_repo_context.md
+OUTPUT
+paper_broker.py
+pytest.ini
+quarantine_artifacts
+  cli_cleanup_final
+    agent_runtime_server.py
+  neuro_cli_cleanup
+    neuro_autonomous_engine_v3.py
+    neuro_chat.py
+    neuro_cli_runtime.py
+    neuro_cli_shell.py
+    neuro_cli_stateful.py
+    neuro_console_autonomous.py
+    neuro_console.py
+    neuro_runtime_autowire.py
+    neuro_runtime_patch.py
+    neuro_runtime.py
+    ollama_brain.py
+    ollama_bridge.py
+    ollama_repo_brain.py
+    ollama_repo_cli.py
+    repo_intelligence_cli_bridge.py
+    repo_intelligence_engine.py
+    repo_intelligence_facade.py
+    repo_intelligence_pipeline.py
+    test_neuro_cli.py
+    test_neuro_core.py
+    test_repo_intelligence.py
+  neuro_junk_20260703_164442
+    backend
+      app
+    build_repo_intelligence_phase_10.sh
+    build_repo_intelligence_phase_11.sh
+    build_repo_intelligence_phase_12.sh
+    build_repo_intelligence_phase_13.sh
+    build_repo_intelligence_phase_14.sh
+    build_repo_intelligence_phase_15.sh
+    build_repo_intelligence_phase_17.sh
+    build_repo_intelligence_phase_18.sh
+    build_repo_intelligence_phase_19.sh
+    build_repo_intelligence_phase_20.sh
+    build_repo_intelligence_phase_22.sh
+    build_repo_intelligence_phase_23.sh
+    build_repo_intelligence_phase_6_1_patch.sh
+    build_repo_intelligence_phase_7.sh
+    build_repo_intelligence_phase_8.sh
+    build_repo_intelligence_phase_9.sh
+    build_repo_intelligence_phase_v1.sh
+    build_repo_intelligence_phase_v2.sh
+    build_repo_intelligence_phase_v3.sh
+    build_repo_intelligence_phase_v4.sh
+    build_repo_intelligence_phase_v5.sh
+    build_repo_intelligence_phase_v6.sh
+    snapshots
+      1783059253
+      1783059305
+  start_scripts
+    run_neuro_core.sh
+    run_neuro.sh
+    start_chat_fast.sh
+    start_chat.sh
+    start_chat_ws.sh
+    start_evolution.sh
+    start_next_build.sh
+spine_mvp_full.sh
+system_tree.txt
+topology_wire_graph.png
+Updated File: backend
+  app
+    stacks
+      risk
+      strategy

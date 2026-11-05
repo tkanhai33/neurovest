@@ -1,0 +1,27 @@
+HIGH-LEVEL DEPENDENCY GRAPH
+
+Source Repository
+    │
+    ▼
+Audit Scripts
+    │
+    ▼
+Audit Artifacts
+    │
+    ▼
+Runtime / Strategy Candidate Sandbox Artifacts
+    │
+    ▼
+Qwen Read-Only Stub Phases
+    │
+    ▼
+Rollup Certifications
+    │
+    ▼
+Handoff Bundle Refreshes
+    │
+    ▼
+Terminal Freeze
+    │
+    ▼
+Archive / New Chat Handoff

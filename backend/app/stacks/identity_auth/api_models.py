@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -25,6 +27,12 @@ class RegistrationApiRequest(
         min_length=12,
         max_length=1024,
     )
+
+    terms_accepted: Literal[True]
+
+    terms_version: Literal[
+        "neurovest-beta-terms-2026-10-09-v1"
+    ]
 
     display_name: str | None = Field(
         default=None,

@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import fcntl
+import threading
+from contextlib import contextmanager
 import os
 from dataclasses import (
     asdict,
@@ -158,16 +161,42 @@ class ExecutionControl:
 
         self._actor = "system"
 
-        self._load_state()
+        with self._interprocess_lock():
+            self._load_state()
 
     @property
     def mode(
         self,
     ) -> OperatingMode:
-        with self._lock:
-            return self._mode
+        return OperatingMode(self.snapshot().mode)
 
-    def snapshot(
+    @contextmanager
+    def _interprocess_lock(self):
+        lock_path = self._state_path.with_name(
+            self._state_path.name + ".lock"
+        )
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with lock_path.open("a+b") as lock_file:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+    def snapshot(self) -> ExecutionControlSnapshot:
+        try:
+            with self._lock, self._interprocess_lock():
+                self._load_state()
+                return self._snapshot_unlocked()
+        except ExecutionControlError:
+            raise
+        except Exception as exc:
+            raise ExecutionBlockedError(
+                "Execution-control state cannot be verified"
+            ) from exc
+
+    def _snapshot_unlocked(
         self,
     ) -> ExecutionControlSnapshot:
         with self._lock:
@@ -237,11 +266,14 @@ class ExecutionControl:
                 "Operating-mode transition reason is required"
             )
 
-        with self._lock:
+        with self._lock, self._interprocess_lock():
+            self._load_state()
+            if normalized_target is not OperatingMode.EMERGENCY_STOP:
+                self._assert_pending_stop_absent()
             current = self._mode
 
             if normalized_target is current:
-                return self.snapshot()
+                return self._snapshot_unlocked()
 
             allowed = (
                 _ALLOWED_TRANSITIONS[
@@ -286,17 +318,20 @@ class ExecutionControl:
                 self._persist_state()
 
             except Exception:
-                (
-                    self._mode,
-                    self._revision,
-                    self._updated_at,
-                    self._reason,
-                    self._actor,
-                ) = previous
-
+                try:
+                    self._load_state()
+                except Exception:
+                    self._mode = OperatingMode.LOCKED
+                    self._revision = previous[1]
+                    self._updated_at = utc_now()
+                    self._reason = (
+                        'Persistence reconciliation failed; '
+                        'runtime locked fail closed'
+                    )
+                    self._actor = 'system'
                 raise
 
-            return self.snapshot()
+            return self._snapshot_unlocked()
 
     def emergency_stop(
         self,
@@ -304,23 +339,31 @@ class ExecutionControl:
         actor: str,
         reason: str,
     ) -> ExecutionControlSnapshot:
-        with self._lock:
-            if (
-                self._mode
-                is OperatingMode.EMERGENCY_STOP
-            ):
-                return self.snapshot()
-
         return self.transition(
             OperatingMode.EMERGENCY_STOP,
             actor=actor,
             reason=reason,
         )
 
+    def _assert_pending_stop_absent(self) -> None:
+        from backend.app.stacks.execution.emergency_commit_barrier import (
+            CommitBarrierBlocked,
+            assert_no_pending_stop,
+        )
+
+        try:
+            assert_no_pending_stop(self._state_path)
+        except CommitBarrierBlocked as exc:
+            raise ExecutionBlockedError(
+                'Emergency-stop intent blocks execution'
+            ) from exc
+
     def assert_paper_execution_allowed(
         self,
     ) -> None:
+        self._assert_pending_stop_absent()
         snapshot = self.snapshot()
+        self._assert_pending_stop_absent()
 
         if not (
             snapshot.mode
@@ -436,50 +479,64 @@ class ExecutionControl:
     def _persist_state(
         self,
     ) -> None:
-        self._state_path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
+        import tempfile
 
-        temporary = (
-            self._state_path.with_suffix(
-                self._state_path.suffix
-                + ".tmp"
-            )
-        )
+        parent = self._state_path.parent
+        parent.mkdir(parents=True, exist_ok=True)
 
         payload = {
             "mode": self._mode.value,
             "revision": self._revision,
-            "updated_at": (
-                self._updated_at.isoformat()
-            ),
+            "updated_at": self._updated_at.isoformat(),
             "reason": self._reason,
             "actor": self._actor,
             "paper_execution_enabled": (
-                self._mode
-                is OperatingMode.SIMULATION
+                self._mode is OperatingMode.SIMULATION
             ),
             "live_execution_enabled": False,
             "emergency_stop_active": (
-                self._mode
-                is OperatingMode.EMERGENCY_STOP
+                self._mode is OperatingMode.EMERGENCY_STOP
             ),
         }
 
-        temporary.write_text(
-            json.dumps(
-                payload,
-                indent=2,
-                sort_keys=True,
-            )
-            + "\n",
-            encoding="utf-8",
-        )
+        temporary = None
 
-        temporary.replace(
-            self._state_path
-        )
+        try:
+            fd, filename = tempfile.mkstemp(
+                prefix=".operating-mode-",
+                suffix=".tmp",
+                dir=parent,
+            )
+            temporary = Path(filename)
+
+            with os.fdopen(fd, "w", encoding="utf-8") as stream:
+                os.fchmod(stream.fileno(), 0o600)
+                json.dump(
+                    payload,
+                    stream,
+                    indent=2,
+                    sort_keys=True,
+                )
+                stream.write("\n")
+                stream.flush()
+                os.fsync(stream.fileno())
+
+            os.replace(temporary, self._state_path)
+            temporary = None
+
+            directory_fd = os.open(
+                parent,
+                os.O_RDONLY | os.O_DIRECTORY,
+            )
+
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
 
 
 execution_control = ExecutionControl()

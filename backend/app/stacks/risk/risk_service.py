@@ -1,96 +1,114 @@
+from __future__ import annotations
+
+import math
 
 from backend.app.core.runtime_trace import (
     create_trace_id,
     emit_runtime_step,
 )
+from backend.app.stacks.portfolio.accounting import (
+    calculate_live_portfolio_equity,
+)
+from backend.app.stacks.risk.drawdown_guard import (
+    healthcheck as drawdown_healthcheck,
+)
 
-from backend.app.stacks.risk.drawdown_guard import healthcheck as drawdown_healthcheck
 
-
-async def get_risk_gate_for_api(symbol: str):
-
-    trace_id = create_trace_id(
-        "risk-api"
+async def get_risk_gate_for_api(
+    symbol: str,
+    *,
+    owner_subject: str,
+) -> dict:
+    clean_symbol = (
+        symbol.strip().upper()
+        if isinstance(symbol, str)
+        else ""
     )
 
-    await emit_runtime_step(
-        trace_id=trace_id,
-        event_type="RISK_API_REQUEST_RECEIVED",
-        node="risk_api",
-        source="http_api",
-        destination="risk_api",
-        status="active",
-        symbol=symbol,
-        message=(
-            "Authenticated risk API request received"
-        ),
-        layer="L5",
-        stack="risk",
-    )
-
-    await emit_runtime_step(
-        trace_id=trace_id,
-        event_type="RISK_FACADE_REQUEST",
-        node="risk_facade",
-        source="risk_api",
-        destination="risk_facade",
-        status="active",
-        symbol=symbol,
-        message=(
-            "Risk API delegated request to risk facade"
-        ),
-        layer="L3",
-        stack="risk",
-    )
-
-    await emit_runtime_step(
-        trace_id=trace_id,
-        event_type="RISK_RUNTIME_REQUEST",
-        node="risk_runtime",
-        source="risk_facade",
-        destination="risk_runtime",
-        status="active",
-        symbol=symbol,
-        message=(
-            "Risk runtime began real gate evaluation"
-        ),
-        layer="L4",
-        stack="risk",
-    )
-
-    clean_symbol = symbol.strip().upper()
+    base = {
+        "symbol": clean_symbol,
+        "allowed": False,
+        "gate": "risk",
+        "provider": "risk_service",
+    }
 
     if not clean_symbol:
         return {
+            **base,
             "status": "error",
-            "symbol": clean_symbol,
-            "allowed": False,
-            "gate": "risk",
-            "provider": "risk_service",
             "error": "missing_symbol",
         }
 
-    try:
-        drawdown = drawdown_healthcheck(100000)
-
-        if hasattr(drawdown, "__await__"):
-            drawdown = await drawdown
-
+    if (
+        not isinstance(owner_subject, str)
+        or not owner_subject.strip()
+    ):
         return {
-            "status": "ok",
-            "symbol": clean_symbol,
-            "allowed": True,
-            "gate": "risk",
-            "provider": "risk_service",
-            "drawdown_guard": drawdown,
+            **base,
+            "status": "error",
+            "error": "missing_authenticated_owner",
         }
 
-    except Exception as e:
+    try:
+        trace_id = create_trace_id("risk-api")
+        await emit_runtime_step(
+            trace_id=trace_id,
+            event_type="RISK_API_REQUEST_RECEIVED",
+            node="risk_api",
+            source="http_api",
+            destination="risk_api",
+            status="active",
+            symbol=clean_symbol,
+            message="Authenticated owner risk monitoring requested",
+            layer="L5",
+            stack="risk",
+        )
+
+        owner = owner_subject.strip()
+        valuation = await calculate_live_portfolio_equity(
+            user_id=owner,
+        )
+        cash = float(valuation["current_cash_balance"])
+
+        if not math.isfinite(cash) or cash < 0:
+            return {
+                **base,
+                "status": "blocked",
+                "reason": "invalid_risk_balance",
+            }
+
+        monitor = await drawdown_healthcheck(
+            cash,
+            user_id=owner,
+        )
+
+        if (
+            not isinstance(monitor, dict)
+            or monitor.get("status") != "ok"
+        ):
+            return {
+                **base,
+                "status": "blocked",
+                "reason": "risk_monitor_blocked",
+                "drawdown_guard": monitor
+                    if isinstance(monitor, dict) else None,
+            }
+
+        # Successful monitoring is NOT trade approval.
+        # Equity drawdown and aggregate exposure policies
+        # are not yet qualified as an integrated risk gate.
         return {
+            **base,
+            "status": "ok",
+            "reason": "risk_policy_not_fully_qualified",
+            "risk_monitor_available": True,
+            "drawdown_guard": monitor,
+        }
+
+    except Exception:
+        # Do not expose account or database error details.
+        return {
+            **base,
             "status": "error",
-            "symbol": clean_symbol,
-            "allowed": False,
-            "gate": "risk",
-            "provider": "risk_service",
-            "error": f"{type(e).__name__}: {e}",
+            "error": "risk_evaluation_unavailable",
         }

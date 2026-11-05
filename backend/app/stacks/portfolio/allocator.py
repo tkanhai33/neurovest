@@ -1,5 +1,8 @@
 """DOMAIN_LOGIC_V1 capital allocation engine."""
-from backend.app.stacks.market_data.bars import get_bars
+from backend.app.stacks.market_data.bars import (
+    HistoricalBarsUnavailableError,
+    get_bars,
+)
 
 def calculate_position_size(symbol: str, total_capital: float = 100000.0) -> dict:
     """Calculates position sizes inversely proportional to basic price range variance."""
@@ -8,9 +11,15 @@ def calculate_position_size(symbol: str, total_capital: float = 100000.0) -> dic
         bars = get_bars(symbol, limit=5)
         closes = [float(b["close"]) for b in bars] if bars else []
 
-        # If the data feed returns an empty list, apply a safe default baseline configuration
         if not closes:
-            closes = [100.0, 100.0, 100.0, 100.0, 100.0]
+            return {
+                "status": "sizing_refused",
+                "symbol": symbol,
+                "allocated_capital": 0.0,
+                "volatility_index": None,
+                "allocation_percentage": 0.0,
+                "reason": "no_truthful_historical_bars",
+            }
 
         # Calculate a basic price range variance (Max Price minus Min Price)
         price_range = max(closes) - min(closes)
@@ -24,17 +33,29 @@ def calculate_position_size(symbol: str, total_capital: float = 100000.0) -> dic
         final_allocation = min(raw_size, max_allowed)
 
         return {
+            "status": "ok",
             "symbol": symbol,
             "allocated_capital": final_allocation,
             "volatility_index": volatility_metric,
             "allocation_percentage": (final_allocation / total_capital) * 100
         }
-    except Exception as e:
-        # Graceful fallback to 1% baseline if anything fails
+    except HistoricalBarsUnavailableError as exc:
         return {
+            "status": "sizing_refused",
             "symbol": symbol,
-            "allocated_capital": total_capital * 0.01,
-            "volatility_index": 1.0,
-            "allocation_percentage": 1.0,
-            "error": str(e)
+            "allocated_capital": 0.0,
+            "volatility_index": None,
+            "allocation_percentage": 0.0,
+            "reason": "truthful_historical_bars_unavailable",
+            "error": str(exc),
+        }
+    except Exception as exc:
+        return {
+            "status": "sizing_refused",
+            "symbol": symbol,
+            "allocated_capital": 0.0,
+            "volatility_index": None,
+            "allocation_percentage": 0.0,
+            "reason": "position_sizing_error",
+            "error": str(exc),
         }

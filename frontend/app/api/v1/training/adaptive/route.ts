@@ -50,7 +50,8 @@ export async function POST(
       "duration_seconds_per_round",
       "lookback_rows",
       "row_offset",
-    ] as const;
+    "strategy_name",
+] as const;
 
     for (const key of allowed) {
       const value =

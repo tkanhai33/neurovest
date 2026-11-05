@@ -152,6 +152,7 @@ def test_confidence_summary_contains_complete_provenance() -> None:
             long_lookback_rows=20,
             minimum_signal_strength=0.01,
             created_from="qualification",
+            strategy_name='Qualification Test Moving Average Crossover',
         ).to_dict()
     )
 
@@ -200,6 +201,7 @@ def test_provenance_tampering_is_rejected() -> None:
     candidate = (
         build_training_candidate_contract(
             created_from="qualification",
+            strategy_name='Qualification Test Moving Average Crossover',
         ).to_dict()
     )
 
@@ -279,6 +281,7 @@ def test_runtime_persists_exact_candidate_and_window() -> None:
             long_lookback_rows=20,
             minimum_signal_strength=0.01,
             created_from="qualification",
+            strategy_name='Qualification Test Moving Average Crossover',
         ).to_dict()
     )
 

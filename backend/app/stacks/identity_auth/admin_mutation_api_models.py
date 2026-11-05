@@ -20,10 +20,3 @@ class AdministrativeTemporaryPasswordResponse(
         min_length=16,
     )
     must_change_password: bool = True
-
-
-class AdministrativeDeleteResponse(BaseModel):
-    status: str
-    action: str
-    user_id: str
-    deleted: bool

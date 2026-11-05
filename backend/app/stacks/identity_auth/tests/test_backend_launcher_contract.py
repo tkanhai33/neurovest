@@ -20,25 +20,50 @@ def test_backend_launcher_exists_and_is_executable() -> None:
     assert mode & 0o111
 
 
-def test_backend_launcher_loads_local_ignored_jwt_environment() -> None:
+def test_backend_launcher_loads_persistent_deployment_environment() -> None:
     source = LAUNCHER.read_text(
         encoding="utf-8"
     )
 
     assert (
-        "runtime/dev_auth/dev_jwt_env.sh"
+        'ENV_FILE="$REPO_ROOT/.env"'
         in source
+    )
+
+    assert (
+        'source "$ENV_FILE"'
+        in source
+    )
+
+    assert (
+        '"$ENV_MODE" != "600"'
+        in source
+    )
+
+    assert (
+        '${NEUROVEST_JWT_SECRET-}'
+        in source
+    )
+
+    assert (
+        '${#NEUROVEST_JWT_SECRET}'
+        in source
+    )
+
+    assert (
+        "runtime/dev_auth/dev_jwt_env"
+        not in source
     )
 
     assert (
         "runtime/dev_auth/"
         "dev_jwt_env.before_aiq003_20260727_124234.sh"
-        in source
+        not in source
     )
 
     assert (
         'source "$JWT_ENV"'
-        in source
+        not in source
     )
 
     assert (

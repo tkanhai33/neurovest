@@ -1,0 +1,262 @@
+{
+  "phase": "64A_MASTER_SYSTEM_BIBLE_COMPILER",
+  "generated_at": "2026-07-07T03:21:37.657062+00:00",
+  "mode": "READ_ONLY_DOCUMENTATION_COMPILER",
+  "source_count": 39,
+  "categories": {
+    "Executive": 1,
+    "Reference": 4,
+    "Repository Topology": 5,
+    "Layer Architecture": 2,
+    "Stack Architecture": 3,
+    "Node / Topology": 5,
+    "Dependency Atlas": 3,
+    "Runtime State": 1,
+    "Flows": 4,
+    "Qwen Read-Only": 1,
+    "Certification History": 3,
+    "Governance": 1,
+    "Roadmap": 1,
+    "Glossary": 1,
+    "Traceability": 1,
+    "Machine Index": 3
+  },
+  "output_markdown": "handoff/MASTER_SYSTEM_BIBLE/MASTER_SYSTEM_BIBLE.md",
+  "source_manifest": [
+    {
+      "path": "handoff/project_bible/PROJECT_BIBLE.md",
+      "category": "Reference",
+      "bytes": 146646,
+      "sha256": "6bf696c36520e60cde0ccf007cfcb8a4f9c43c2dc792d1fefd30c813fbb12d9b"
+    },
+    {
+      "path": "handoff/project_bible/architecture_atlas/ARCHITECTURE_ATLAS.md",
+      "category": "Reference",
+      "bytes": 64337,
+      "sha256": "bc09a78543e75e97981e809a35bad0a0ebd148297f404cc54fb96b29a72cfc2c"
+    },
+    {
+      "path": "handoff/project_bible/EXECUTIVE_SUMMARY.md",
+      "category": "Executive",
+      "bytes": 798,
+      "sha256": "07b58f69ad37915b1176af0921fcf2288cb4f77ff8ca3525ec70d1b28b5edabd"
+    },
+    {
+      "path": "handoff/repository_tree.txt",
+      "category": "Repository Topology",
+      "bytes": 45885,
+      "sha256": "07dcb7a687288f0a0ed8969b078c9170013a37548241050c7713d95bc5f17c45"
+    },
+    {
+      "path": "handoff/backend_tree.txt",
+      "category": "Repository Topology",
+      "bytes": 8186,
+      "sha256": "2df7bbfda0b242f577a1beb0c4e3975660dfccff0f0ade6dd4415328b6067e96"
+    },
+    {
+      "path": "handoff/frontend_tree.txt",
+      "category": "Repository Topology",
+      "bytes": 1792,
+      "sha256": "fb64a2e2a469f8f4126f15a70ac0366c874f7f5dd4a5924dc9f818cf84217c58"
+    },
+    {
+      "path": "handoff/runtime_tree.txt",
+      "category": "Repository Topology",
+      "bytes": 21219,
+      "sha256": "cc18035a392082ea2d712bcbad3bb13e1029ed73af06f0158a3d46800c03b35c"
+    },
+    {
+      "path": "handoff/audit_tree.txt",
+      "category": "Repository Topology",
+      "bytes": 14,
+      "sha256": "c3c27203567a7a7b81c295c5f9c729b81ea51cf5bbde19f69dc38a9e4fab2db8"
+    },
+    {
+      "path": "handoff/canonical_layer_map.txt",
+      "category": "Layer Architecture",
+      "bytes": 23451,
+      "sha256": "6a6bb43dcd4f18b1bdf3e35c563c02cfbb7b9ce2fde50f4f169776cfe65e79de"
+    },
+    {
+      "path": "handoff/stack_topology.txt",
+      "category": "Stack Architecture",
+      "bytes": 20413,
+      "sha256": "83740e3dbbd38706e625d5ae7e7a67e8d6e0f2f2327555642100106f69dc4b23"
+    },
+    {
+      "path": "handoff/project_bible/architecture_atlas/STACK_OWNERSHIP.md",
+      "category": "Stack Architecture",
+      "bytes": 11597,
+      "sha256": "2b2e9709c86c0ba7132fc5762744c022662804e237fbfa7562e3bdb454622fab"
+    },
+    {
+      "path": "handoff/project_bible/architecture_atlas/LAYER_OWNERSHIP.md",
+      "category": "Layer Architecture",
+      "bytes": 7541,
+      "sha256": "7f7d6f41df658e06b6570997836722351f38921fb037027b3def6b5f4c494205"
+    },
+    {
+      "path": "handoff/runtime_node_graph.txt",
+      "category": "Node / Topology",
+      "bytes": 1127,
+      "sha256": "09354c3e3b25fdbd162beb4ed273d6967481ff3b1b948c541cd165d4c26a6de5"
+    },
+    {
+      "path": "handoff/project_bible/architecture_atlas/TOPOLOGY/node_graph.md",
+      "category": "Node / Topology",
+      "bytes": 1154,
+      "sha256": "d8431367317c466a304f3b0a15922ba992b9d6ebed75fc9f7868a8efce67fe89"
+    },
+    {
+      "path": "handoff/dependency_graph.txt",
+      "category": "Dependency Atlas",
+      "bytes": 369,
+      "sha256": "5e047267360c3814608234da1ca4fc99d7ccf8eccbcabee45878fddd35384ae9"
+    },
+    {
+      "path": "handoff/project_bible/architecture_atlas/TOPOLOGY/dependency_graph.md",
+      "category": "Node / Topology",
+      "bytes": 402,
+      "sha256": "b1d3bb00b4900d6d9e964d9f3c67d4000e4ee117a4a248e5da39aa9113f5250b"
+    },
+    {
+      "path": "handoff/runtime_state_machine.txt",
+      "category": "Runtime State",
+      "bytes": 557,
+      "sha256": "d24c7833063a51056f0ffc008567e3697e7df035ad15f33d5bf3700f079ffdd6"
+    },
+    {
+      "path": "handoff/project_bible/DATA_FLOW.md",
+      "category": "Flows",
+      "bytes": 715,
+      "sha256": "41a4aafcb68dabb9b6c61c17f6dee94777cab32edfae2aa36559ebcc6cc5bac5"
+    },
+    {
+      "path": "handoff/project_bible/architecture_atlas/FLOWS/market_data.md",
+      "category": "Flows",
+      "bytes": 166,
+      "sha256": "2cb91e3f94132c421eb29e7cbc48fa441a93069eb4ff6c8d64de92715b242860"
+    },
+    {
+      "path": "handoff/project_bible/architecture_atlas/FLOWS/candidate_pipeline.md",
+      "category": "Flows",
+      "bytes": 186,
+      "sha256": "7541ebfa315a9d175e25ef89506d921d4bb5dd0082695c9d9c6c2ae1e74e349d"
+    },
+    {
+      "path": "handoff/project_bible/architecture_atlas/FLOWS/execution_disabled.md",
+      "category": "Flows",
+      "bytes": 181,
+      "sha256": "dfe6dbcf1c9d11551aab941f4c188385f6d342dcbb717b133f8478bc6a414ebd"
+    },
+    {
+      "path": "handoff/project_bible/QWEN_READ_ONLY_ARCHITECTURE.md",
+      "category": "Qwen Read-Only",
+      "bytes": 609,
+      "sha256": "e25b4ef9ad6b6275412e6fb05ed3412ddd5e98d852de59f12345b4b261fc0737"
+    },
+    {
+      "path": "handoff/certification_timeline.txt",
+      "category": "Certification History",
+      "bytes": 11664,
+      "sha256": "48d25564eee27ccfd337081d7ec29ce78ee4b3922c769e91e6aea3749b9b518c"
+    },
+    {
+      "path": "handoff/project_bible/architecture_atlas/PHASE_TIMELINE.md",
+      "category": "Certification History",
+      "bytes": 41383,
+      "sha256": "75493523854ed40952558f735aece8c79d22963e18a53b80b29a79e5315dc747"
+    },
+    {
+      "path": "handoff/project_bible/DEVELOPER_RULEBOOK.md",
+      "category": "Governance",
+      "bytes": 685,
+      "sha256": "6e6120de4324d22b53075b208fb135434915f75d7c8e5d448a952ff56da94914"
+    },
+    {
+      "path": "handoff/project_bible/ROADMAP.md",
+      "category": "Roadmap",
+      "bytes": 806,
+      "sha256": "5a73fa4c86a0040780adb9fdb650f6ebd01ad8284325b83f5d0e09d4242f2312"
+    },
+    {
+      "path": "handoff/project_bible/GLOSSARY.md",
+      "category": "Glossary",
+      "bytes": 542,
+      "sha256": "be1cbcee4f0cc0841d04efd96cf784f752f6d8d44873de16c28c4ae7f8c2c431"
+    },
+    {
+      "path": "handoff/project_bible/TRACEABILITY_INDEX.md",
+      "category": "Traceability",
+      "bytes": 610,
+      "sha256": "b32f0b41621dc615b85e315b4a98ddf799abe63563578004452bd12a22c300ef"
+    },
+    {
+      "path": "handoff/repository_statistics.json",
+      "category": "Machine Index",
+      "bytes": 4228,
+      "sha256": "9ef4ecdc5fc1d00481b66f1228d601f8393b2acad7e0baa6e23f186109a5ffb0"
+    },
+    {
+      "path": "handoff/certified_phase_index.json",
+      "category": "Certification History",
+      "bytes": 39482,
+      "sha256": "4972c0333fe708264215f2764251d2ce4940a9e2481be28ea15d06d35df64b89"
+    },
+    {
+      "path": "handoff/topology_summary.json",
+      "category": "Node / Topology",
+      "bytes": 1582,
+      "sha256": "4cd01df0c00d773e3cf4e029c379203f6555bbe0413b7059198dca13653b3b1b"
+    },
+    {
+      "path": "handoff/project_bible/PROJECT_BIBLE.json",
+      "category": "Machine Index",
+      "bytes": 1741,
+      "sha256": "3eb603ec5e6ca8f9f12917ca0969a0fc9a4642bc01dfb018192e8c3c85215f37"
+    },
+    {
+      "path": "handoff/project_bible/architecture_atlas/ARCHITECTURE_ATLAS.json",
+      "category": "Machine Index",
+      "bytes": 682,
+      "sha256": "f2479e3d4d9ddb97de3d274a63d2907dd67e406a32724a4e3060d217836120f0"
+    },
+    {
+      "path": "handoff/project_bible/architecture_atlas/IMPORT_DEPENDENCY_ATLAS.json",
+      "category": "Dependency Atlas",
+      "bytes": 59744,
+      "sha256": "6fbea90ccd58229c83529fc2da338879ad092da98e53835365a26d6cc2632a32"
+    },
+    {
+      "path": "handoff/MASTER_ARCHITECTURE_HANDOFF.md",
+      "category": "Reference",
+      "bytes": 10642,
+      "sha256": "952b976086d24173d779d253ef7718456a2dc569b729b316703f448e16e5e3d3"
+    },
+    {
+      "path": "handoff/project_bible/DEPENDENCY_GRAPH.md",
+      "category": "Dependency Atlas",
+      "bytes": 402,
+      "sha256": "b1d3bb00b4900d6d9e964d9f3c67d4000e4ee117a4a248e5da39aa9113f5250b"
+    },
+    {
+      "path": "handoff/project_bible/INDEX.md",
+      "category": "Reference",
+      "bytes": 245,
+      "sha256": "615719e55648047a68674729cfa92c69c75a131db860291fc4999d87375b0af7"
+    },
+    {
+      "path": "handoff/project_bible/NODE_MAP.md",
+      "category": "Node / Topology",
+      "bytes": 1152,
+      "sha256": "3bc346e0567f460a9a15456331b0462d1f934d98407424530e5ab439e24a6322"
+    },
+    {
+      "path": "handoff/project_bible/architecture_atlas/TOPOLOGY/stack_graph.json",
+      "category": "Stack Architecture",
+      "bytes": 20413,
+      "sha256": "83740e3dbbd38706e625d5ae7e7a67e8d6e0f2f2327555642100106f69dc4b23"
+    }
+  ],
+  "certified": true
+}

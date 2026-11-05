@@ -50,7 +50,7 @@ def make_intent(
 
 
 def test_fast_profile_is_canonical() -> None:
-    assert NEURO_FAST_MODEL == "neuro-fast:latest"
+    assert NEURO_FAST_MODEL == 'neuro-fast-no-think:latest'
 
     source = FAST_MODELFILE.read_text(
         encoding="utf-8",
@@ -75,8 +75,8 @@ def test_reason_profile_is_canonical() -> None:
     assert "Never promise returns" in source
 
 
-def test_code_and_fallback_profiles_remain_separate() -> None:
-    assert NEURO_CODE_MODEL == "qwen3-coder:latest"
+def test_code_tier_uses_neuro_reason_profile() -> None:
+    assert NEURO_CODE_MODEL == NEURO_REASON_MODEL
     assert NEURO_FALLBACK_MODEL == "llama3.1:latest"
 
 
@@ -87,7 +87,7 @@ def test_general_request_routes_to_neuro_fast() -> None:
     )
 
     assert decision.tier == "fast"
-    assert decision.model == "neuro-fast:latest"
+    assert decision.model == 'neuro-fast-no-think:latest'
 
 
 def test_strategy_request_routes_to_neuro_reason() -> None:
@@ -114,7 +114,7 @@ def test_developer_request_still_routes_to_code_model() -> None:
     )
 
     assert decision.tier == "code"
-    assert decision.model == "qwen3-coder:latest"
+    assert decision.model == NEURO_REASON_MODEL
 
 
 def test_model_profiles_do_not_grant_execution_authority() -> None:

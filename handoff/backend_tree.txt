@@ -1,0 +1,191 @@
+backend/
+├── app/
+│   ├── analysis/
+│   │   └── architecture.py
+│   ├── api/
+│   │   └── graph_ws.py
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── cognitive_event_bus.py
+│   │   ├── cognitive_graph_state.py
+│   │   ├── cognitive_nodes.py
+│   │   ├── cognitive_types.py
+│   │   ├── config.py
+│   │   ├── global_firewall_v1.py
+│   │   └── runtime_firewall_v1.py
+│   ├── models/
+│   ├── routers/
+│   │   └── __init__.py
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   └── dashboard.py
+│   ├── services/
+│   │   └── __init__.py
+│   ├── snaptrade/
+│   │   └── executions/
+│   │       ├── config.py
+│   │       └── execution_layer.py
+│   ├── stacks/
+│   │   ├── auth_identity/
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py
+│   │   │   ├── gate.py
+│   │   │   └── validator.py
+│   │   ├── chat_public/
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py
+│   │   │   ├── chat_api.py
+│   │   │   ├── chat_intent_regex.py
+│   │   │   ├── chat_memory.py
+│   │   │   ├── chat_runtime.py
+│   │   │   ├── chat_service.py
+│   │   │   ├── chat_system_prompt.py
+│   │   │   ├── context_loader.py
+│   │   │   ├── conversation_store.py
+│   │   │   ├── ollama_chat_client.py
+│   │   │   ├── strategy_proposal_capture.py
+│   │   │   └── time_context.py
+│   │   ├── db_model/
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py
+│   │   │   └── market_schema.py
+│   │   ├── events/
+│   │   │   └── broker.py
+│   │   ├── execution/
+│   │   │   ├── __init__.py
+│   │   │   ├── accounting_engine.py
+│   │   │   ├── base.py
+│   │   │   ├── broker.py
+│   │   │   ├── commission_engine.py
+│   │   │   ├── executor.py
+│   │   │   ├── fill_engine.py
+│   │   │   ├── paper_broker.py
+│   │   │   ├── pnl_engine.py
+│   │   │   ├── regime_modes.py
+│   │   │   ├── regime_simulator.py
+│   │   │   ├── sandbox.py
+│   │   │   ├── sandbox_runtime.py
+│   │   │   └── trade_ledger.py
+│   │   ├── journal_ledger/
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py
+│   │   │   ├── ledger.py
+│   │   │   └── record.py
+│   │   ├── learning_research/
+│   │   │   ├── dataset/
+│   │   │   │   ├── finance/
+│   │   │   │   └── papers/
+│   │   │   ├── __init__.py
+│   │   │   ├── backtest_engine.py
+│   │   │   ├── base.py
+│   │   │   ├── monte_carlo.py
+│   │   │   ├── monte_carlo_mix.py
+│   │   │   ├── probability_engine.py
+│   │   │   ├── research_loader.py
+│   │   │   ├── research_runtime.py
+│   │   │   └── strategy_evaluator.py
+│   │   ├── market_data/
+│   │   │   ├── __init__.py
+│   │   │   ├── bars.py
+│   │   │   ├── base.py
+│   │   │   ├── feed.py
+│   │   │   ├── market_data_service.py
+│   │   │   ├── market_session.py
+│   │   │   ├── price.py
+│   │   │   ├── provider_cache.py
+│   │   │   ├── provider_registry.py
+│   │   │   ├── provider_router.py
+│   │   │   ├── yfinance_historical_bars_adapter.py
+│   │   │   └── yfinance_ingestor.py
+│   │   ├── notification/
+│   │   │   ├── __init__.py
+│   │   │   └── base.py
+│   │   ├── portfolio/
+│   │   │   ├── __init__.py
+│   │   │   ├── accounting.py
+│   │   │   ├── allocator.py
+│   │   │   ├── base.py
+│   │   │   ├── dashboard_service.py
+│   │   │   ├── portfolio_runtime.py
+│   │   │   ├── portfolio_service.py
+│   │   │   ├── rebalance.py
+│   │   │   └── reconciliation.py
+│   │   ├── risk/
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py
+│   │   │   ├── drawdown_guard.py
+│   │   │   ├── exposure.py
+│   │   │   ├── kill_switch.py
+│   │   │   ├── limits.py
+│   │   │   ├── loss_streak_guard.py
+│   │   │   ├── risk_runtime_service.py
+│   │   │   └── risk_service.py
+│   │   ├── snaptrade/
+│   │   │   ├── __init__.py
+│   │   │   ├── adapter.py
+│   │   │   ├── base.py
+│   │   │   ├── broker.py
+│   │   │   └── execution.py
+│   │   ├── strategy/
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py
+│   │   │   ├── candidate_registry.py
+│   │   │   ├── engine.py
+│   │   │   ├── evolution_engine.py
+│   │   │   ├── llm_strategy_engine.py
+│   │   │   ├── selector.py
+│   │   │   ├── signal.py
+│   │   │   ├── strategy_registry.py
+│   │   │   ├── strategy_runtime.py
+│   │   │   └── strategy_service.py
+│   │   ├── strategy_candidate_sandbox/
+│   │   │   ├── candidate_scorecard_from_replay_metrics.py
+│   │   │   ├── entry_exit_decision_engine_stub.py
+│   │   │   ├── entry_exit_signal_contract.py
+│   │   │   ├── entry_signal_generator_disabled_stub.py
+│   │   │   ├── entry_signal_rule_contract.py
+│   │   │   ├── entry_signal_rule_validator.py
+│   │   │   ├── exit_signal_generator_disabled_stub.py
+│   │   │   ├── exit_signal_rule_contract.py
+│   │   │   ├── exit_signal_rule_validator.py
+│   │   │   ├── historical_replay_bar_iterator.py
+│   │   │   ├── historical_replay_executor.py
+│   │   │   ├── hold_decision_to_hold_event_bridge.py
+│   │   │   ├── hold_signal_generator_stub.py
+│   │   │   ├── manual_promotion_gate.py
+│   │   │   ├── qwen_context_response_contract.py
+│   │   │   ├── qwen_read_only_architecture_context.py
+│   │   │   ├── qwen_read_only_architecture_summary_gate.py
+│   │   │   ├── replay_metrics_contract.py
+│   │   │   ├── replay_metrics_generator.py
+│   │   │   ├── risk_gate_contract.py
+│   │   │   ├── risk_gate_validator.py
+│   │   │   ├── safe_read_only_architecture_inspector.py
+│   │   │   ├── strategy_rule_enablement_gate_contract.py
+│   │   │   ├── strategy_rule_enablement_gate_validator.py
+│   │   │   ├── trade_event_validator.py
+│   │   │   ├── trade_simulation_contract.py
+│   │   │   ├── trade_simulation_dry_run_stub.py
+│   │   │   ├── trade_simulation_enablement_gate_contract.py
+│   │   │   └── trade_simulation_enablement_gate_validator.py
+│   │   ├── wolfden_ai/
+│   │   │   ├── repo_memory/
+│   │   │   │   └── index/
+│   │   │   ├── __init__.py
+│   │   │   ├── agent_router.py
+│   │   │   ├── base.py
+│   │   │   ├── memory.py
+│   │   │   ├── orchestrator.py
+│   │   │   ├── routing.py
+│   │   │   └── runtime.py
+│   │   ├── __init__.py
+│   │   └── registry.json
+│   ├── test/
+│   │   ├── test_neuro_repo_companion.py
+│   │   └── test_trading_pipeline.py
+│   ├── __init__.py
+│   └── main.py
+├── scripts/
+│   └── backup_db.sh
+├── __init__.py
+└── requirements.txt

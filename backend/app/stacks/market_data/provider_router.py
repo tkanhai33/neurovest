@@ -240,8 +240,16 @@ class ProviderRouter:
         cache_key = (
             "historical_bars",
             request.symbol,
-            request.start.isoformat(),
-            request.end.isoformat(),
+            (
+                request.start.date().isoformat()
+                if request.interval == "1d"
+                else request.start.isoformat()
+            ),
+            (
+                request.end.date().isoformat()
+                if request.interval == "1d"
+                else request.end.isoformat()
+            ),
             request.interval,
             request.adjusted,
             request.limit,

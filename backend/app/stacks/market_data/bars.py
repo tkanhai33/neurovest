@@ -1,32 +1,204 @@
-"""DOMAIN_LOGIC_V1 asynchronous historical bar storage and data dataframe analyzer."""
-import yfinance as yf
+"""Truthful historical-bar compatibility boundary.
 
-def get_bars(symbol: str, limit: int = 5) -> list[dict]:
-    """Extracts live historical intraday closing bars directly from the yfinance sandbox data stream."""
+This module preserves the legacy ``get_bars(symbol, limit)`` surface while
+routing every live request through NeuroVest's canonical read-only market-data
+runtime. It never manufactures, randomizes, or substitutes market history.
+"""
+
+from __future__ import annotations
+
+from datetime import UTC, datetime, timedelta
+from math import ceil
+from typing import Any
+
+from backend.app.stacks.market_data.dto import (
+    HistoricalBar,
+    HistoricalBarsRequest,
+    HistoricalBarsResult,
+)
+from backend.app.stacks.market_data.runtime_composition import (
+    get_market_data_runtime,
+)
+
+
+class HistoricalBarsUnavailableError(RuntimeError):
+    """Canonical providers could not supply truthful historical bars."""
+
+
+class HistoricalBarsInsufficientDataError(
+    HistoricalBarsUnavailableError
+):
+    """The provider returned fewer real observations than requested."""
+
+
+def _normalized_limit(limit: int) -> int:
+    if isinstance(limit, bool) or not isinstance(limit, int):
+        raise ValueError(
+            "historical bar limit must be an integer"
+        )
+
+    if limit <= 0:
+        raise ValueError(
+            "historical bar limit must be greater than zero"
+        )
+
+    if limit > 5000:
+        raise ValueError(
+            "historical bar limit must not exceed 5000"
+        )
+
+    return limit
+
+
+def _calendar_lookback_days(limit: int) -> int:
+    """Allow for weekends, holidays, and ordinary market closures."""
+
+    return max(
+        30,
+        int(
+            ceil(
+                limit * 2.75
+            )
+        ) + 30,
+    )
+
+
+def _legacy_bar_record(
+    bar: HistoricalBar,
+    *,
+    include_adjusted_close: bool = False,
+) -> dict[str, Any]:
+    record = {
+        "symbol": bar.symbol,
+        "timestamp": bar.timestamp.isoformat(),
+        "interval": bar.interval,
+        "open": float(bar.open),
+        "high": float(bar.high),
+        "low": float(bar.low),
+        "close": float(bar.close),
+        "volume": float(bar.volume),
+        "provider": bar.provider,
+    }
+    if include_adjusted_close:
+        record["adjusted_close"] = (
+            float(bar.adjusted_close)
+            if bar.adjusted_close is not None
+            else None
+        )
+    return record
+
+
+def get_bars(
+    symbol: str,
+    limit: int = 5,
+    *,
+    include_adjusted_close: bool = False,
+) -> list[dict[str, Any]]:
+    """Return exactly ``limit`` real normalized daily OHLCV observations.
+
+    Provider, routing, normalization, caching, and failover remain owned by
+    the canonical market-data runtime. Provider failure and insufficient
+    history fail closed. No synthetic or fabricated observations are allowed.
+    """
+
+    normalized_symbol = str(
+        symbol
+    ).strip().upper()
+
+    if not normalized_symbol:
+        raise ValueError(
+            "historical bar symbol must not be empty"
+        )
+
+    normalized_limit = _normalized_limit(
+        limit
+    )
+
+    end = datetime.now(
+        UTC
+    )
+
+    start = end - timedelta(
+        days=_calendar_lookback_days(
+            normalized_limit
+        )
+    )
+
+    request = HistoricalBarsRequest(
+        symbol=normalized_symbol,
+        start=start,
+        end=end,
+        interval="1d",
+        adjusted=True,
+        limit=normalized_limit,
+    )
+
     try:
-        ticker = yf.Ticker(symbol)
-        # Fetch a 1-day lookback array of 1-minute intervals
-        hist = ticker.history(period="1d", interval="1m")
+        runtime = get_market_data_runtime()
 
-        if hist.empty:
-            # Concrete fallback matrix array to keep internal quantitative models stable on weekends/market close
-            return [
-                {"close": 150.0}, {"close": 150.5}, {"close": 151.0}, {"close": 149.5}, {"close": 150.2}
-            ]
+        result = runtime.router.get_historical_bars(
+            request
+        )
 
-        recent_bars = hist.tail(limit)
-        bar_list = []
+    except Exception as exc:
+        raise HistoricalBarsUnavailableError(
+            "truthful historical bars are unavailable for "
+            f"{normalized_symbol}: "
+            f"{type(exc).__name__}: {exc}"
+        ) from exc
 
-        for index, row in recent_bars.iterrows():
-            bar_list.append({
-                "timestamp": index.isoformat() if hasattr(index, 'isoformat') else str(index),
-                "open": float(row["Open"]),
-                "high": float(row["High"]),
-                "low": float(row["Low"]),
-                "close": float(row["Close"]),
-                "volume": int(row["Volume"])
-            })
-        return bar_list
-    except Exception as e:
-        print(f"Historical Bar Ingestion Error: {str(e)}")
-        return [{"close": 150.0}, {"close": 150.5}, {"close": 151.0}, {"close": 149.5}, {"close": 150.2}]
+    if not isinstance(
+        result,
+        HistoricalBarsResult,
+    ):
+        raise HistoricalBarsUnavailableError(
+            "canonical market-data router returned a "
+            "non-canonical historical result"
+        )
+
+    real_bars = tuple(
+        result.bars
+    )
+
+    if len(real_bars) < normalized_limit:
+        raise HistoricalBarsInsufficientDataError(
+            "insufficient truthful historical bars for "
+            f"{normalized_symbol}: requested "
+            f"{normalized_limit}, received {len(real_bars)}"
+        )
+
+    selected = real_bars[
+        -normalized_limit:
+    ]
+
+    return [
+        _legacy_bar_record(
+            bar,
+            include_adjusted_close=include_adjusted_close,
+        )
+        for bar in selected
+    ]
+
+
+def healthcheck() -> dict[str, object]:
+    """Describe the adapter without loading or calling a provider."""
+
+    return {
+        "component":
+            "truthful_historical_bars_compatibility",
+
+        "healthy":
+            True,
+
+        "provider_owner":
+            "canonical_market_data_runtime",
+
+        "interval":
+            "1d",
+
+        "fabricated_fallback":
+            False,
+
+        "network_called":
+            False,
+    }

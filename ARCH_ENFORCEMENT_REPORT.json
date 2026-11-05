@@ -1,0 +1,92 @@
+{
+  "violations_count": 11,
+  "service_layer_files": 8,
+  "stack_distribution": {
+    "L0": 14,
+    "L6": 1,
+    "L2": 34,
+    "L1": 16,
+    "L3": 3,
+    "L4": 28,
+    "L7": 10,
+    "L5": 25
+  },
+  "violations": [
+    {
+      "file": "/home/tkanhai/Neurovest/paper_broker.py",
+      "layer": "L0",
+      "import": "stacks.portfolio.rebalance",
+      "violation": "L0 importing forbidden module stacks.portfolio.rebalance"
+    },
+    {
+      "file": "/home/tkanhai/Neurovest/paper_broker.py",
+      "layer": "L0",
+      "import": "stacks.strategy.signal",
+      "violation": "L0 importing forbidden module stacks.strategy.signal"
+    },
+    {
+      "file": "/home/tkanhai/Neurovest/paper_broker.py",
+      "layer": "L0",
+      "import": "stacks.risk.drawdown_guard",
+      "violation": "L0 importing forbidden module stacks.risk.drawdown_guard"
+    },
+    {
+      "file": "/home/tkanhai/Neurovest/paper_broker.py",
+      "layer": "L0",
+      "import": "stacks.risk.kill_switch",
+      "violation": "L0 importing forbidden module stacks.risk.kill_switch"
+    },
+    {
+      "file": "/home/tkanhai/Neurovest/paper_broker.py",
+      "layer": "L0",
+      "import": "stacks.portfolio.allocator",
+      "violation": "L0 importing forbidden module stacks.portfolio.allocator"
+    },
+    {
+      "file": "/home/tkanhai/Neurovest/backend/app/stacks/execution/paper_broker.py",
+      "layer": "L0",
+      "import": "stacks.portfolio.rebalance",
+      "violation": "L0 importing forbidden module stacks.portfolio.rebalance"
+    },
+    {
+      "file": "/home/tkanhai/Neurovest/backend/app/stacks/execution/paper_broker.py",
+      "layer": "L0",
+      "import": "stacks.strategy.signal",
+      "violation": "L0 importing forbidden module stacks.strategy.signal"
+    },
+    {
+      "file": "/home/tkanhai/Neurovest/backend/app/stacks/execution/paper_broker.py",
+      "layer": "L0",
+      "import": "stacks.risk.drawdown_guard",
+      "violation": "L0 importing forbidden module stacks.risk.drawdown_guard"
+    },
+    {
+      "file": "/home/tkanhai/Neurovest/backend/app/stacks/execution/paper_broker.py",
+      "layer": "L0",
+      "import": "stacks.risk.kill_switch",
+      "violation": "L0 importing forbidden module stacks.risk.kill_switch"
+    },
+    {
+      "file": "/home/tkanhai/Neurovest/backend/app/stacks/execution/paper_broker.py",
+      "layer": "L0",
+      "import": "stacks.portfolio.allocator",
+      "violation": "L0 importing forbidden module stacks.portfolio.allocator"
+    },
+    {
+      "file": "/home/tkanhai/Neurovest/backend/app/stacks/execution/paper_broker.py",
+      "layer": "L0",
+      "import": "stacks.portfolio.accounting",
+      "violation": "L0 importing forbidden module stacks.portfolio.accounting"
+    }
+  ],
+  "service_migration_plan": {
+    "/home/tkanhai/Neurovest/File: backend/app/services/auth_service.py": "stacks/auth_identity",
+    "/home/tkanhai/Neurovest/File: backend/app/services/portfolio_service.py": "stacks/portfolio",
+    "/home/tkanhai/Neurovest/File: backend/app/services/strategy_service.py": "stacks/strategy",
+    "/home/tkanhai/Neurovest/File: backend/app/services/market_data_service.py": "stacks/market_data",
+    "/home/tkanhai/Neurovest/File: backend/app/services/notification_service.py": "UNKNOWN_STACK",
+    "/home/tkanhai/Neurovest/File: backend/app/services/risk_service.py": "stacks/risk",
+    "/home/tkanhai/Neurovest/backend/app/services/__init__.py": "UNKNOWN_STACK",
+    "/home/tkanhai/Neurovest/backend/app/services/dashboard_service.py": "UNKNOWN_STACK"
+  }
+}

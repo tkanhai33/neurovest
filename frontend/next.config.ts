@@ -5,31 +5,7 @@ import type {
 const isProduction =
   process.env.NODE_ENV === "production";
 
-const contentSecurityPolicy = [
-  "default-src 'self'",
-  (
-    "script-src 'self' 'unsafe-inline'"
-    + (
-      isProduction
-        ? ""
-        : " 'unsafe-eval'"
-    )
-  ),
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "connect-src 'self'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-].join("; ");
-
 const securityHeaders = [
-  {
-    key: "Content-Security-Policy",
-    value: contentSecurityPolicy,
-  },
   {
     key: "X-Content-Type-Options",
     value: "nosniff",
@@ -62,6 +38,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: { cpus: 1, webpackBuildWorker: false },
   poweredByHeader: false,
 
   async headers() {
@@ -100,6 +77,15 @@ const nextConfig: NextConfig = {
             value:
               "no-store, no-cache, " +
               "must-revalidate",
+          },
+        ],
+      },
+      {
+        source: "/api/auth/recovery/:path*",
+        headers: [
+          {
+            key: "Referrer-Policy",
+            value: "no-referrer",
           },
         ],
       },

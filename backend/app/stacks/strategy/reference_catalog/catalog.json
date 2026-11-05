@@ -1,0 +1,2545 @@
+{
+  "schema_version": "neurovest.reference_strategy_catalog.v1",
+  "classification": "educational_reference_strategy_catalog",
+  "execution_capability": false,
+  "training_candidate_store": false,
+  "strategy_knowledge_store": false,
+  "minimum_required_strategies": 151,
+  "strategy_count": 361,
+  "required_fields": [
+    "strategy_name",
+    "definition",
+    "formula_or_rules",
+    "best_suited_for",
+    "category"
+  ],
+  "strategies": [
+    {
+      "strategy_name": "Simple Moving Average Crossover",
+      "definition": "A trend-following strategy that changes position when a shorter simple moving average crosses a longer simple moving average.",
+      "formula_or_rules": "SMA_n(t)=sum(P[t-i],i=0..n-1)/n. Long when SMA_fast > SMA_slow; exit or short when SMA_fast < SMA_slow.",
+      "best_suited_for": "Markets displaying persistent directional trends.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Exponential Moving Average Crossover",
+      "definition": "A moving-average trend strategy that gives greater weight to recent prices.",
+      "formula_or_rules": "EMA_t=alpha*P_t+(1-alpha)*EMA_(t-1), alpha=2/(n+1). Long when EMA_fast > EMA_slow; exit or short on the reverse crossover.",
+      "best_suited_for": "Trending markets where faster reaction to recent price changes is desired.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Triple Moving Average Trend",
+      "definition": "A trend strategy requiring alignment of short, medium and long moving averages.",
+      "formula_or_rules": "Long when MA_short > MA_medium > MA_long; short when MA_short < MA_medium < MA_long; otherwise neutral.",
+      "best_suited_for": "Strong sustained trends where additional confirmation can reduce whipsaws.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Price Above Moving Average",
+      "definition": "A directional strategy using price relative to a moving average as the trend state.",
+      "formula_or_rules": "Long when Close_t > MA_n(t); exit or short when Close_t < MA_n(t).",
+      "best_suited_for": "Simple long-horizon trend identification.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Moving Average Slope",
+      "definition": "A trend strategy based on the direction and magnitude of a moving average's slope.",
+      "formula_or_rules": "Slope=(MA_t-MA_(t-k))/k. Long when Slope > threshold; short when Slope < -threshold.",
+      "best_suited_for": "Markets where trend direction should be confirmed by persistent average-price movement.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Moving Average Ribbon",
+      "definition": "A trend strategy using a sequence of moving averages to measure trend ordering and compression.",
+      "formula_or_rules": "Long when MA_1 > MA_2 > ... > MA_n with shortest period first; short when ordering is reversed.",
+      "best_suited_for": "Strong trends and visual identification of trend strength.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "MACD Crossover",
+      "definition": "A momentum-trend strategy based on the difference between fast and slow exponential moving averages.",
+      "formula_or_rules": "MACD=EMA_12-EMA_26; Signal=EMA_9(MACD). Long when MACD crosses above Signal; exit or short when MACD crosses below Signal.",
+      "best_suited_for": "Trending instruments with intermediate momentum cycles.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "MACD Zero-Line",
+      "definition": "A trend strategy using whether MACD is above or below zero.",
+      "formula_or_rules": "MACD=EMA_fast-EMA_slow. Long when MACD>0; short or exit when MACD<0.",
+      "best_suited_for": "Directional markets where confirmation of average-price trend is desired.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Donchian Channel Breakout",
+      "definition": "A trend-following breakout strategy entering when price exceeds a prior-period extreme.",
+      "formula_or_rules": "Upper=max(High[t-n:t-1]); Lower=min(Low[t-n:t-1]). Long when Close>Upper; short when Close<Lower.",
+      "best_suited_for": "Persistent trends and commodity-style breakout systems.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Turtle Trading Breakout",
+      "definition": "A classic systematic trend-following approach using channel breakouts and volatility-based risk sizing.",
+      "formula_or_rules": "Enter long on N-day high breakout and short on N-day low breakout; size position using ATR/N volatility; exit using a shorter opposite channel.",
+      "best_suited_for": "Diversified liquid futures or instruments capable of sustained trends.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "ADX Trend Following",
+      "definition": "A trend strategy that trades directional movement only when trend strength exceeds a threshold.",
+      "formula_or_rules": "ADX derived from smoothed +DM,-DM and true range. Long when +DI>-DI and ADX>threshold; short when -DI>+DI and ADX>threshold.",
+      "best_suited_for": "Markets where filtering weak sideways conditions is important.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Parabolic SAR Trend",
+      "definition": "A stop-and-reverse trend strategy based on Wilder's Parabolic SAR.",
+      "formula_or_rules": "SAR_t=SAR_(t-1)+AF*(EP-SAR_(t-1)); hold long while price remains above SAR and reverse/exit when price crosses below it.",
+      "best_suited_for": "Directional markets with trailing-stop style management.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Aroon Trend",
+      "definition": "A trend strategy measuring how recently highs and lows occurred within a lookback window.",
+      "formula_or_rules": "AroonUp=100*(n-periods_since_high)/n; AroonDown=100*(n-periods_since_low)/n. Long when AroonUp>AroonDown with strong AroonUp; reverse for short.",
+      "best_suited_for": "Identifying emerging directional trends.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Ichimoku Trend",
+      "definition": "A multi-horizon trend strategy using Ichimoku equilibrium levels and cloud confirmation.",
+      "formula_or_rules": "Tenkan=(9H+9L)/2; Kijun=(26H+26L)/2; SenkouA=(Tenkan+Kijun)/2; SenkouB=(52H+52L)/2. Long when price is above cloud and Tenkan>Kijun; reverse conditions for short.",
+      "best_suited_for": "Medium-term directional markets requiring multiple layers of trend confirmation.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Supertrend",
+      "definition": "A volatility-adjusted trend strategy based on ATR bands around a central price.",
+      "formula_or_rules": "BasicUpper=(H+L)/2+m*ATR; BasicLower=(H+L)/2-m*ATR. Trend flips according to price crossing the trailing Supertrend band.",
+      "best_suited_for": "Trending instruments requiring volatility-adjusted trailing levels.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Time-Series Momentum",
+      "definition": "A directional strategy that takes the sign of an asset's own past return as a forecast of future direction.",
+      "formula_or_rules": "R_n=P_t/P_(t-n)-1. Long if R_n>0; short or exit if R_n<0.",
+      "best_suited_for": "Assets exhibiting return persistence over medium horizons.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Cross-Sectional Momentum",
+      "definition": "A relative-strength strategy ranking assets by past performance and favoring recent winners over losers.",
+      "formula_or_rules": "Momentum_i=P_i,t/P_i,t-n-1. Rank universe; long top quantile and optionally short bottom quantile.",
+      "best_suited_for": "Broad liquid universes with sufficient cross-sectional dispersion.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "12-1 Momentum",
+      "definition": "A cross-sectional momentum strategy measuring approximately twelve months of performance while excluding the most recent month.",
+      "formula_or_rules": "MOM_12_1=P_(t-1month)/P_(t-12months)-1; rank securities by MOM_12_1.",
+      "best_suited_for": "Equity factor portfolios and medium-term relative momentum.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Relative Strength Momentum",
+      "definition": "A strategy buying securities outperforming a benchmark or peer group.",
+      "formula_or_rules": "RS=(P_asset/P_asset,t-n)/(P_benchmark/P_benchmark,t-n)-1. Long assets with strongest positive RS.",
+      "best_suited_for": "Sector and stock selection during differentiated market leadership.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Rate of Change Momentum",
+      "definition": "A momentum strategy using percentage price change over a fixed interval.",
+      "formula_or_rules": "ROC_n=100*(P_t/P_(t-n)-1). Long when ROC exceeds positive threshold; exit or short below negative threshold.",
+      "best_suited_for": "Directional markets with measurable acceleration.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "RSI Momentum",
+      "definition": "A momentum continuation interpretation of the Relative Strength Index.",
+      "formula_or_rules": "RS=AvgGain_n/AvgLoss_n; RSI=100-100/(1+RS). Long when RSI rises above a momentum threshold such as 50 or 60; exit when it loses the threshold.",
+      "best_suited_for": "Persistent directional markets rather than range-bound mean reversion.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Stochastic Momentum",
+      "definition": "A momentum strategy using the location of the close within the recent high-low range.",
+      "formula_or_rules": "%K=100*(Close-Low_n)/(High_n-Low_n); %D=MA(%K). Momentum long when %K crosses above %D with confirmation above a center threshold.",
+      "best_suited_for": "Markets where range-position momentum identifies directional continuation.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Commodity Channel Index Momentum",
+      "definition": "A directional momentum strategy based on deviation of typical price from its moving average.",
+      "formula_or_rules": "TP=(H+L+C)/3; CCI=(TP-SMA(TP))/(0.015*MeanDeviation). Long when CCI breaks above positive threshold; reverse below negative threshold.",
+      "best_suited_for": "Cyclical markets transitioning into strong momentum.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "52-Week High Momentum",
+      "definition": "A momentum strategy favoring securities trading close to their yearly highs.",
+      "formula_or_rules": "Ratio=P_t/max(P over ~252 sessions). Rank assets by Ratio and favor values nearest 1.",
+      "best_suited_for": "Equity selection where proximity to long-term highs signals persistent strength.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Earnings Momentum",
+      "definition": "A stock-selection strategy favoring firms showing improving earnings trends or surprises.",
+      "formula_or_rules": "Score may combine standardized earnings surprise and EPS growth; rank securities and buy highest positive scores.",
+      "best_suited_for": "Equities around fundamental information diffusion.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Post-Earnings Announcement Drift",
+      "definition": "A strategy exploiting the tendency for prices to continue moving in the direction of an earnings surprise after announcement.",
+      "formula_or_rules": "SUE=(ActualEPS-ExpectedEPS)/sigma(EPS surprise). Long high positive SUE; short or avoid strongly negative SUE for a defined post-announcement window.",
+      "best_suited_for": "Liquid equities following material earnings surprises.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "N-Day High Breakout",
+      "definition": "A breakout strategy buying when price exceeds the highest price of a prior lookback period.",
+      "formula_or_rules": "Upper=max(High[t-n:t-1]). Enter long when Close_t>Upper; use opposite breakout or volatility stop for exit.",
+      "best_suited_for": "Markets beginning new directional expansions.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "N-Day Low Breakdown",
+      "definition": "A bearish breakout strategy entering short when price falls below a prior lookback low.",
+      "formula_or_rules": "Lower=min(Low[t-n:t-1]). Enter short when Close_t<Lower; exit on opposite breakout or stop.",
+      "best_suited_for": "Downtrending liquid markets.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Bollinger Band Breakout",
+      "definition": "A volatility breakout strategy entering when price closes outside a Bollinger Band.",
+      "formula_or_rules": "Middle=SMA_n; Upper=Middle+k*sigma_n; Lower=Middle-k*sigma_n. Long on close above Upper; short on close below Lower.",
+      "best_suited_for": "Volatility expansion following consolidation.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Keltner Channel Breakout",
+      "definition": "A breakout strategy using ATR-based envelopes around an exponential moving average.",
+      "formula_or_rules": "Middle=EMA_n; Upper=Middle+k*ATR; Lower=Middle-k*ATR. Long above Upper; short below Lower.",
+      "best_suited_for": "Directional volatility expansion with ATR-normalized bands.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Opening Range Breakout",
+      "definition": "An intraday strategy trading a break above or below the initial session range.",
+      "formula_or_rules": "ORH=max(high during opening window); ORL=min(low during opening window). Long above ORH; short below ORL, often with volume confirmation.",
+      "best_suited_for": "Liquid intraday markets with strong session-level directional moves.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Volatility Compression Breakout",
+      "definition": "A strategy identifying unusually compressed volatility and trading the subsequent range expansion.",
+      "formula_or_rules": "Identify low ATR, narrow Bollinger width or percentile compression; enter in direction of price break beyond compression range.",
+      "best_suited_for": "Markets alternating between volatility contraction and expansion.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "NR4 Breakout",
+      "definition": "A volatility breakout strategy triggered after the narrowest daily range of the previous four sessions.",
+      "formula_or_rules": "Range_t=High_t-Low_t. If Range_t=min(last 4 ranges), trade subsequent break above High_t or below Low_t.",
+      "best_suited_for": "Short-term volatility expansion setups.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "NR7 Breakout",
+      "definition": "A volatility breakout strategy triggered after the narrowest range of the previous seven sessions.",
+      "formula_or_rules": "Range_t=High_t-Low_t. If Range_t=min(last 7 ranges), trade next break above High_t or below Low_t.",
+      "best_suited_for": "Compressed markets likely to experience near-term range expansion.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Inside Bar Breakout",
+      "definition": "A breakout strategy using a bar whose entire range lies within the previous bar.",
+      "formula_or_rules": "Inside if High_t<High_(t-1) and Low_t>Low_(t-1). Trade break above inside-bar high or below inside-bar low.",
+      "best_suited_for": "Short-term consolidation followed by directional expansion.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Triangle Breakout",
+      "definition": "A chart-structure breakout strategy entering when price leaves converging support and resistance.",
+      "formula_or_rules": "Fit descending resistance and/or ascending support to swing points; enter when Close crosses boundary with optional volume confirmation.",
+      "best_suited_for": "Consolidating markets with contracting price ranges.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Bollinger Band Mean Reversion",
+      "definition": "A mean-reversion strategy buying statistically depressed prices and selling statistically elevated prices relative to a moving average.",
+      "formula_or_rules": "Z=(P-SMA_n)/sigma_n. Long near/below lower band when Z<-k; exit near mean. Short near/above upper band when Z>k; cover near mean.",
+      "best_suited_for": "Range-bound markets without strong directional trends.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "RSI Oversold Mean Reversion",
+      "definition": "A contrarian strategy buying after unusually weak short-term momentum.",
+      "formula_or_rules": "RSI=100-100/(1+AvgGain/AvgLoss). Long when RSI<oversold threshold; exit as RSI returns toward neutral/overbought level.",
+      "best_suited_for": "Liquid instruments with recurring short-term reversals.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "RSI Overbought Mean Reversion",
+      "definition": "A contrarian strategy fading unusually strong short-term momentum.",
+      "formula_or_rules": "Enter short or reduce long exposure when RSI>overbought threshold; cover or normalize when RSI returns toward neutral.",
+      "best_suited_for": "Range-bound markets where extreme rallies frequently retrace.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Z-Score Mean Reversion",
+      "definition": "A statistical strategy trading deviations from a rolling mean.",
+      "formula_or_rules": "Z_t=(P_t-mean(P,n))/std(P,n). Long when Z<-entry; short when Z>entry; exit when Z approaches zero.",
+      "best_suited_for": "Stationary or approximately range-bound price series.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Moving Average Deviation Reversion",
+      "definition": "A contrarian strategy trading large percentage deviations from a moving average.",
+      "formula_or_rules": "Deviation=P_t/MA_n-1. Long below negative threshold; short above positive threshold; exit near MA.",
+      "best_suited_for": "Assets that repeatedly oscillate around a stable trend estimate.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Stochastic Oversold Reversion",
+      "definition": "A short-term reversal strategy using low stochastic readings to identify depressed closes within the recent range.",
+      "formula_or_rules": "%K=100*(C-L_n)/(H_n-L_n). Long when %K is oversold and crosses above %D; exit toward middle/upper range.",
+      "best_suited_for": "Sideways or mildly trending liquid markets.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Williams %R Reversion",
+      "definition": "A contrarian strategy using the close's location within the recent trading range.",
+      "formula_or_rules": "%R=-100*(H_n-C)/(H_n-L_n). Long when deeply oversold and reversing upward; short when deeply overbought and reversing downward.",
+      "best_suited_for": "Range-bound markets with frequent short-term reversals.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "CCI Mean Reversion",
+      "definition": "A reversal strategy fading extreme Commodity Channel Index readings.",
+      "formula_or_rules": "CCI=(TP-SMA(TP))/(0.015*MeanDeviation). Buy extreme negative CCI and exit near zero; short extreme positive CCI and cover near zero.",
+      "best_suited_for": "Cyclical markets that repeatedly return toward equilibrium.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Intraday VWAP Mean Reversion",
+      "definition": "An intraday strategy fading large deviations from volume-weighted average price.",
+      "formula_or_rules": "VWAP=sum(Price_i*Volume_i)/sum(Volume_i). Long when price is sufficiently below VWAP; short when sufficiently above; exit toward VWAP.",
+      "best_suited_for": "Highly liquid intraday instruments with two-sided order flow.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Gap Fade",
+      "definition": "A short-term reversal strategy betting that an opening price gap will partially or fully close.",
+      "formula_or_rules": "Gap=(Open_t-Close_(t-1))/Close_(t-1). Fade sufficiently large gaps when confirmation rules indicate rejection; target prior close or partial gap fill.",
+      "best_suited_for": "Liquid securities where non-fundamental opening gaps frequently mean-revert.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Overnight Reversal",
+      "definition": "A strategy fading unusually large overnight price moves after the regular session opens.",
+      "formula_or_rules": "OvernightReturn=Open_t/Close_(t-1)-1. Take opposite exposure when absolute overnight return exceeds threshold and reversal confirmation occurs.",
+      "best_suited_for": "Liquid equities with transient overnight dislocations.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Short-Term Reversal Factor",
+      "definition": "A cross-sectional strategy favoring recent losers and avoiding or shorting recent winners over short horizons.",
+      "formula_or_rules": "Rank securities by recent return over approximately 1 week to 1 month; long bottom-return quantile and optionally short top-return quantile.",
+      "best_suited_for": "Diversified equity universes exhibiting short-horizon reversal.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Pairs Trading",
+      "definition": "A market-neutral relative-value strategy trading temporary divergence between two historically related securities.",
+      "formula_or_rules": "Spread=P_A-beta*P_B; Z=(Spread-mean)/std. Short spread when Z>entry; long spread when Z<-entry; exit near Z=0.",
+      "best_suited_for": "Highly related liquid securities with stable relative relationships.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Cointegration Pairs Trading",
+      "definition": "A pairs strategy requiring evidence that a linear combination of two non-stationary price series is stationary.",
+      "formula_or_rules": "Estimate log(P_A)=alpha+beta*log(P_B)+epsilon. Trade standardized epsilon when cointegration tests support stationarity.",
+      "best_suited_for": "Pairs with economically plausible and statistically persistent equilibrium relationships.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Distance-Based Pairs Trading",
+      "definition": "A relative-value strategy selecting pairs whose normalized historical prices move closely together.",
+      "formula_or_rules": "Normalize price series; distance=sum((NormA_t-NormB_t)^2). Select low-distance pairs and trade large subsequent spread divergence.",
+      "best_suited_for": "Large equity universes where computationally simple pair selection is useful.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "ETF Constituent Arbitrage",
+      "definition": "A relative-value approach comparing an ETF's market price with the estimated value of its underlying basket.",
+      "formula_or_rules": "Premium=(ETF_price-estimated_NAV)/estimated_NAV. Trade convergence when premium or discount exceeds costs and executable thresholds.",
+      "best_suited_for": "Highly liquid ETFs and baskets with reliable real-time constituent pricing.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Index Arbitrage",
+      "definition": "A relative-value strategy exploiting discrepancies between an equity index derivative and the underlying stock basket.",
+      "formula_or_rules": "FairFutures=S*exp((r-q)*T). Compare traded futures price with theoretical fair value plus transaction-cost bands.",
+      "best_suited_for": "Highly liquid index futures and institutional basket execution.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Beta-Neutral Residual Reversion",
+      "definition": "A market-neutral strategy trading security-specific residual moves after removing market exposure.",
+      "formula_or_rules": "r_i=alpha+beta*r_m+epsilon. Standardize epsilon; fade extreme residuals while hedging beta exposure.",
+      "best_suited_for": "Liquid equities where idiosyncratic shocks partially reverse.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Sector-Neutral Mean Reversion",
+      "definition": "A cross-sectional reversal strategy comparing stocks against peers while neutralizing sector exposure.",
+      "formula_or_rules": "ResidualReturn_i=Return_i-SectorReturn. Rank residuals; long extreme underperformers and short extreme outperformers within sectors.",
+      "best_suited_for": "Broad equity universes where sector moves would otherwise dominate signals.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "PCA Statistical Arbitrage",
+      "definition": "A relative-value strategy removing common principal-component factors and trading residual deviations.",
+      "formula_or_rules": "R=B*F+epsilon using principal components. Standardize cumulative or modeled residual epsilon and trade extremes toward equilibrium.",
+      "best_suited_for": "Large liquid universes with strong common-factor structure.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Kalman Filter Pairs Trading",
+      "definition": "A dynamic pairs strategy using a Kalman filter to estimate a time-varying hedge ratio.",
+      "formula_or_rules": "Observation: y_t=beta_t*x_t+epsilon_t; state: beta_t=beta_(t-1)+eta_t. Trade standardized innovation/residual around filtered equilibrium.",
+      "best_suited_for": "Pairs whose hedge relationship changes gradually over time.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Ornstein-Uhlenbeck Spread Reversion",
+      "definition": "A statistical mean-reversion strategy modeling a spread as a continuous-time process reverting toward a long-run mean.",
+      "formula_or_rules": "dX_t=theta*(mu-X_t)dt+sigma*dW_t. Enter when X deviates sufficiently from mu relative to stationary variance; exit toward mu.",
+      "best_suited_for": "Stationary spreads with estimable mean-reversion speed.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Price-to-Earnings Value",
+      "definition": "A fundamental strategy favoring companies trading at low earnings multiples relative to peers.",
+      "formula_or_rules": "P/E=Price/EPS. Rank eligible profitable firms by P/E; favor lowest valuation quantiles subject to quality/liquidity filters.",
+      "best_suited_for": "Equity portfolios seeking inexpensive profitable companies.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Price-to-Book Value",
+      "definition": "A fundamental value strategy favoring companies with low market price relative to book equity.",
+      "formula_or_rules": "P/B=MarketCapitalization/BookEquity. Rank universe ascending and favor low P/B securities.",
+      "best_suited_for": "Asset-heavy sectors and diversified value portfolios.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Price-to-Sales Value",
+      "definition": "A valuation strategy comparing market capitalization with company revenue.",
+      "formula_or_rules": "P/S=MarketCapitalization/Revenue. Rank comparable companies by low P/S, preferably with profitability/quality controls.",
+      "best_suited_for": "Comparing companies where earnings are temporarily weak or noisy.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "EV-to-EBITDA Value",
+      "definition": "A valuation strategy comparing enterprise value with operating earnings before interest, taxes, depreciation and amortization.",
+      "formula_or_rules": "EV=MarketCap+Debt-Cash; EV/EBITDA=EV/EBITDA. Favor low multiples among economically comparable firms.",
+      "best_suited_for": "Cross-company valuation where capital structure differences matter.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Free Cash Flow Yield",
+      "definition": "A value strategy favoring companies producing high free cash flow relative to market value.",
+      "formula_or_rules": "FCFYield=FreeCashFlow/MarketCapitalization. Rank descending and favor high positive sustainable yields.",
+      "best_suited_for": "Profitable mature companies with meaningful cash generation.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Earnings Yield",
+      "definition": "A valuation strategy ranking securities by earnings generated per dollar of market price.",
+      "formula_or_rules": "EarningsYield=EPS/Price or EBIT/EnterpriseValue. Favor higher positive yields.",
+      "best_suited_for": "Cross-sectional equity value portfolios.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Dividend Yield Value",
+      "definition": "A strategy favoring companies paying high dividends relative to share price.",
+      "formula_or_rules": "DividendYield=AnnualDividendPerShare/Price. Rank eligible companies by sustainable yield.",
+      "best_suited_for": "Income-oriented equity portfolios with dividend sustainability controls.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Net-Net Value",
+      "definition": "A deep-value strategy seeking companies trading below a conservative estimate of net current asset value.",
+      "formula_or_rules": "NCAV=CurrentAssets-TotalLiabilities. Candidate when MarketCapitalization < NCAV, often with additional margin-of-safety threshold.",
+      "best_suited_for": "Small-cap deep-value universes where balance-sheet liquidation value is meaningful.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Acquirer's Multiple",
+      "definition": "A value strategy comparing enterprise value with operating earnings.",
+      "formula_or_rules": "AcquirersMultiple=EnterpriseValue/OperatingEarnings or EBIT. Rank ascending subject to data-quality and profitability requirements.",
+      "best_suited_for": "Systematic deep-value stock selection.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Magic Formula",
+      "definition": "A systematic equity strategy combining high earnings yield with high return on capital.",
+      "formula_or_rules": "Rank firms separately by EarningsYield=EBIT/EV and ReturnOnCapital=EBIT/(NetWorkingCapital+NetFixedAssets); combine ranks and buy best aggregate ranks.",
+      "best_suited_for": "Diversified long-term value-and-quality equity portfolios.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Return on Equity Quality",
+      "definition": "A quality strategy favoring companies generating high profit relative to shareholder equity.",
+      "formula_or_rules": "ROE=NetIncome/AverageShareholdersEquity. Rank firms by sustainable high ROE with leverage controls.",
+      "best_suited_for": "Long-term equity selection emphasizing profitable businesses.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Return on Invested Capital Quality",
+      "definition": "A quality strategy favoring companies efficiently generating operating profit from invested capital.",
+      "formula_or_rules": "ROIC=NOPAT/InvestedCapital. Favor firms with persistently high ROIC.",
+      "best_suited_for": "Long-horizon fundamental portfolios.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Gross Profitability",
+      "definition": "A quality factor strategy ranking firms by gross profit relative to assets.",
+      "formula_or_rules": "GrossProfitability=(Revenue-COGS)/TotalAssets. Rank descending.",
+      "best_suited_for": "Cross-sectional equity portfolios seeking operationally profitable companies.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Operating Profitability",
+      "definition": "A quality factor strategy favoring firms with strong operating profits relative to an accounting scaling variable.",
+      "formula_or_rules": "OperatingProfitability=(Revenue-COGS-SG&A-InterestExpense)/BookEquity or assets, according to chosen specification; rank descending.",
+      "best_suited_for": "Systematic equity factor portfolios.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Piotroski F-Score",
+      "definition": "A fundamental strategy scoring companies across profitability, leverage/liquidity and operating-efficiency signals.",
+      "formula_or_rules": "FScore=sum(9 binary accounting signals), producing score 0..9. Favor high scores, commonly within a value universe.",
+      "best_suited_for": "Fundamental value portfolios seeking financially improving companies.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Quality Minus Junk",
+      "definition": "A cross-sectional quality strategy favoring safe, profitable and growing firms while avoiding low-quality companies.",
+      "formula_or_rules": "Construct standardized quality score from profitability, growth, safety and payout components; rank securities and favor highest composite scores.",
+      "best_suited_for": "Diversified equity factor portfolios.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Low Accruals",
+      "definition": "A quality strategy favoring firms whose earnings are supported more strongly by cash flow than accounting accruals.",
+      "formula_or_rules": "Accruals=(NetIncome-OperatingCashFlow)/AverageTotalAssets. Rank ascending and favor low or negative accruals.",
+      "best_suited_for": "Fundamental equity portfolios concerned with earnings quality.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Debt Reduction Quality",
+      "definition": "A fundamental strategy rewarding companies reducing financial leverage.",
+      "formula_or_rules": "DebtChange=(Debt_t-Debt_(t-1))/Assets. Favor negative debt change alongside stable profitability.",
+      "best_suited_for": "Equity portfolios seeking improving balance sheets.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Margin Expansion",
+      "definition": "A quality-growth strategy favoring companies whose operating profitability is improving.",
+      "formula_or_rules": "OperatingMargin=OperatingIncome/Revenue; MarginChange=Margin_t-Margin_(t-1). Favor persistently positive MarginChange.",
+      "best_suited_for": "Companies experiencing improving operating economics.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Stable Earnings Quality",
+      "definition": "A strategy favoring firms with persistent earnings and low earnings variability.",
+      "formula_or_rules": "StabilityScore=-std(EPS growth or ROA over multi-year window), optionally combined with positive average profitability.",
+      "best_suited_for": "Defensive long-term equity portfolios.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Revenue Growth",
+      "definition": "A growth strategy favoring companies with strong expansion in sales.",
+      "formula_or_rules": "RevenueGrowth=Revenue_t/Revenue_(t-k)-1. Rank companies by positive growth subject to valuation and quality controls.",
+      "best_suited_for": "Equity universes where sustained top-line expansion is rewarded.",
+      "category": "growth"
+    },
+    {
+      "strategy_name": "Earnings Growth",
+      "definition": "A growth strategy favoring companies with rapidly increasing earnings.",
+      "formula_or_rules": "EPSGrowth=EPS_t/EPS_(t-k)-1 where valid; rank by persistent positive growth.",
+      "best_suited_for": "Profitable growth companies.",
+      "category": "growth"
+    },
+    {
+      "strategy_name": "GARP",
+      "definition": "Growth at a Reasonable Price combines company growth with valuation discipline.",
+      "formula_or_rules": "Example PEG=(P/E)/ExpectedEPSGrowth. Favor positive growth companies with comparatively low PEG and acceptable quality.",
+      "best_suited_for": "Investors seeking a compromise between pure growth and pure value.",
+      "category": "growth"
+    },
+    {
+      "strategy_name": "Sustainable Growth",
+      "definition": "A fundamental growth strategy estimating growth supportable by retained earnings and return on equity.",
+      "formula_or_rules": "SustainableGrowthRate=ROE*(1-DividendPayoutRatio). Favor firms with high sustainable growth and sound balance sheets.",
+      "best_suited_for": "Long-horizon fundamental equity selection.",
+      "category": "growth"
+    },
+    {
+      "strategy_name": "Asset Growth",
+      "definition": "A cross-sectional strategy using changes in total assets as a predictor of future relative returns.",
+      "formula_or_rules": "AssetGrowth=TotalAssets_t/TotalAssets_(t-1)-1. Common factor implementation favors lower asset-growth firms over extreme expanders.",
+      "best_suited_for": "Systematic equity factor portfolios.",
+      "category": "growth"
+    },
+    {
+      "strategy_name": "Low Volatility",
+      "definition": "A defensive strategy favoring securities with lower realized return volatility.",
+      "formula_or_rules": "Vol_i=std(daily returns over n)*sqrt(annualization). Rank ascending and overweight lowest-volatility securities.",
+      "best_suited_for": "Defensive equity portfolios seeking lower realized risk.",
+      "category": "defensive"
+    },
+    {
+      "strategy_name": "Minimum Variance Portfolio",
+      "definition": "A portfolio strategy selecting weights that minimize estimated portfolio variance.",
+      "formula_or_rules": "Minimize w'Σw subject to sum(w)=1 and chosen constraints.",
+      "best_suited_for": "Diversified portfolios where covariance estimates are sufficiently stable.",
+      "category": "defensive"
+    },
+    {
+      "strategy_name": "Inverse Volatility Weighting",
+      "definition": "A portfolio allocation method assigning larger weights to lower-volatility assets.",
+      "formula_or_rules": "RawWeight_i=1/sigma_i; Weight_i=RawWeight_i/sum(RawWeight).",
+      "best_suited_for": "Multi-asset portfolios seeking simple risk balancing.",
+      "category": "defensive"
+    },
+    {
+      "strategy_name": "Risk Parity",
+      "definition": "A portfolio strategy allocating capital so assets contribute more equally to total portfolio risk.",
+      "formula_or_rules": "PortfolioVol=sqrt(w'Σw); RiskContribution_i=w_i*(Σw)_i/PortfolioVol. Solve weights so target risk contributions are approximately equal.",
+      "best_suited_for": "Diversified multi-asset portfolios.",
+      "category": "defensive"
+    },
+    {
+      "strategy_name": "Maximum Diversification",
+      "definition": "A portfolio strategy maximizing the ratio of weighted individual volatilities to portfolio volatility.",
+      "formula_or_rules": "DiversificationRatio=(w'σ)/sqrt(w'Σw). Choose w maximizing this ratio subject to constraints.",
+      "best_suited_for": "Multi-asset portfolios seeking broad risk diversification.",
+      "category": "defensive"
+    },
+    {
+      "strategy_name": "Low Beta",
+      "definition": "A defensive equity strategy favoring stocks with low sensitivity to broad market returns.",
+      "formula_or_rules": "beta_i=Cov(r_i,r_m)/Var(r_m). Rank ascending and favor low-beta securities.",
+      "best_suited_for": "Equity portfolios seeking reduced market sensitivity.",
+      "category": "defensive"
+    },
+    {
+      "strategy_name": "Downside Volatility",
+      "definition": "A defensive strategy selecting assets with low variability specifically on negative-return observations.",
+      "formula_or_rules": "DownsideDeviation=sqrt(mean(min(r_t-target,0)^2)). Rank securities ascending.",
+      "best_suited_for": "Risk-sensitive portfolios emphasizing downside rather than total volatility.",
+      "category": "defensive"
+    },
+    {
+      "strategy_name": "Maximum Sharpe Portfolio",
+      "definition": "A mean-variance allocation strategy maximizing estimated excess return per unit of volatility.",
+      "formula_or_rules": "Sharpe=(w'mu-r_f)/sqrt(w'Σw). Optimize w subject to allocation constraints.",
+      "best_suited_for": "Diversified portfolios with defensible expected-return and covariance estimates.",
+      "category": "portfolio_allocation"
+    },
+    {
+      "strategy_name": "FX Carry Trade",
+      "definition": "A currency strategy borrowing or shorting lower-yield currencies and holding higher-yield currencies.",
+      "formula_or_rules": "ApproxCarry=i_high-i_low, adjusted for forward pricing and transaction costs. Long higher-yield currency versus lower-yield currency when signal and risk filters permit.",
+      "best_suited_for": "Diversified currency portfolios outside severe risk-off unwinds.",
+      "category": "carry"
+    },
+    {
+      "strategy_name": "Futures Carry",
+      "definition": "A strategy ranking futures markets by information contained in spot-versus-futures or near-versus-far contract pricing.",
+      "formula_or_rules": "Example Carry=(NearPrice/FarPrice-1)/time_difference, sign-adjusted by market convention; favor attractive carry and avoid unfavorable carry.",
+      "best_suited_for": "Diversified futures markets with liquid term structures.",
+      "category": "carry"
+    },
+    {
+      "strategy_name": "Commodity Roll Yield",
+      "definition": "A commodity strategy favoring futures curves offering beneficial expected roll characteristics.",
+      "formula_or_rules": "RollYield≈(NearContract-FarContract)/NearContract normalized by tenor. Favor backwardated curves and avoid strongly contangoed curves, all else equal.",
+      "best_suited_for": "Commodity futures portfolios.",
+      "category": "carry"
+    },
+    {
+      "strategy_name": "Dividend Capture",
+      "definition": "An income strategy holding shares around the ex-dividend date to receive a declared dividend.",
+      "formula_or_rules": "Buy before ex-dividend date and hold through eligibility, but require expected dividend to exceed expected price adjustment, taxes, spread and transaction costs.",
+      "best_suited_for": "Highly liquid dividend-paying equities where implementation costs are carefully modeled.",
+      "category": "income"
+    },
+    {
+      "strategy_name": "Dogs of the Dow",
+      "definition": "A rules-based income/value strategy selecting the highest dividend-yielding members of the Dow Jones Industrial Average.",
+      "formula_or_rules": "At periodic rebalance, rank eligible index constituents by DividendYield and equal-weight the highest-yield subset.",
+      "best_suited_for": "Simple large-cap dividend/value exposure.",
+      "category": "income"
+    },
+    {
+      "strategy_name": "Covered Call",
+      "definition": "An options income strategy holding the underlying asset while selling a call option against it.",
+      "formula_or_rules": "Position=+Underlying - Call(K,T). Expiry payoff=S_T-max(S_T-K,0)+premium.",
+      "best_suited_for": "Neutral to moderately bullish markets where income is prioritized over unlimited upside.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Protective Put",
+      "definition": "A hedged equity strategy owning an asset and buying a put option to limit downside.",
+      "formula_or_rules": "Position=+Underlying + Put(K,T). Expiry payoff=S_T+max(K-S_T,0)-premium.",
+      "best_suited_for": "Bullish investors requiring a defined downside floor.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Collar",
+      "definition": "A hedging strategy combining a long underlying position, long protective put and short call.",
+      "formula_or_rules": "Position=+Underlying + Put(K_put,T) - Call(K_call,T).",
+      "best_suited_for": "Investors willing to cap upside in exchange for reduced hedging cost.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Cash-Secured Put",
+      "definition": "An options strategy selling a put while holding sufficient cash to purchase the underlying if assigned.",
+      "formula_or_rules": "Position=-Put(K,T)+cash reserve K per share. Expiry option payoff=-max(K-S_T,0)+premium.",
+      "best_suited_for": "Neutral-to-bullish investors willing to acquire the underlying at the strike.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Bull Call Spread",
+      "definition": "A defined-risk bullish options strategy buying a lower-strike call and selling a higher-strike call.",
+      "formula_or_rules": "Payoff=max(S_T-K1,0)-max(S_T-K2,0)-net_premium, with K1<K2.",
+      "best_suited_for": "Moderately bullish views with capped risk and capped reward.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Bear Put Spread",
+      "definition": "A defined-risk bearish options strategy buying a higher-strike put and selling a lower-strike put.",
+      "formula_or_rules": "Payoff=max(K2-S_T,0)-max(K1-S_T,0)-net_premium, with K1<K2.",
+      "best_suited_for": "Moderately bearish views with defined maximum loss.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Bull Put Spread",
+      "definition": "A bullish credit spread selling a higher-strike put and buying a lower-strike protective put.",
+      "formula_or_rules": "Payoff=-max(K2-S_T,0)+max(K1-S_T,0)+net_credit, with K1<K2.",
+      "best_suited_for": "Neutral-to-bullish markets with defined downside risk.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Bear Call Spread",
+      "definition": "A bearish credit spread selling a lower-strike call and buying a higher-strike call.",
+      "formula_or_rules": "Payoff=-max(S_T-K1,0)+max(S_T-K2,0)+net_credit, with K1<K2.",
+      "best_suited_for": "Neutral-to-bearish markets with defined upside risk.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Long Straddle",
+      "definition": "A volatility strategy buying a call and put with the same strike and expiration.",
+      "formula_or_rules": "Payoff=max(S_T-K,0)+max(K-S_T,0)-total_premium.",
+      "best_suited_for": "Situations where a large move is expected but direction is uncertain.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Short Straddle",
+      "definition": "A short-volatility strategy selling a call and put with the same strike and expiration.",
+      "formula_or_rules": "Payoff=-max(S_T-K,0)-max(K-S_T,0)+total_premium.",
+      "best_suited_for": "Stable markets when implied volatility is considered excessive; carries substantial tail risk.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Long Strangle",
+      "definition": "A long-volatility strategy buying an out-of-the-money put and an out-of-the-money call.",
+      "formula_or_rules": "Payoff=max(K_put-S_T,0)+max(S_T-K_call,0)-premium, K_put<K_call.",
+      "best_suited_for": "Large expected price moves where cheaper convexity than a straddle is desired.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Short Strangle",
+      "definition": "A short-volatility strategy selling an out-of-the-money put and call.",
+      "formula_or_rules": "Payoff=-max(K_put-S_T,0)-max(S_T-K_call,0)+premium.",
+      "best_suited_for": "Range-bound markets with rich implied volatility; exposes seller to substantial tail risk.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Long Call Butterfly",
+      "definition": "A limited-risk options strategy centered around an expected expiration price.",
+      "formula_or_rules": "For equally spaced K1<K2<K3: +Call(K1)-2Call(K2)+Call(K3).",
+      "best_suited_for": "Low-volatility views where expiration near a target strike is expected.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Iron Butterfly",
+      "definition": "A defined-risk short-volatility strategy combining a short at-the-money straddle with protective wings.",
+      "formula_or_rules": "Position=+Put(K1)-Put(K2)-Call(K2)+Call(K3), K1<K2<K3.",
+      "best_suited_for": "Range-bound markets where expiration near the central strike is expected.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Iron Condor",
+      "definition": "A defined-risk short-volatility strategy combining an out-of-the-money bull put spread and bear call spread.",
+      "formula_or_rules": "Position=+Put(K1)-Put(K2)-Call(K3)+Call(K4), K1<K2<K3<K4.",
+      "best_suited_for": "Range-bound markets with elevated implied volatility.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Calendar Spread",
+      "definition": "An options term-structure strategy using the same strike across different expirations.",
+      "formula_or_rules": "Typical long calendar=-Option(K,T_near)+Option(K,T_far), using calls or puts.",
+      "best_suited_for": "Views involving time-decay differences and relatively stable underlying price near the strike.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Diagonal Spread",
+      "definition": "An options strategy combining different strikes and expirations.",
+      "formula_or_rules": "Example=+Call(K_long,T_far)-Call(K_short,T_near), with strikes selected for directional and volatility objectives.",
+      "best_suited_for": "Moderate directional views combined with term-structure/time-decay exposure.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Call Ratio Spread",
+      "definition": "An options strategy buying fewer calls at one strike and selling a greater number at another strike.",
+      "formula_or_rules": "Example=+1 Call(K1)-2 Calls(K2), K1<K2.",
+      "best_suited_for": "Specific moderately bullish expiration views; uncovered ratios can carry large upside risk.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Put Ratio Spread",
+      "definition": "An options strategy buying fewer puts at one strike and selling more puts at another.",
+      "formula_or_rules": "Example=+1 Put(K2)-2 Puts(K1), K1<K2.",
+      "best_suited_for": "Specific moderately bearish or volatility views; uncovered downside exposure can be substantial.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Long Call",
+      "definition": "A defined-risk bullish options strategy buying a call option.",
+      "formula_or_rules": "Payoff=max(S_T-K,0)-premium.",
+      "best_suited_for": "Bullish directional views where maximum loss should be limited to premium.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Long Put",
+      "definition": "A defined-risk bearish options strategy buying a put option.",
+      "formula_or_rules": "Payoff=max(K-S_T,0)-premium.",
+      "best_suited_for": "Bearish directional views or standalone downside hedging.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Synthetic Long Stock",
+      "definition": "An options position approximating the expiration payoff of owning the underlying.",
+      "formula_or_rules": "Position=+Call(K,T)-Put(K,T). By put-call parity its terminal slope approximates long stock around the common strike.",
+      "best_suited_for": "Obtaining synthetic directional exposure when option implementation is preferable.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Synthetic Short Stock",
+      "definition": "An options position approximating the expiration payoff of shorting the underlying.",
+      "formula_or_rules": "Position=-Call(K,T)+Put(K,T).",
+      "best_suited_for": "Defined option-based construction of bearish directional exposure, subject to assignment and margin considerations.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Protective Collar",
+      "definition": "A risk-managed stock position buying downside protection and financing part of it by selling upside.",
+      "formula_or_rules": "Position=+Stock+Put(K_low)-Call(K_high), K_low<K_high.",
+      "best_suited_for": "Existing equity holdings requiring bounded downside with capped upside.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Poor Man's Covered Call",
+      "definition": "A diagonal-call strategy using a long-dated deep-in-the-money call as a stock substitute while selling shorter-dated calls.",
+      "formula_or_rules": "Position=+Call(K_long,T_far)-Call(K_short,T_near), generally K_long<K_short.",
+      "best_suited_for": "Bullish-to-neutral income strategies seeking lower capital use than a conventional covered call.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Wheel Strategy",
+      "definition": "An options income cycle that sells cash-secured puts and, after assignment, sells covered calls on the acquired shares.",
+      "formula_or_rules": "State 1: sell cash-secured put. If assigned, hold shares. State 2: sell covered calls. If called away, return to State 1.",
+      "best_suited_for": "Neutral-to-bullish investors willing to own the underlying and repeatedly write options.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Delta Hedging",
+      "definition": "An options risk-management strategy offsetting an option portfolio's directional delta with the underlying.",
+      "formula_or_rules": "PortfolioDelta=sum(position_i*Delta_i). HedgeUnderlying=-PortfolioDelta units, rebalanced according to policy.",
+      "best_suited_for": "Options portfolios requiring controlled first-order directional exposure.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Gamma Scalping",
+      "definition": "A dynamic strategy holding positive gamma and repeatedly delta-hedging as the underlying moves.",
+      "formula_or_rules": "Maintain long-gamma option position; rebalance underlying hedge to target Delta≈0. Profitability depends on realized movement relative to option cost and hedging friction.",
+      "best_suited_for": "Markets where realized volatility is expected to exceed the volatility paid for optionality.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Volatility Risk Premium",
+      "definition": "A systematic strategy seeking compensation for selling option-implied volatility when it exceeds subsequently realized volatility.",
+      "formula_or_rules": "VRP≈ImpliedVariance-ExpectedRealizedVariance. Sell defined-risk volatility exposure when VRP is sufficiently positive and risk limits permit.",
+      "best_suited_for": "Diversified option markets with strict tail-risk controls.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Dispersion Trading",
+      "definition": "An options relative-volatility strategy trading index volatility against constituent volatility.",
+      "formula_or_rules": "Index variance depends on constituent variances and correlations. Typical dispersion exposure sells index variance and buys constituent variance when implied correlation is considered rich, or reverses the trade when cheap.",
+      "best_suited_for": "Highly liquid index and single-stock options with sophisticated correlation-risk management.",
+      "category": "options"
+    },
+    {
+      "strategy_name": "Merger Arbitrage",
+      "definition": "An event-driven strategy trading the spread between a takeover target's market price and the announced consideration.",
+      "formula_or_rules": "SpreadReturn=(DealValue-TargetPrice)/TargetPrice, annualized by expected closing time and adjusted for probability of completion and downside if deal fails.",
+      "best_suited_for": "Announced acquisitions where deal terms, financing and regulatory risks can be evaluated.",
+      "category": "event_driven"
+    },
+    {
+      "strategy_name": "Cash Merger Arbitrage",
+      "definition": "A merger-arbitrage strategy focused on acquisitions offering fixed cash consideration.",
+      "formula_or_rules": "GrossSpread=CashOffer/TargetPrice-1. ExpectedReturn≈p_close*GrossSpread+(1-p_close)*BreakReturn minus costs.",
+      "best_suited_for": "Definitive cash acquisitions with analyzable closing risk.",
+      "category": "event_driven"
+    },
+    {
+      "strategy_name": "Stock-for-Stock Merger Arbitrage",
+      "definition": "A market-neutral merger strategy trading the target against the acquirer's shares according to the announced exchange ratio.",
+      "formula_or_rules": "Spread=ExchangeRatio*AcquirerPrice-TargetPrice. Long target and short ExchangeRatio units of acquirer when spread is attractive after risk/cost adjustment.",
+      "best_suited_for": "Share-exchange acquisitions with liquid target and acquirer securities.",
+      "category": "event_driven"
+    },
+    {
+      "strategy_name": "Spin-Off Strategy",
+      "definition": "An event-driven strategy evaluating parent and newly separated companies after a corporate spin-off.",
+      "formula_or_rules": "Estimate standalone values for ParentExSpin and SpinCo; trade when market prices materially deviate from estimated values after distribution and forced-selling effects.",
+      "best_suited_for": "Corporate separations where ownership constraints create temporary mispricing.",
+      "category": "event_driven"
+    },
+    {
+      "strategy_name": "Index Addition Effect",
+      "definition": "An event strategy trading securities around announced inclusion in a major index.",
+      "formula_or_rules": "Signal=confirmed index addition; position according to expected benchmark-driven demand, with entry/exit defined relative to announcement and effective dates.",
+      "best_suited_for": "Liquid equities entering widely tracked indexes.",
+      "category": "event_driven"
+    },
+    {
+      "strategy_name": "Index Deletion Effect",
+      "definition": "An event strategy trading securities around announced removal from a major index.",
+      "formula_or_rules": "Signal=confirmed index deletion; position according to expected benchmark-driven selling and subsequent normalization.",
+      "best_suited_for": "Liquid equities leaving widely tracked indexes.",
+      "category": "event_driven"
+    },
+    {
+      "strategy_name": "Share Buyback Strategy",
+      "definition": "A fundamental/event strategy favoring companies materially reducing shares outstanding.",
+      "formula_or_rules": "NetBuybackYield=(Shares_(t-1)-Shares_t)/Shares_(t-1), adjusted for issuance. Favor persistent positive net repurchase yield with sound fundamentals.",
+      "best_suited_for": "Profitable companies returning capital through genuine share-count reduction.",
+      "category": "event_driven"
+    },
+    {
+      "strategy_name": "Insider Buying Strategy",
+      "definition": "An event-driven equity strategy using significant legal insider purchases as a positive information signal.",
+      "formula_or_rules": "Aggregate open-market insider purchase value or shares over window; rank by purchase intensity relative to market cap while excluding routine/non-informative transactions.",
+      "best_suited_for": "Equities where meaningful discretionary insider purchases are publicly disclosed.",
+      "category": "event_driven"
+    },
+    {
+      "strategy_name": "Turn-of-the-Month",
+      "definition": "A calendar strategy concentrating equity exposure around the transition from one month to the next.",
+      "formula_or_rules": "Define a fixed window spanning final trading days of month m and first trading days of month m+1; hold exposure only during that window.",
+      "best_suited_for": "Broad liquid equity indexes where historical calendar effects remain robust after costs.",
+      "category": "seasonal"
+    },
+    {
+      "strategy_name": "January Effect",
+      "definition": "A calendar strategy targeting historically unusual January performance, especially among smaller companies.",
+      "formula_or_rules": "Rank eligible securities by size and apply predefined January holding window; validate effect net of transaction costs and regime changes.",
+      "best_suited_for": "Research-oriented small-cap seasonal portfolios.",
+      "category": "seasonal"
+    },
+    {
+      "strategy_name": "Sell in May",
+      "definition": "A seasonal allocation rule reducing equity exposure during historically weaker calendar months.",
+      "formula_or_rules": "Example rule: hold equity exposure approximately November-April and defensive/cash exposure approximately May-October.",
+      "best_suited_for": "Long-horizon tactical allocation where the seasonal effect survives validation.",
+      "category": "seasonal"
+    },
+    {
+      "strategy_name": "Holiday Effect",
+      "definition": "A calendar strategy trading historically abnormal returns immediately before or around exchange holidays.",
+      "formula_or_rules": "Define holiday calendar and fixed pre-holiday holding window; estimate conditional expected return and trade only when positive after costs.",
+      "best_suited_for": "Liquid indexes where historical holiday patterns remain statistically defensible.",
+      "category": "seasonal"
+    },
+    {
+      "strategy_name": "Day-of-Week Effect",
+      "definition": "A calendar strategy conditioning exposure on historically different returns by weekday.",
+      "formula_or_rules": "Estimate E[r|weekday=d] for each weekday; take exposure only when conditional return exceeds threshold after costs and validation.",
+      "best_suited_for": "Research contexts testing persistent weekday seasonality.",
+      "category": "seasonal"
+    },
+    {
+      "strategy_name": "Month-of-Year Seasonality",
+      "definition": "A calendar strategy allocating according to historically persistent differences between calendar months.",
+      "formula_or_rules": "Estimate E[r|month=m]; overweight historically strong months and underweight weak months subject to out-of-sample validation.",
+      "best_suited_for": "Long-history liquid markets with stable seasonal structure.",
+      "category": "seasonal"
+    },
+    {
+      "strategy_name": "On-Balance Volume Trend",
+      "definition": "A volume-confirmation strategy accumulating volume according to the sign of daily price changes.",
+      "formula_or_rules": "OBV_t=OBV_(t-1)+Volume_t if Close_t>Close_(t-1), minus Volume_t if lower. Long when OBV trend confirms positive price trend.",
+      "best_suited_for": "Markets where volume participation helps confirm breakouts or trends.",
+      "category": "volume"
+    },
+    {
+      "strategy_name": "Volume Breakout",
+      "definition": "A breakout strategy requiring unusually high trading volume to confirm a price move.",
+      "formula_or_rules": "VolumeRatio=Volume_t/MA_n(Volume). Enter price breakout only when VolumeRatio exceeds threshold.",
+      "best_suited_for": "Equities and other instruments where genuine breakouts tend to attract participation.",
+      "category": "volume"
+    },
+    {
+      "strategy_name": "Money Flow Index Reversion",
+      "definition": "A volume-weighted oscillator strategy fading extreme money-flow readings.",
+      "formula_or_rules": "TypicalPrice=(H+L+C)/3; RawMoneyFlow=TypicalPrice*Volume; MFI=100-100/(1+PositiveFlow/NegativeFlow). Buy oversold reversals and fade overbought reversals.",
+      "best_suited_for": "Range-bound liquid instruments where volume adds useful information to price oscillators.",
+      "category": "volume"
+    },
+    {
+      "strategy_name": "Chaikin Money Flow",
+      "definition": "A strategy measuring whether volume tends to occur near the upper or lower part of each bar's range.",
+      "formula_or_rules": "MFM=((C-L)-(H-C))/(H-L); MFV=MFM*Volume; CMF=sum(MFV,n)/sum(Volume,n). Positive CMF confirms accumulation; negative CMF confirms distribution.",
+      "best_suited_for": "Trend confirmation and accumulation/distribution analysis.",
+      "category": "volume"
+    },
+    {
+      "strategy_name": "Accumulation Distribution Line",
+      "definition": "A volume-flow strategy tracking cumulative money flow based on where each close occurs within its range.",
+      "formula_or_rules": "ADL_t=ADL_(t-1)+MFM_t*Volume_t, where MFM=((C-L)-(H-C))/(H-L). Trade price moves confirmed by ADL direction/divergence rules.",
+      "best_suited_for": "Detecting accumulation or distribution behind price trends.",
+      "category": "volume"
+    },
+    {
+      "strategy_name": "VWAP Trend",
+      "definition": "An intraday directional strategy using price relative to session VWAP as a trend filter.",
+      "formula_or_rules": "VWAP=sum(P_i*V_i)/sum(V_i). Long while price remains above rising VWAP with confirmation; short below falling VWAP.",
+      "best_suited_for": "Highly liquid intraday markets.",
+      "category": "volume"
+    },
+    {
+      "strategy_name": "ATR Volatility Breakout",
+      "definition": "A directional strategy entering when price moves beyond a volatility-scaled threshold.",
+      "formula_or_rules": "ATR=MA(TrueRange,n). Long when P_t > reference + k*ATR; short when P_t < reference - k*ATR.",
+      "best_suited_for": "Markets transitioning from ordinary movement into abnormal directional expansion.",
+      "category": "volatility"
+    },
+    {
+      "strategy_name": "Bollinger Bandwidth Expansion",
+      "definition": "A volatility strategy detecting expansion in the width of Bollinger Bands.",
+      "formula_or_rules": "Bandwidth=(Upper-Lower)/Middle. Enter directional breakout when Bandwidth rises sharply from a low percentile and price confirms direction.",
+      "best_suited_for": "Markets emerging from volatility compression.",
+      "category": "volatility"
+    },
+    {
+      "strategy_name": "Historical Volatility Regime",
+      "definition": "A strategy altering exposure according to the level of realized volatility.",
+      "formula_or_rules": "HV_n=std(log returns,n)*sqrt(annualization). Apply high-vol and low-vol position rules according to predetermined thresholds.",
+      "best_suited_for": "Risk-controlled systems whose behavior differs materially across volatility regimes.",
+      "category": "volatility"
+    },
+    {
+      "strategy_name": "Volatility Targeting",
+      "definition": "A position-sizing strategy scaling exposure to maintain approximately constant forecast portfolio volatility.",
+      "formula_or_rules": "Leverage_t=TargetVol/ForecastVol_t, capped by leverage and risk limits.",
+      "best_suited_for": "Systematic portfolios seeking more stable risk through time.",
+      "category": "volatility"
+    },
+    {
+      "strategy_name": "Volatility Managed Momentum",
+      "definition": "A momentum strategy reducing exposure when forecast volatility rises.",
+      "formula_or_rules": "Signal=sign(momentum); PositionSize=min(cap,TargetVol/ForecastVol)*Signal.",
+      "best_suited_for": "Trend and momentum portfolios exposed to changing volatility regimes.",
+      "category": "volatility"
+    },
+    {
+      "strategy_name": "Variance Risk Premium",
+      "definition": "A volatility strategy seeking the spread between option-implied variance and expected realized variance.",
+      "formula_or_rules": "VRP=ImpliedVariance-ExpectedRealizedVariance. Take defined-risk short variance exposure when VRP is sufficiently positive; reverse only under explicit model rules.",
+      "best_suited_for": "Liquid options markets with robust volatility estimation and tail-risk controls.",
+      "category": "volatility"
+    },
+    {
+      "strategy_name": "Dual Momentum",
+      "definition": "A tactical allocation strategy combining relative momentum across assets with absolute momentum against a defensive threshold.",
+      "formula_or_rules": "Select asset with strongest lookback return; hold it only if its absolute return exceeds cash/T-bill or zero-return threshold, otherwise hold defensive asset.",
+      "best_suited_for": "Multi-asset portfolios seeking trend participation with defensive switching.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Global Equities Momentum",
+      "definition": "A tactical strategy ranking country or regional equity markets by medium-term performance.",
+      "formula_or_rules": "Compute lookback return for each eligible equity index/ETF; hold top-ranked markets subject to absolute-momentum filter.",
+      "best_suited_for": "Diversified global equity allocation.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Sector Momentum",
+      "definition": "A tactical equity strategy rotating toward sectors with the strongest recent relative performance.",
+      "formula_or_rules": "Momentum_sector=P_t/P_(t-n)-1. Rank sectors; overweight top ranks and underweight or avoid bottom ranks.",
+      "best_suited_for": "Markets with persistent sector leadership.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Asset Class Momentum",
+      "definition": "A tactical allocation strategy ranking major asset classes by trailing return.",
+      "formula_or_rules": "Rank asset classes by lookback total return; allocate to strongest positive-momentum assets according to portfolio constraints.",
+      "best_suited_for": "Diversified portfolios able to rotate between equities, bonds, commodities and other liquid assets.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "200-Day Moving Average Tactical Allocation",
+      "definition": "A risk-on/risk-off strategy using a long moving average to determine whether an asset should be held.",
+      "formula_or_rules": "RiskOn if Close>SMA_200; defensive or cash exposure if Close<=SMA_200.",
+      "best_suited_for": "Long-horizon tactical risk management.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Trend-Following Asset Allocation",
+      "definition": "A multi-asset strategy applying trend signals independently across asset classes.",
+      "formula_or_rules": "Signal_i=1 if trend_i positive else 0 or -1 according to mandate; allocate using volatility scaling and portfolio risk limits.",
+      "best_suited_for": "Diversified portfolios seeking crisis-responsive directional exposure.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Permanent Portfolio",
+      "definition": "A strategic allocation approach diversifying among assets intended to respond differently to economic regimes.",
+      "formula_or_rules": "Canonical allocation uses approximately 25% each in equities, long-term government bonds, cash/short bills and gold, periodically rebalanced.",
+      "best_suited_for": "Long-horizon investors prioritizing regime diversification over tactical forecasting.",
+      "category": "portfolio_allocation"
+    },
+    {
+      "strategy_name": "60/40 Rebalanced Portfolio",
+      "definition": "A strategic allocation maintaining a target mix of equities and bonds through periodic rebalancing.",
+      "formula_or_rules": "Target weights approximately 60% equities and 40% bonds; rebalance periodically or when weights breach tolerance bands.",
+      "best_suited_for": "Traditional balanced long-term portfolios.",
+      "category": "portfolio_allocation"
+    },
+    {
+      "strategy_name": "Equal Weight Portfolio",
+      "definition": "A portfolio strategy assigning identical capital weight to every eligible asset.",
+      "formula_or_rules": "For N assets, w_i=1/N; rebalance on predefined schedule.",
+      "best_suited_for": "Diversified universes where avoiding market-cap concentration is desired.",
+      "category": "portfolio_allocation"
+    },
+    {
+      "strategy_name": "Equal Risk Contribution",
+      "definition": "A risk allocation strategy solving for weights such that each asset contributes the same amount of portfolio volatility.",
+      "formula_or_rules": "RC_i=w_i*(Σw)_i/sqrt(w'Σw). Solve RC_i≈PortfolioVol/N for all i.",
+      "best_suited_for": "Diversified portfolios where risk balance is preferred over capital balance.",
+      "category": "portfolio_allocation"
+    },
+    {
+      "strategy_name": "Yield Curve Steepener",
+      "definition": "A relative-value fixed-income strategy positioned for the yield spread between long and short maturities to increase.",
+      "formula_or_rules": "Slope=y_long-y_short. Construct duration-adjusted positions benefiting when ΔSlope>0.",
+      "best_suited_for": "Rates markets where the yield curve is expected to steepen.",
+      "category": "fixed_income"
+    },
+    {
+      "strategy_name": "Yield Curve Flattener",
+      "definition": "A relative-value fixed-income strategy positioned for the long-short yield spread to decrease.",
+      "formula_or_rules": "Slope=y_long-y_short. Construct duration-adjusted positions benefiting when ΔSlope<0.",
+      "best_suited_for": "Rates markets where the yield curve is expected to flatten.",
+      "category": "fixed_income"
+    },
+    {
+      "strategy_name": "Bond Carry and Roll-Down",
+      "definition": "A fixed-income strategy seeking return from coupon/accrual plus movement down an upward-sloping yield curve.",
+      "formula_or_rules": "ExpectedReturn≈Carry+RollDown-expected rate-change duration effect. Rank bonds by expected carry-and-roll after risk normalization.",
+      "best_suited_for": "Stable or gently changing yield-curve environments.",
+      "category": "fixed_income"
+    },
+    {
+      "strategy_name": "Duration Timing",
+      "definition": "A tactical bond strategy changing portfolio duration according to a rate or trend signal.",
+      "formula_or_rules": "ApproxPriceChange≈-ModifiedDuration*ΔYield. Increase duration when falling-yield signal is active; reduce duration when rising-yield signal is active.",
+      "best_suited_for": "Liquid government bond markets with validated interest-rate signals.",
+      "category": "fixed_income"
+    },
+    {
+      "strategy_name": "Credit Spread Mean Reversion",
+      "definition": "A fixed-income relative-value strategy fading unusually wide or tight credit spreads when fundamentals remain stable.",
+      "formula_or_rules": "Z=(CreditSpread-current rolling mean)/rolling std. Long credit when Z is unusually high under stable-risk conditions; reduce/hedge when unusually low.",
+      "best_suited_for": "Liquid credit markets with reliable spread and default-risk data.",
+      "category": "fixed_income"
+    },
+    {
+      "strategy_name": "Bid-Ask Spread Market Making",
+      "definition": "A liquidity-provision strategy quoting both sides of a market and attempting to earn spread while controlling inventory.",
+      "formula_or_rules": "Quote bid=m-f(inventory)-halfspread; ask=m-f(inventory)+halfspread, with spread widened for volatility/adverse-selection risk.",
+      "best_suited_for": "Highly liquid markets with low latency, robust inventory controls and appropriate execution infrastructure.",
+      "category": "market_microstructure"
+    },
+    {
+      "strategy_name": "Inventory-Aware Market Making",
+      "definition": "A market-making strategy shifting quotes according to current inventory risk.",
+      "formula_or_rules": "ReservationPrice≈MidPrice-inventory*risk_aversion*variance*horizon; center bid/ask quotes around reservation price rather than raw midpoint.",
+      "best_suited_for": "Electronic markets where continuous two-sided quoting and inventory management are feasible.",
+      "category": "market_microstructure"
+    },
+    {
+      "strategy_name": "Order Book Imbalance",
+      "definition": "A short-horizon strategy using imbalance between displayed bid and ask depth.",
+      "formula_or_rules": "Imbalance=(BidDepth-AskDepth)/(BidDepth+AskDepth). Positive extreme may signal upward pressure; negative extreme downward pressure, subject to execution filters.",
+      "best_suited_for": "Very liquid electronic markets with reliable depth-of-book data.",
+      "category": "market_microstructure"
+    },
+    {
+      "strategy_name": "Intraday Momentum",
+      "definition": "A short-horizon strategy following strong directional movement occurring within the trading session.",
+      "formula_or_rules": "IntradayReturn=P_t/Open-1 or rolling return. Enter with direction when return, volume and volatility filters exceed thresholds.",
+      "best_suited_for": "Liquid instruments during strong directional sessions.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "Intraday Mean Reversion",
+      "definition": "A short-horizon strategy fading statistically extreme intraday price moves.",
+      "formula_or_rules": "Z=(P_t-IntradayReference)/IntradaySigma. Fade extreme |Z| when trend and event filters permit; exit toward reference.",
+      "best_suited_for": "Liquid range-bound sessions without major information shocks.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "Closing Auction Momentum",
+      "definition": "An intraday strategy positioning for continuation into the close based on late-session return and flow.",
+      "formula_or_rules": "Signal combines late-session return, volume/imbalance and trend; enter only before close under predefined liquidity and risk constraints.",
+      "best_suited_for": "Highly liquid equities with reliable closing-auction information.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "Value and Momentum",
+      "definition": "A multi-factor strategy combining inexpensive valuation with positive price momentum.",
+      "formula_or_rules": "Composite=z(ValueScore)+z(MomentumScore), with signs standardized so higher is better; rank universe by composite.",
+      "best_suited_for": "Diversified equity portfolios seeking complementary factor exposures.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Quality and Value",
+      "definition": "A multi-factor strategy selecting inexpensive companies with strong business quality.",
+      "formula_or_rules": "Composite=z(Value)+z(Quality), where Value may use earnings/FCF yield and Quality may use ROIC/profitability/leverage.",
+      "best_suited_for": "Long-term fundamental equity portfolios seeking to reduce value traps.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Quality Momentum",
+      "definition": "A strategy combining strong company fundamentals with positive price momentum.",
+      "formula_or_rules": "Composite=z(QualityScore)+z(MomentumScore); favor highest-ranked securities.",
+      "best_suited_for": "Equity portfolios seeking strong businesses with favorable market confirmation.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Value Quality Momentum",
+      "definition": "A three-factor equity strategy balancing valuation, business quality and price momentum.",
+      "formula_or_rules": "Composite=w_v*z(Value)+w_q*z(Quality)+w_m*z(Momentum), with predetermined weights.",
+      "best_suited_for": "Diversified systematic stock selection.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Low Volatility Momentum",
+      "definition": "A multi-factor strategy seeking positive momentum among relatively low-volatility securities.",
+      "formula_or_rules": "Composite=z(Momentum)-z(Volatility), or sequentially screen low-volatility universe then rank by momentum.",
+      "best_suited_for": "Equity portfolios seeking momentum with reduced volatility exposure.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Shareholder Yield",
+      "definition": "A capital-return strategy combining dividends, net share repurchases and sometimes debt reduction.",
+      "formula_or_rules": "ShareholderYield=DividendYield+NetBuybackYield+DebtPaydownYield, using consistent definitions and signs.",
+      "best_suited_for": "Mature cash-generative companies returning capital to investors.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Multi-Factor Rank",
+      "definition": "A generic systematic framework combining several independently defined factor ranks.",
+      "formula_or_rules": "For factors f=1..k, Composite_i=sum(w_f*RankOrZ_i,f); select highest composite securities under exposure constraints.",
+      "best_suited_for": "Broad universes where diversified factor exposure is desired.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Relative Strength Rotation",
+      "definition": "A rotational strategy periodically allocating to the strongest assets in a predefined universe.",
+      "formula_or_rules": "At each rebalance calculate lookback total return or relative-strength score; hold top N assets subject to positive-trend filter.",
+      "best_suited_for": "ETF, sector or asset-class universes with persistent leadership.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Channel Trend Following",
+      "definition": "A strategy maintaining directional exposure while price remains beyond a rolling channel midpoint or boundary.",
+      "formula_or_rules": "Upper=max(H,n); Lower=min(L,n); Mid=(Upper+Lower)/2. Direction determined by breakout and maintained until opposing channel rule triggers.",
+      "best_suited_for": "Persistent trends with clearly defined rolling price ranges.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "ATR Trailing Stop Trend",
+      "definition": "A trend strategy combining directional entry with an ATR-based trailing exit.",
+      "formula_or_rules": "For long position, Stop_t=max(previousStop,HighestSinceEntry-k*ATR_t); exit when price <= Stop_t. Reverse analogously for shorts.",
+      "best_suited_for": "Trending markets where exits should adapt to changing volatility.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Chandelier Exit Trend",
+      "definition": "A trend-following exit framework trailing a stop below the highest high or above the lowest low by an ATR multiple.",
+      "formula_or_rules": "LongExit=HighestHigh_n-k*ATR_n; ShortExit=LowestLow_n+k*ATR_n.",
+      "best_suited_for": "Trend systems requiring volatility-adjusted trailing exits.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Regression Trend",
+      "definition": "A directional strategy using the slope of a fitted linear price trend.",
+      "formula_or_rules": "Fit P_t=a+b*t over n observations. Long when b normalized by price or residual error exceeds positive threshold; short when below negative threshold.",
+      "best_suited_for": "Markets displaying smooth directional price trends.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Regression Channel Breakout",
+      "definition": "A breakout strategy using deviations around a fitted linear regression trend.",
+      "formula_or_rules": "Fit P=a+b*t; residual sigma=s. Upper=fit+k*s; Lower=fit-k*s. Trade break outside channel in direction of trend.",
+      "best_suited_for": "Trending markets with statistically measurable trend and volatility.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Price Acceleration",
+      "definition": "A momentum strategy based on increasing rate of price change.",
+      "formula_or_rules": "Velocity=P_t-P_(t-n); Acceleration=Velocity_t-Velocity_(t-k). Long when velocity and acceleration are positive; reverse when both negative.",
+      "best_suited_for": "Markets entering rapidly strengthening directional moves.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Momentum with Volatility Filter",
+      "definition": "A momentum strategy activated only when volatility lies within a predefined acceptable regime.",
+      "formula_or_rules": "Signal=sign(Return_n) when Vol_min <= ForecastVol <= Vol_max; otherwise neutral. Position may be volatility scaled.",
+      "best_suited_for": "Momentum portfolios where extreme volatility damages signal reliability.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Breakout with Volume Confirmation",
+      "definition": "A price breakout strategy requiring elevated volume to reduce false breakouts.",
+      "formula_or_rules": "Enter when Close>prior N-day high and Volume/MA_n(Volume)>v_threshold; bearish rule mirrors downside.",
+      "best_suited_for": "Equities and futures where participation confirms directional moves.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Breakout Retest",
+      "definition": "A strategy waiting for price to break a level and subsequently retest it before entering.",
+      "formula_or_rules": "Identify resistance R; require Close>R, then later price tests R within tolerance and closes back above it before long entry.",
+      "best_suited_for": "Markets where immediate breakout entries suffer from false breaks.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Support Resistance Reversion",
+      "definition": "A range strategy buying near established support and selling or shorting near established resistance.",
+      "formula_or_rules": "Estimate support S and resistance R from repeated swing levels; long near S after rejection confirmation, exit near midpoint/R; reverse near R.",
+      "best_suited_for": "Well-defined sideways trading ranges.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Median Reversion",
+      "definition": "A contrarian strategy trading deviations from a rolling median rather than mean.",
+      "formula_or_rules": "Deviation=(P_t-Median_n)/robust_scale_n. Fade extreme positive/negative deviations and exit toward rolling median.",
+      "best_suited_for": "Series containing outliers where robust location estimates are preferable.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "MAD Z-Score Reversion",
+      "definition": "A robust mean-reversion strategy standardizing deviations with median absolute deviation.",
+      "formula_or_rules": "RobustZ=0.6745*(P-Median)/MAD. Long at sufficiently negative RobustZ; short at sufficiently positive RobustZ; exit near zero.",
+      "best_suited_for": "Mean-reverting data with occasional extreme outliers.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Residual Momentum",
+      "definition": "A cross-sectional momentum strategy ranking securities by returns unexplained by common risk factors.",
+      "formula_or_rules": "Estimate r_i=alpha+B*F+epsilon; compute momentum from cumulative residual epsilon over lookback; rank securities by residual momentum.",
+      "best_suited_for": "Equity factor portfolios seeking momentum less contaminated by common factor exposures.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Industry Momentum",
+      "definition": "A cross-sectional strategy favoring industries with strong recent performance.",
+      "formula_or_rules": "IndustryMomentum_j=weighted average constituent return over lookback; rank industries and overweight strongest groups.",
+      "best_suited_for": "Equity markets with persistent industry leadership.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Industry-Neutral Momentum",
+      "definition": "A stock momentum strategy ranking companies relative to others in the same industry.",
+      "formula_or_rules": "Compute stock momentum, subtract or rank within industry; long strongest industry-relative names and optionally short weakest.",
+      "best_suited_for": "Equity portfolios seeking momentum without large industry bets.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Value Spread",
+      "definition": "A cross-sectional strategy taking long exposure to cheap securities and short exposure to expensive securities.",
+      "formula_or_rules": "Compute valuation score such as Book/Market or Earnings/Price; long top value quantile and short bottom value quantile with exposure controls.",
+      "best_suited_for": "Diversified equity factor portfolios.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Dividend Growth",
+      "definition": "An income-quality strategy favoring companies with persistent increases in dividends.",
+      "formula_or_rules": "DividendGrowth=DPS_t/DPS_(t-k)-1; require multi-year non-decreasing dividend history and adequate payout coverage.",
+      "best_suited_for": "Long-term income portfolios prioritizing dividend durability and growth.",
+      "category": "income"
+    },
+    {
+      "strategy_name": "Dividend Aristocrat Style",
+      "definition": "A rules-based quality-income strategy selecting companies with long records of consecutive dividend increases.",
+      "formula_or_rules": "Require consecutive annual dividend increases >= predefined years, then weight eligible companies according to portfolio rules.",
+      "best_suited_for": "Long-horizon defensive income portfolios.",
+      "category": "income"
+    },
+    {
+      "strategy_name": "Profitability and Investment",
+      "definition": "A multi-factor strategy favoring profitable firms with conservative asset investment.",
+      "formula_or_rules": "Composite=z(OperatingProfitability)-z(AssetGrowth). Rank descending.",
+      "best_suited_for": "Systematic equity portfolios combining quality and conservative investment factors.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Earnings Revision Momentum",
+      "definition": "A fundamental momentum strategy favoring companies receiving upward analyst earnings-estimate revisions.",
+      "formula_or_rules": "RevisionScore=(UpwardRevisions-DownwardRevisions)/TotalEstimates or standardized change in consensus EPS forecast; rank descending.",
+      "best_suited_for": "Liquid equities with broad analyst coverage.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Analyst Surprise Momentum",
+      "definition": "A strategy ranking companies by the magnitude and direction of fundamental surprises relative to consensus.",
+      "formula_or_rules": "Surprise=(Actual-Consensus)/abs(Consensus) or standardized historical surprise; favor strong positive surprises under quality filters.",
+      "best_suited_for": "Equities where analyst expectations provide a meaningful benchmark.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Trend Plus Carry",
+      "definition": "A multi-signal strategy combining directional trend and carry information.",
+      "formula_or_rules": "Composite=w_t*z(TrendSignal)+w_c*z(CarrySignal); position sign and size follow composite subject to volatility targeting.",
+      "best_suited_for": "Diversified futures or macro portfolios where trend and carry provide complementary signals.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Momentum Plus Value",
+      "definition": "A tactical strategy requiring both favorable momentum and attractive relative valuation.",
+      "formula_or_rules": "Composite=w_m*z(Momentum)+w_v*z(Value); select assets with high combined score.",
+      "best_suited_for": "Cross-sectional asset or equity selection where momentum alone may chase expensive assets.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Trend Plus Defensive Filter",
+      "definition": "A trend strategy that permits risk exposure only when both asset trend and broader defensive regime conditions are favorable.",
+      "formula_or_rules": "RiskOn=(AssetPrice>LongMA) AND (DefensiveIndicator favorable); otherwise reduce or eliminate exposure.",
+      "best_suited_for": "Long-horizon portfolios emphasizing drawdown control.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Relative Momentum with Absolute Filter",
+      "definition": "A rotational strategy selecting the strongest asset only when that asset also has positive absolute momentum.",
+      "formula_or_rules": "Winner=argmax(Return_i,n). Hold Winner if Return_Winner,n > threshold; otherwise hold defensive asset.",
+      "best_suited_for": "Tactical multi-asset portfolios.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Volatility-Scaled Trend",
+      "definition": "A trend-following strategy sizing directional exposure inversely to forecast volatility.",
+      "formula_or_rules": "Signal=trend direction; Position=Signal*TargetRisk/ForecastVol, capped by leverage and exposure limits.",
+      "best_suited_for": "Multi-market trend portfolios seeking consistent risk allocation.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Volatility-Scaled Momentum",
+      "definition": "A momentum strategy scaling exposure according to inverse volatility.",
+      "formula_or_rules": "Signal=sign(Return_n); Position=Signal*TargetVol/ForecastVol, subject to caps.",
+      "best_suited_for": "Momentum portfolios spanning assets with different volatility levels.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Moving Average Crossover with ATR Filter",
+      "definition": "A trend strategy requiring both a moving-average crossover and sufficient movement relative to volatility.",
+      "formula_or_rules": "Long when MA_fast>MA_slow and abs(MA_fast-MA_slow)/ATR > threshold; reverse for short.",
+      "best_suited_for": "Trend systems needing protection from small noisy crossovers.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Donchian Breakout with ATR Sizing",
+      "definition": "A channel breakout strategy using ATR to normalize position risk.",
+      "formula_or_rules": "Enter on N-day channel breakout; units=(RiskBudget)/(ATR*point_value*stop_multiple).",
+      "best_suited_for": "Diversified systematic trend portfolios.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "RSI Divergence Reversal",
+      "definition": "A reversal strategy comparing price extremes with corresponding RSI extremes.",
+      "formula_or_rules": "Bullish divergence: price makes lower low while RSI makes higher low; bearish divergence is the reverse. Enter only after predefined confirmation.",
+      "best_suited_for": "Potential exhaustion points in oscillating markets.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "MACD Histogram Momentum",
+      "definition": "A momentum strategy using the difference between MACD and its signal line.",
+      "formula_or_rules": "Histogram=MACD-Signal. Long when Histogram crosses above zero or accelerates positively; reverse below zero according to rule.",
+      "best_suited_for": "Intermediate directional momentum.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Bollinger Squeeze",
+      "definition": "A volatility-breakout strategy identifying unusually narrow Bollinger Bands before expansion.",
+      "formula_or_rules": "Bandwidth=(Upper-Lower)/Middle. When Bandwidth is below historical percentile, arm strategy; enter on subsequent confirmed directional band/range break.",
+      "best_suited_for": "Markets transitioning from low to high volatility.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Keltner Bollinger Squeeze",
+      "definition": "A volatility-compression strategy identifying periods when Bollinger Bands contract inside Keltner Channels.",
+      "formula_or_rules": "SqueezeOn when BB_upper<KC_upper and BB_lower>KC_lower; trade confirmed directional expansion after squeeze releases.",
+      "best_suited_for": "Short- to medium-term volatility breakouts.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Pivot Point Reversion",
+      "definition": "An intraday strategy fading price near calculated pivot support or resistance levels.",
+      "formula_or_rules": "Pivot=(PriorHigh+PriorLow+PriorClose)/3; derive S1,R1 etc. Enter reversal near level only with rejection confirmation.",
+      "best_suited_for": "Liquid intraday markets respecting prior-session reference levels.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "Pivot Point Breakout",
+      "definition": "An intraday strategy trading directional breaks of pivot-derived support or resistance.",
+      "formula_or_rules": "Calculate Pivot and support/resistance levels from prior session; enter when price closes/breaks beyond level with confirmation.",
+      "best_suited_for": "Directional intraday sessions.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "Opening Gap Continuation",
+      "definition": "An intraday momentum strategy trading in the direction of a significant opening gap rather than fading it.",
+      "formula_or_rules": "Gap=(Open-PriorClose)/PriorClose. Trade gap direction when gap exceeds threshold and early price/volume confirms continuation.",
+      "best_suited_for": "Information-driven opening gaps with strong participation.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "First-Hour Momentum",
+      "definition": "An intraday strategy using the direction of the initial trading hour to forecast later-session continuation.",
+      "formula_or_rules": "FirstHourReturn=Price_end_hour1/Open-1. Enter same direction when magnitude and volume exceed thresholds.",
+      "best_suited_for": "Liquid markets exhibiting intraday return persistence.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "Last-Hour Reversal",
+      "definition": "An intraday strategy fading extreme late-session moves when evidence indicates exhaustion.",
+      "formula_or_rules": "LateReturn=P_t/P_start_last_hour-1. Fade extreme standardized LateReturn only under reversal/liquidity filters.",
+      "best_suited_for": "Range-bound sessions with temporary end-of-day dislocations.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "Pairs Ratio Reversion",
+      "definition": "A relative-value strategy trading extreme movements in the ratio of two related asset prices.",
+      "formula_or_rules": "Ratio=P_A/P_B; Z=(Ratio-mean_n(Ratio))/std_n(Ratio). Short ratio at high Z; long ratio at low Z; exit near zero.",
+      "best_suited_for": "Related securities whose price ratio is more stable than raw price spread.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Basket Residual Reversion",
+      "definition": "A statistical-arbitrage strategy trading a security against a fitted basket of peers.",
+      "formula_or_rules": "P_i≈alpha+sum(beta_j*P_j); Residual=P_i-Predicted_i. Trade standardized residual toward zero.",
+      "best_suited_for": "Liquid securities with strong peer or factor relationships.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Cross-Sectional Residual Reversal",
+      "definition": "A market-neutral strategy fading recent idiosyncratic returns after removing common factors.",
+      "formula_or_rules": "Residual_i=r_i-B_i*F. Rank recent residuals; long most negative and short most positive with factor-neutral constraints.",
+      "best_suited_for": "Large liquid equity universes.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Correlation Breakdown Reversion",
+      "definition": "A relative-value strategy trading temporary departures from a historically stable correlation relationship.",
+      "formula_or_rules": "Estimate rolling expected relation between assets; identify standardized residual when realized co-movement departs materially; position for normalization.",
+      "best_suited_for": "Highly related assets with stable structural linkage.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Beta-Neutral Momentum",
+      "definition": "A momentum strategy hedging broad market beta while retaining security-specific momentum exposure.",
+      "formula_or_rules": "Select momentum portfolio; estimate beta_p=Cov(r_p,r_m)/Var(r_m); hedge with market position of approximately -beta_p exposure.",
+      "best_suited_for": "Equity momentum portfolios seeking reduced market-direction dependence.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Dollar-Neutral Long Short",
+      "definition": "A long-short portfolio maintaining approximately equal dollar value on long and short sides.",
+      "formula_or_rules": "Require sum(LongMarketValue)≈abs(sum(ShortMarketValue)); select securities using chosen alpha signal.",
+      "best_suited_for": "Cross-sectional equity strategies seeking reduced net market exposure.",
+      "category": "portfolio_allocation"
+    },
+    {
+      "strategy_name": "Beta-Neutral Long Short",
+      "definition": "A long-short portfolio balancing estimated market beta rather than simply dollar exposure.",
+      "formula_or_rules": "Choose weights so sum(w_i*beta_i)≈0 while maximizing or preserving alpha score exposure.",
+      "best_suited_for": "Market-neutral equity factor strategies.",
+      "category": "portfolio_allocation"
+    },
+    {
+      "strategy_name": "Sector-Neutral Long Short",
+      "definition": "A long-short strategy constraining net exposure within each sector.",
+      "formula_or_rules": "For every sector s, sum(w_i for i in s)≈0 while portfolio retains desired alpha ranking exposure.",
+      "best_suited_for": "Cross-sectional stock-selection systems seeking to remove sector bets.",
+      "category": "portfolio_allocation"
+    },
+    {
+      "strategy_name": "Market-Neutral Value",
+      "definition": "A long-short strategy buying cheap securities and shorting expensive securities while controlling broad market exposure.",
+      "formula_or_rules": "Rank by standardized value score; long high-value-score quantile, short low-value-score quantile; constrain beta/net exposure near zero.",
+      "best_suited_for": "Diversified equity universes with robust valuation data.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Market-Neutral Momentum",
+      "definition": "A long-short strategy buying recent winners and shorting recent losers while constraining broad market exposure.",
+      "formula_or_rules": "Rank by momentum; long top quantile, short bottom quantile; neutralize beta, sector or dollar exposure according to mandate.",
+      "best_suited_for": "Large liquid equity universes.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Market-Neutral Quality",
+      "definition": "A long-short factor strategy buying high-quality companies and shorting low-quality companies.",
+      "formula_or_rules": "Rank by composite profitability/safety/earnings-quality score; long top quantile, short bottom quantile under neutrality constraints.",
+      "best_suited_for": "Large diversified equity universes.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Risk-On Risk-Off",
+      "definition": "A tactical strategy switching between growth/risky assets and defensive assets according to a regime signal.",
+      "formula_or_rules": "If risk_signal > threshold hold risk basket; otherwise hold defensive basket. Signal may combine trend, volatility and credit conditions.",
+      "best_suited_for": "Multi-asset portfolios seeking regime-sensitive exposure.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Volatility Regime Switching",
+      "definition": "A tactical strategy changing portfolio behavior when volatility moves between predefined regimes.",
+      "formula_or_rules": "Classify ForecastVol into low/normal/high states; map each state to predetermined exposure or strategy weights.",
+      "best_suited_for": "Portfolios whose optimal exposure materially depends on volatility regime.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Trend Regime Switching",
+      "definition": "A tactical framework applying different rules depending on whether the market is classified as trending or non-trending.",
+      "formula_or_rules": "TrendState determined by ADX, MA slope or equivalent; use trend strategy when state=trend and alternate/neutral policy otherwise.",
+      "best_suited_for": "Markets alternating between directional and range-bound regimes.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Golden Cross",
+      "definition": "A long-term trend signal generated when a shorter moving average rises above a longer moving average, commonly 50-day over 200-day.",
+      "formula_or_rules": "Long/risk-on when SMA_50 crosses above SMA_200; exit or reduce when opposite cross occurs.",
+      "best_suited_for": "Long-horizon equity or index trend participation.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Death Cross",
+      "definition": "A bearish long-term trend signal generated when a shorter moving average falls below a longer moving average.",
+      "formula_or_rules": "Bearish/risk-off when SMA_50 crosses below SMA_200; reverse when SMA_50 recovers above SMA_200.",
+      "best_suited_for": "Long-horizon downside or defensive regime identification.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Price Channel Mean Reversion",
+      "definition": "A range strategy fading moves toward the edges of a rolling high-low channel.",
+      "formula_or_rules": "Upper=max(H,n); Lower=min(L,n); Mid=(Upper+Lower)/2. Long near Lower after rejection; short near Upper; exit toward Mid.",
+      "best_suited_for": "Sideways markets with stable support and resistance.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Envelope Mean Reversion",
+      "definition": "A contrarian strategy using fixed-percentage envelopes around a moving average.",
+      "formula_or_rules": "Upper=MA*(1+p); Lower=MA*(1-p). Long below Lower and exit near MA; short above Upper and cover near MA.",
+      "best_suited_for": "Stable range-bound assets where percentage deviations are meaningful.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Moving Average Pullback",
+      "definition": "A trend-continuation strategy entering when price retraces toward a rising or falling moving average.",
+      "formula_or_rules": "For long: require positive trend, then price pullback to MA within tolerance followed by bullish confirmation; reverse for short.",
+      "best_suited_for": "Trending markets where temporary retracements offer entries.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Breakout Pullback",
+      "definition": "A trend-continuation strategy entering after a breakout retraces toward the former breakout level.",
+      "formula_or_rules": "Require breakout beyond level L, retracement toward L without invalidation, then renewed movement in breakout direction.",
+      "best_suited_for": "Directional markets where breakout retests are common.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "High-Low Momentum",
+      "definition": "A momentum strategy measuring where current price lies relative to a longer-term high-low range.",
+      "formula_or_rules": "PositionScore=(Close-Low_n)/(High_n-Low_n). Favor high scores for long momentum and low scores for bearish momentum.",
+      "best_suited_for": "Markets where sustained strength keeps prices near range highs.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Price Volume Trend",
+      "definition": "A volume-confirmation strategy accumulating volume weighted by percentage price change.",
+      "formula_or_rules": "PVT_t=PVT_(t-1)+Volume_t*(Close_t-Close_(t-1))/Close_(t-1). Trade trend or divergence in PVT with price.",
+      "best_suited_for": "Trend confirmation where both return magnitude and volume matter.",
+      "category": "volume"
+    },
+    {
+      "strategy_name": "Ease of Movement",
+      "definition": "A volume-price strategy relating midpoint price movement to volume and trading range.",
+      "formula_or_rules": "DistanceMoved=((H+L)/2)-((H_prev+L_prev)/2); BoxRatio=(Volume/scale)/(H-L); EMV=DistanceMoved/BoxRatio. Use smoothed EMV sign/trend.",
+      "best_suited_for": "Markets where price movement relative to volume can identify ease of directional movement.",
+      "category": "volume"
+    },
+    {
+      "strategy_name": "Force Index",
+      "definition": "A volume-momentum strategy combining price change with volume.",
+      "formula_or_rules": "ForceIndex=(Close_t-Close_(t-1))*Volume_t; smooth with EMA and trade sign/trend or pullbacks.",
+      "best_suited_for": "Trend confirmation in liquid securities.",
+      "category": "volume"
+    },
+    {
+      "strategy_name": "TRIX Trend",
+      "definition": "A trend/momentum strategy based on the rate of change of a triple-smoothed exponential moving average.",
+      "formula_or_rules": "TRIX=100*(EMA3_t/EMA3_(t-1)-1), where EMA3 is triple-smoothed EMA. Long when TRIX positive/crosses signal upward; reverse when negative.",
+      "best_suited_for": "Medium-term trends where heavy smoothing is useful.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "KAMA Trend",
+      "definition": "A trend strategy using Kaufman's Adaptive Moving Average, which changes smoothing according to market efficiency.",
+      "formula_or_rules": "ER=abs(P_t-P_(t-n))/sum(abs(ΔP),n); SC=[ER*(fastSC-slowSC)+slowSC]^2; KAMA_t=KAMA_(t-1)+SC*(P_t-KAMA_(t-1)). Trade price/KAMA trend.",
+      "best_suited_for": "Markets alternating between noise and efficient directional movement.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Hull Moving Average Trend",
+      "definition": "A trend strategy using the Hull Moving Average to reduce lag while maintaining smoothing.",
+      "formula_or_rules": "HMA_n=WMA(2*WMA(P,n/2)-WMA(P,n),sqrt(n)). Long when HMA slope positive or price above rising HMA; reverse for bearish state.",
+      "best_suited_for": "Directional markets where lower moving-average lag is desired.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "DMI Crossover",
+      "definition": "A directional strategy trading crossovers of Wilder's positive and negative directional indicators.",
+      "formula_or_rules": "Compute +DI and -DI from smoothed directional movement and ATR. Long when +DI crosses above -DI; short when -DI crosses above +DI, optionally requiring ADX filter.",
+      "best_suited_for": "Markets with identifiable directional movement.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "ROC Zero Cross",
+      "definition": "A momentum strategy trading the sign of rate of change.",
+      "formula_or_rules": "ROC_n=100*(P_t/P_(t-n)-1). Long when ROC crosses above zero; exit or short when ROC crosses below zero.",
+      "best_suited_for": "Simple medium-term momentum systems.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Absolute Momentum",
+      "definition": "A strategy holding an asset only when its own trailing return exceeds a predefined benchmark or zero.",
+      "formula_or_rules": "AbsoluteMomentum=P_t/P_(t-n)-1-BenchmarkReturn. Hold risk asset when signal>0; otherwise defensive asset.",
+      "best_suited_for": "Tactical allocation and drawdown-sensitive trend systems.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Moving Average Breadth",
+      "definition": "A market-timing strategy measuring the fraction of universe constituents trading above their moving averages.",
+      "formula_or_rules": "Breadth=(number of constituents with P_i>MA_i)/N. Risk-on when Breadth exceeds threshold; defensive when below.",
+      "best_suited_for": "Broad equity market regime assessment.",
+      "category": "market_breadth"
+    },
+    {
+      "strategy_name": "Advance Decline Breadth",
+      "definition": "A market breadth strategy using the balance between advancing and declining securities.",
+      "formula_or_rules": "AD_t=Advancers_t-Decliners_t; ADLine_t=ADLine_(t-1)+AD_t. Use ADLine trend/divergence as market confirmation.",
+      "best_suited_for": "Broad equity index trend confirmation.",
+      "category": "market_breadth"
+    },
+    {
+      "strategy_name": "New High New Low Breadth",
+      "definition": "A market breadth strategy comparing the number of securities making new highs with those making new lows.",
+      "formula_or_rules": "BreadthScore=(NewHighs-NewLows)/(NewHighs+NewLows). Positive extremes confirm strength; negative extremes confirm weakness.",
+      "best_suited_for": "Broad equity market trend and regime analysis.",
+      "category": "market_breadth"
+    },
+    {
+      "strategy_name": "Breadth Thrust",
+      "definition": "A market-timing strategy identifying unusually rapid improvement in participation across a broad equity universe.",
+      "formula_or_rules": "Compute advancing issues relative to total issues and a smoothed breadth ratio; signal when breadth rises from depressed to unusually strong threshold within a defined window.",
+      "best_suited_for": "Potential transitions from broad market weakness to strong risk-on participation.",
+      "category": "market_breadth"
+    },
+    {
+      "strategy_name": "Relative Strength Sector Rotation",
+      "definition": "A sector allocation strategy ranking sectors against a broad-market benchmark.",
+      "formula_or_rules": "RS_sector=(SectorPrice/SectorPrice_n)/(BenchmarkPrice/BenchmarkPrice_n)-1. Overweight strongest positive-RS sectors.",
+      "best_suited_for": "Equity markets with persistent sector leadership.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Economic Regime Allocation",
+      "definition": "A multi-asset strategy mapping assets to predefined economic growth and inflation regimes.",
+      "formula_or_rules": "Classify growth and inflation trends into regimes; assign predetermined asset weights for each state and rebalance when classification changes.",
+      "best_suited_for": "Strategic/tactical multi-asset portfolios with reliable macroeconomic data.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Trend Following with Cash Filter",
+      "definition": "A long-only trend strategy moving to cash when the asset loses its long-term trend.",
+      "formula_or_rules": "Hold asset when Close>LongMA and LongMA slope>=0; otherwise hold cash or designated defensive instrument.",
+      "best_suited_for": "Long-horizon portfolios seeking to reduce exposure during major downtrends.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Multi-Horizon Momentum",
+      "definition": "A momentum strategy combining returns measured over several lookback horizons.",
+      "formula_or_rules": "Score=w1*R_short+w2*R_medium+w3*R_long, optionally standardized; rank assets or use score sign directionally.",
+      "best_suited_for": "Markets where momentum persists across several time scales.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Multi-Horizon Trend",
+      "definition": "A trend strategy combining several independent trend signals.",
+      "formula_or_rules": "Score=sum(sign(P-MA_h) or sign(Return_h) across horizons h); position proportional to normalized aggregate score.",
+      "best_suited_for": "Diversified trend portfolios seeking reduced dependence on one lookback.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Consensus Trend",
+      "definition": "A trend strategy requiring agreement among multiple trend indicators.",
+      "formula_or_rules": "Long when predefined majority of indicators such as MA trend, MACD, breakout and ADX direction are bullish; short/exit under bearish consensus.",
+      "best_suited_for": "Trend systems prioritizing confirmation over signal frequency.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Volatility Breakout from Previous Close",
+      "definition": "A directional breakout strategy setting entry levels at volatility-scaled distances from the prior close.",
+      "formula_or_rules": "LongTrigger=Close_(t-1)+k*ATR; ShortTrigger=Close_(t-1)-k*ATR. Enter when intraday price crosses trigger.",
+      "best_suited_for": "Markets prone to strong directional daily expansions.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Previous Day High Low Breakout",
+      "definition": "An intraday strategy trading a break beyond the prior session's high or low.",
+      "formula_or_rules": "Long when price>High_(t-1) with confirmation; short when price<Low_(t-1); stops and exits predefined.",
+      "best_suited_for": "Liquid instruments with meaningful prior-session reference levels.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "Previous Day High Low Fade",
+      "definition": "An intraday mean-reversion strategy fading failed attempts to move beyond the prior session's extremes.",
+      "formula_or_rules": "If price trades beyond prior high then closes/rejects back below it, consider short; inverse rule at prior low.",
+      "best_suited_for": "Range-bound sessions with frequent false breaks.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "VWAP Breakout",
+      "definition": "An intraday directional strategy entering when price decisively crosses VWAP with participation confirmation.",
+      "formula_or_rules": "VWAP=sum(PV)/sum(V). Long on confirmed cross and hold above VWAP with volume filter; reverse below.",
+      "best_suited_for": "Liquid intraday markets transitioning into directional flow.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "VWAP Pullback",
+      "definition": "An intraday trend-continuation strategy entering on a retracement toward VWAP.",
+      "formula_or_rules": "Require established trend above/below VWAP; enter after pullback touches or approaches VWAP and resumes trend direction.",
+      "best_suited_for": "Strong intraday trends with orderly retracements.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "Opening Drive",
+      "definition": "An intraday momentum strategy following strong one-directional movement immediately after the market opens.",
+      "formula_or_rules": "Measure return, range expansion and volume during initial minutes; enter direction when all exceed predefined thresholds and price holds away from open.",
+      "best_suited_for": "Highly liquid markets on strong information-driven sessions.",
+      "category": "intraday"
+    },
+    {
+      "strategy_name": "Range Expansion",
+      "definition": "A strategy entering when the current trading range becomes abnormally large relative to recent ranges.",
+      "formula_or_rules": "RangeRatio=(High_t-Low_t)/mean(High-Low,n). Trade directional break when RangeRatio exceeds threshold and close location confirms.",
+      "best_suited_for": "Markets entering high-volatility directional states.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Close Location Value Momentum",
+      "definition": "A short-horizon strategy using where the close occurs inside the day's range.",
+      "formula_or_rules": "CLV=((C-L)-(H-C))/(H-L). Positive values near +1 indicate close near high; negative near -1 indicate close near low. Trade persistence when confirmed by volume/trend.",
+      "best_suited_for": "Short-horizon directional markets.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Close Location Value Reversal",
+      "definition": "A short-horizon contrarian strategy fading extreme closes within the daily range when broader conditions are range-bound.",
+      "formula_or_rules": "CLV=((C-L)-(H-C))/(H-L). Fade extreme CLV readings under predefined non-trending filters.",
+      "best_suited_for": "Range-bound markets where extreme closing pressure tends to reverse.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Volatility Contraction Pattern",
+      "definition": "A breakout setup requiring successive reductions in price-range volatility before a directional break.",
+      "formula_or_rules": "Require sequence of contracting ranges or ATR measures; enter only after price breaks the final contraction boundary.",
+      "best_suited_for": "Equities consolidating before volatility expansion.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "High Tight Flag",
+      "definition": "A momentum-breakout setup involving a very large prior advance followed by relatively tight consolidation.",
+      "formula_or_rules": "Require predefined large percentage advance over short window, followed by bounded shallow consolidation; enter on breakout above consolidation high.",
+      "best_suited_for": "Strong momentum equities; requires strict liquidity and risk controls.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Darvas Box",
+      "definition": "A breakout strategy defining price boxes from repeated highs and lows and buying a break above the box.",
+      "formula_or_rules": "Construct box resistance from established high and support from subsequent lows; enter when price breaks confirmed box high, trail stop with new boxes.",
+      "best_suited_for": "Strong trending equities making successive price consolidations.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "CAN SLIM Style",
+      "definition": "A growth-momentum stock-selection framework combining earnings growth, new catalysts, supply-demand, leadership, institutional sponsorship and market direction.",
+      "formula_or_rules": "Screen/rank using current and annual EPS growth, relative strength, volume/float, institutional criteria and broad-market trend; entries commonly require price breakout confirmation.",
+      "best_suited_for": "Growth-stock universes with strong fundamental and price momentum.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Trend Template",
+      "definition": "A long-only growth/momentum filter requiring price and moving averages to satisfy a hierarchy consistent with a strong uptrend.",
+      "formula_or_rules": "Example conditions include P>SMA50>SMA150>SMA200, rising SMA200, price sufficiently above 52-week low and near 52-week high.",
+      "best_suited_for": "Screening equities for established long-term uptrends.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Relative Strength Breakout",
+      "definition": "A breakout strategy requiring both an absolute price breakout and improving performance versus a benchmark.",
+      "formula_or_rules": "Require Close>prior N-day high and RelativeStrength_t>prior RS threshold/high; enter only when both conditions hold.",
+      "best_suited_for": "Leading equities breaking out during favorable market regimes.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Earnings Breakout",
+      "definition": "An event-momentum strategy entering after a material earnings surprise produces a confirmed price breakout.",
+      "formula_or_rules": "Require positive earnings surprise plus price gap/breakout above prior resistance and abnormal volume; manage with predefined trend exit.",
+      "best_suited_for": "Liquid growth equities after major positive earnings information.",
+      "category": "event_driven"
+    },
+    {
+      "strategy_name": "Post-Gap Consolidation Breakout",
+      "definition": "A continuation strategy entering after a strong price gap is followed by a controlled consolidation.",
+      "formula_or_rules": "Identify significant directional gap; require consolidation that holds most of gap; enter on breakout from consolidation in original gap direction.",
+      "best_suited_for": "Information-driven momentum events.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "Failed Breakout Reversal",
+      "definition": "A contrarian strategy fading a breakout that quickly returns inside its prior range.",
+      "formula_or_rules": "If price breaks resistance R but subsequently closes back below R within defined window, enter reversal short; mirror for failed downside break.",
+      "best_suited_for": "Range-bound or exhaustion environments where false breakouts are common.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "False Breakdown Reversal",
+      "definition": "A bullish reversal strategy entering after price breaks support but rapidly recovers above it.",
+      "formula_or_rules": "If price trades below support S and then closes back above S with confirmation, enter long; stop below failure extreme.",
+      "best_suited_for": "Markets exhibiting liquidity sweeps or failed bearish breakouts.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Mean Reversion with Trend Filter",
+      "definition": "A hybrid strategy taking short-term reversal entries only in the direction of the longer-term trend.",
+      "formula_or_rules": "Example long: P>LongMA and short-term Z<-entry; exit when Z returns toward zero. Reverse for bearish long-term trend if shorts allowed.",
+      "best_suited_for": "Trending markets with recurring short-term pullbacks.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "RSI Pullback in Uptrend",
+      "definition": "A trend-continuation strategy buying short-term RSI weakness while the long-term trend remains positive.",
+      "formula_or_rules": "Require P>LongMA and LongMA rising; enter when RSI falls below pullback threshold then turns upward; exit on recovery or trend failure.",
+      "best_suited_for": "Established uptrends with temporary momentum resets.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Stochastic Pullback in Trend",
+      "definition": "A trend-continuation strategy using stochastic oversold/overbought readings for pullback timing.",
+      "formula_or_rules": "In uptrend, enter when %K/%D become oversold then bullishly cross; inverse in downtrend.",
+      "best_suited_for": "Directional markets with oscillating pullbacks.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "ADX Breakout",
+      "definition": "A breakout strategy requiring rising trend strength after price leaves a range.",
+      "formula_or_rules": "Enter directional range breakout only when ADX is above threshold or rising materially and corresponding +DI/-DI confirms direction.",
+      "best_suited_for": "Markets transitioning from consolidation into strong trends.",
+      "category": "breakout"
+    },
+    {
+      "strategy_name": "ATR Compression Expansion",
+      "definition": "A volatility strategy identifying unusually low ATR followed by a sharp increase.",
+      "formula_or_rules": "ATRPercentile=percentile_rank(ATR,n_long). Arm when percentile low; enter directional break when ATR expands and price confirms.",
+      "best_suited_for": "Markets with volatility clustering and contraction-expansion cycles.",
+      "category": "volatility"
+    },
+    {
+      "strategy_name": "Realized Volatility Mean Reversion",
+      "definition": "A volatility strategy based on the tendency of extreme realized volatility to normalize over time.",
+      "formula_or_rules": "RV=std(returns,n)*sqrt(A). Z_RV=(RV-mean(RV,m))/std(RV,m). Adjust volatility exposure when Z_RV is extreme under explicit risk rules.",
+      "best_suited_for": "Volatility portfolios where realized volatility shows stable mean-reverting behavior.",
+      "category": "volatility"
+    },
+    {
+      "strategy_name": "Volatility Momentum",
+      "definition": "A strategy forecasting continued movement in volatility itself.",
+      "formula_or_rules": "VolMomentum=RV_short/RV_long-1 or change in implied volatility. Position for continued volatility direction when signal exceeds threshold.",
+      "best_suited_for": "Volatility markets exhibiting persistent regime shifts.",
+      "category": "volatility"
+    },
+    {
+      "strategy_name": "Cross-Asset Trend Confirmation",
+      "definition": "A macro strategy requiring related markets to confirm the same directional regime.",
+      "formula_or_rules": "Construct trend signals for target and confirming assets; trade target only when predefined cross-asset signal agreement is satisfied.",
+      "best_suited_for": "Macro markets where economic relationships provide useful confirmation.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Relative Value Yield Spread",
+      "definition": "A fixed-income strategy trading deviations in yield spreads between related securities.",
+      "formula_or_rules": "Spread=y_A-beta*y_B; Z=(Spread-mean_n)/std_n. Position for convergence when Z exceeds threshold and credit/liquidity conditions remain acceptable.",
+      "best_suited_for": "Related government or high-quality fixed-income instruments.",
+      "category": "fixed_income"
+    },
+    {
+      "strategy_name": "Butterfly Yield Curve",
+      "definition": "A fixed-income relative-value strategy trading curvature among short, intermediate and long maturities.",
+      "formula_or_rules": "Butterfly=y_short-2*y_mid+y_long, with duration/DV01-adjusted weights in implementation. Trade deviations from expected curvature.",
+      "best_suited_for": "Liquid government yield curves.",
+      "category": "fixed_income"
+    },
+    {
+      "strategy_name": "Calendar Roll Futures",
+      "definition": "A futures relative-value strategy trading the spread between nearby contract maturities.",
+      "formula_or_rules": "CalendarSpread=F_near-F_far. Trade deviations or carry relationships under contract-specific seasonality and roll rules.",
+      "best_suited_for": "Liquid futures curves with stable term-structure behavior.",
+      "category": "carry"
+    },
+    {
+      "strategy_name": "Curve Momentum",
+      "definition": "A futures strategy following directional changes in term-structure slope.",
+      "formula_or_rules": "CurveSlope=normalized(F_far-F_near)/tenor. MomentumSignal=CurveSlope_t-CurveSlope_(t-n); position for continued slope movement.",
+      "best_suited_for": "Commodity or financial futures with liquid multiple maturities.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Carry and Momentum",
+      "definition": "A systematic strategy combining carry with price momentum.",
+      "formula_or_rules": "Composite=w_c*z(Carry)+w_m*z(Momentum); rank markets or set direction according to combined score with volatility scaling.",
+      "best_suited_for": "Diversified futures, FX or macro portfolios.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Value and Carry",
+      "definition": "A cross-asset strategy combining relative valuation with expected carry.",
+      "formula_or_rules": "Composite=w_v*z(ValueSignal)+w_c*z(CarrySignal); favor assets with attractive combined score.",
+      "best_suited_for": "Macro and currency portfolios where both valuation and carry are measurable.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "FX Purchasing Power Parity Value",
+      "definition": "A long-horizon currency value strategy comparing exchange rates with purchasing-power-parity estimates.",
+      "formula_or_rules": "Misvaluation=log(SpotFX/PPP_FX). Favor currencies estimated undervalued and avoid/short overvalued currencies, usually with long holding horizons.",
+      "best_suited_for": "Diversified currency portfolios with patient horizons.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "FX Momentum",
+      "definition": "A currency strategy following medium-term exchange-rate trends.",
+      "formula_or_rules": "Momentum=Spot_t/Spot_(t-n)-1. Long positive-momentum currency versus negative-momentum currency, with volatility scaling.",
+      "best_suited_for": "Liquid currency pairs displaying persistent trends.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "FX Value Momentum",
+      "definition": "A currency strategy combining long-run valuation with medium-term price momentum.",
+      "formula_or_rules": "Composite=w_v*z(-PPP_misvaluation)+w_m*z(FX_momentum). Rank currencies by combined score.",
+      "best_suited_for": "Diversified currency portfolios seeking complementary signals.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Commodity Momentum",
+      "definition": "A directional strategy following medium-term price trends across commodity futures.",
+      "formula_or_rules": "Momentum_i=F_i,t/F_i,t-n-1. Long positive signals and short negative signals, typically volatility scaled.",
+      "best_suited_for": "Diversified commodity futures.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Commodity Carry Momentum",
+      "definition": "A commodity strategy combining futures-curve carry with directional price momentum.",
+      "formula_or_rules": "Composite=w_c*z(Carry)+w_m*z(Momentum); position by sign/rank with volatility normalization.",
+      "best_suited_for": "Diversified commodity portfolios.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Equity Index Trend",
+      "definition": "A long-horizon strategy taking equity-index exposure only during positive trend regimes.",
+      "formula_or_rules": "Hold index when Close>LongMA or Return_n>0; move defensive when trend signal is negative.",
+      "best_suited_for": "Broad equity indexes and tactical risk management.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Bond Trend",
+      "definition": "A directional fixed-income strategy following total-return or yield trends.",
+      "formula_or_rules": "Example: long bond when total-return index > moving average; alternatively duration direction based on yield momentum with sign inverted for price relationship.",
+      "best_suited_for": "Liquid government bond markets.",
+      "category": "fixed_income"
+    },
+    {
+      "strategy_name": "Gold Trend",
+      "definition": "A directional strategy following medium- or long-term trends in gold.",
+      "formula_or_rules": "Signal=sign(GoldPrice-MA_n) or sign(Return_n); size according to volatility and portfolio risk limits.",
+      "best_suited_for": "Macro portfolios using gold as a standalone trend market.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Multi-Asset Defensive Momentum",
+      "definition": "A tactical strategy selecting positive-momentum assets while falling back to defensive holdings when risk assets weaken.",
+      "formula_or_rules": "Rank eligible assets by momentum; require positive absolute momentum; otherwise allocate to predefined defensive universe.",
+      "best_suited_for": "Long-horizon multi-asset portfolios seeking drawdown control.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Rebalancing Premium",
+      "definition": "A portfolio strategy periodically restoring target weights, systematically selling relative outperformers and buying relative underperformers.",
+      "formula_or_rules": "At rebalance, Trade_i=TargetWeight_i-CurrentWeight_i; execute only when deviation exceeds schedule or tolerance rule.",
+      "best_suited_for": "Diversified portfolios containing imperfectly correlated assets.",
+      "category": "portfolio_allocation"
+    },
+    {
+      "strategy_name": "Threshold Rebalancing",
+      "definition": "A portfolio strategy rebalancing only when an asset weight moves outside a permitted band.",
+      "formula_or_rules": "If abs(CurrentWeight_i-TargetWeight_i)>Band_i, trade back to target or inner band.",
+      "best_suited_for": "Long-term portfolios seeking to reduce unnecessary turnover.",
+      "category": "portfolio_allocation"
+    },
+    {
+      "strategy_name": "Volatility Weighted Portfolio",
+      "definition": "A portfolio allocation strategy assigning weights inversely proportional to asset volatility.",
+      "formula_or_rules": "w_i=(1/sigma_i)/sum_j(1/sigma_j).",
+      "best_suited_for": "Diversified portfolios where equal capital weights would create unequal risk.",
+      "category": "portfolio_allocation"
+    },
+    {
+      "strategy_name": "Momentum Weighted Portfolio",
+      "definition": "A portfolio strategy assigning larger weights to assets with stronger positive momentum.",
+      "formula_or_rules": "RawWeight_i=max(MomentumScore_i,0) or transformed rank; normalize weights to sum to one under caps.",
+      "best_suited_for": "Tactical portfolios with multiple simultaneously positive trends.",
+      "category": "portfolio_allocation"
+    },
+    {
+      "strategy_name": "Kelly Criterion Allocation",
+      "definition": "A sizing framework choosing exposure according to estimated edge relative to risk.",
+      "formula_or_rules": "For a simple binary bet f*=(bp-q)/b; for continuous approximations f≈expected_excess_return/variance. Practical systems generally use fractional Kelly.",
+      "best_suited_for": "Strategies with statistically defensible return distributions and strict estimation-risk controls.",
+      "category": "position_sizing"
+    },
+    {
+      "strategy_name": "Fixed Fractional Position Sizing",
+      "definition": "A risk-sizing method limiting the amount of capital risked on each position to a fixed fraction of equity.",
+      "formula_or_rules": "RiskCapital=f*PortfolioEquity; PositionUnits=RiskCapital/abs(EntryPrice-StopPrice).",
+      "best_suited_for": "Systematic strategies with explicit stop distance.",
+      "category": "position_sizing"
+    },
+    {
+      "strategy_name": "ATR Position Sizing",
+      "definition": "A volatility-normalized sizing framework using Average True Range as the unit of price risk.",
+      "formula_or_rules": "Units=RiskCapital/(ATR*ATR_multiple*point_value).",
+      "best_suited_for": "Strategies spanning securities with different volatility.",
+      "category": "position_sizing"
+    },
+    {
+      "strategy_name": "Volatility Parity Position Sizing",
+      "definition": "A sizing method assigning positions so each signal receives similar standalone volatility.",
+      "formula_or_rules": "RawExposure_i=RiskTarget_i/ForecastVol_i; normalize/cap exposures according to portfolio limits.",
+      "best_suited_for": "Multi-strategy or multi-asset systematic portfolios.",
+      "category": "position_sizing"
+    },
+    {
+      "strategy_name": "Trend Strength Weighted Position",
+      "definition": "A sizing framework increasing exposure as a normalized trend signal becomes stronger.",
+      "formula_or_rules": "Exposure=clip(TrendScore/Scale,-MaxExposure,MaxExposure), optionally multiplied by TargetVol/ForecastVol.",
+      "best_suited_for": "Trend systems where signal magnitude contains information beyond direction.",
+      "category": "position_sizing"
+    },
+    {
+      "strategy_name": "Time-Series Carry",
+      "definition": "A directional strategy taking positive or negative exposure according to each asset's own carry signal.",
+      "formula_or_rules": "Signal_i=sign(Carry_i); Position_i=Signal_i*TargetVol/ForecastVol_i, subject to asset-specific carry convention.",
+      "best_suited_for": "Diversified futures, FX or fixed-income portfolios.",
+      "category": "carry"
+    },
+    {
+      "strategy_name": "Cross-Sectional Carry",
+      "definition": "A relative strategy ranking assets by carry and buying high-carry assets while selling low-carry assets.",
+      "formula_or_rules": "Rank standardized Carry_i; long top quantile and short bottom quantile with risk normalization.",
+      "best_suited_for": "Broad liquid universes where carry is consistently measurable.",
+      "category": "carry"
+    },
+    {
+      "strategy_name": "Cross-Sectional Value",
+      "definition": "A generic relative-value strategy buying assets that appear cheap versus peers and selling expensive assets.",
+      "formula_or_rules": "Compute standardized valuation signal V_i; long highest cheapness scores and short lowest scores under neutrality constraints.",
+      "best_suited_for": "Large comparable universes.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Cross-Sectional Quality",
+      "definition": "A generic factor strategy ranking companies by a composite measure of profitability, safety and earnings quality.",
+      "formula_or_rules": "Quality_i=sum(w_k*z(metric_i,k)); rank descending and favor highest scores.",
+      "best_suited_for": "Diversified equity factor portfolios.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Cross-Sectional Low Risk",
+      "definition": "A factor strategy favoring securities with lower estimated risk than peers.",
+      "formula_or_rules": "RiskScore may combine volatility and beta; rank ascending and favor lowest-risk securities.",
+      "best_suited_for": "Defensive systematic equity portfolios.",
+      "category": "defensive"
+    },
+    {
+      "strategy_name": "Cross-Sectional Composite Factor",
+      "definition": "A general multi-factor strategy ranking assets using several normalized characteristics.",
+      "formula_or_rules": "Composite_i=sum(w_f*z_f,i); select highest-ranked assets and optionally short lowest-ranked under exposure constraints.",
+      "best_suited_for": "Large diversified universes with multiple independent predictive factors.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Trend Breakout Ensemble",
+      "definition": "A strategy combining multiple breakout horizons rather than relying on one channel length.",
+      "formula_or_rules": "For horizons h, Signal_h=+1 on upside breakout, -1 on downside breakout, otherwise prior/neutral state; aggregate Signal=sum(w_h*Signal_h).",
+      "best_suited_for": "Diversified trend systems seeking robustness across horizons.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Momentum Ensemble",
+      "definition": "A strategy combining several momentum definitions into one signal.",
+      "formula_or_rules": "Composite=sum(w_i*z(MomentumIndicator_i)), using indicators such as trailing return, ROC and MACD; trade by composite sign/rank.",
+      "best_suited_for": "Markets where no single momentum indicator is consistently dominant.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Mean Reversion Ensemble",
+      "definition": "A contrarian strategy requiring agreement among several overextension measures.",
+      "formula_or_rules": "Composite=sum(w_i*z(ReversionIndicator_i)); enter when composite exceeds positive/negative extreme thresholds and regime filter permits.",
+      "best_suited_for": "Range-bound markets where combining signals reduces false entries.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Adaptive Trend Following",
+      "definition": "A trend strategy adjusting lookback or smoothing according to observed market conditions.",
+      "formula_or_rules": "Select/adapt trend horizon h_t using predefined volatility/efficiency rule; Signal=trend(P,h_t), with changes bounded to avoid instability.",
+      "best_suited_for": "Markets whose dominant trend horizon changes over time.",
+      "category": "trend_following"
+    },
+    {
+      "strategy_name": "Adaptive Mean Reversion",
+      "definition": "A reversion strategy adjusting its mean and entry thresholds according to recent volatility or estimated half-life.",
+      "formula_or_rules": "Estimate rolling equilibrium and volatility/half-life; EntryThreshold_t=k_t*sigma_t with k_t or lookback determined by bounded adaptive rule.",
+      "best_suited_for": "Mean-reverting markets with changing volatility or reversion speed.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Half-Life Mean Reversion",
+      "definition": "A mean-reversion strategy selecting holding periods and lookbacks from estimated reversion speed.",
+      "formula_or_rules": "Fit ΔX_t=a+b*X_(t-1)+epsilon; approximate half-life=-ln(2)/b when b<0. Use half-life to define lookback/exit horizon.",
+      "best_suited_for": "Stationary spreads with stable estimated reversion.",
+      "category": "statistical_arbitrage"
+    },
+    {
+      "strategy_name": "Hurst Exponent Regime",
+      "definition": "A strategy using estimated persistence to distinguish trending from mean-reverting behavior.",
+      "formula_or_rules": "Estimate H. H>0.5 suggests persistence, H<0.5 anti-persistence, H≈0.5 random-like behavior; activate predefined trend/reversion policy only beyond validated thresholds.",
+      "best_suited_for": "Research systems requiring statistical regime classification.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Autocorrelation Reversal",
+      "definition": "A short-horizon strategy exploiting statistically significant negative return autocorrelation.",
+      "formula_or_rules": "rho_1=Corr(r_t,r_(t-1)). When stable rho_1<0, position opposite sufficiently large prior return under predefined model.",
+      "best_suited_for": "Liquid series exhibiting persistent negative short-lag autocorrelation.",
+      "category": "mean_reversion"
+    },
+    {
+      "strategy_name": "Autocorrelation Momentum",
+      "definition": "A strategy exploiting statistically significant positive return autocorrelation.",
+      "formula_or_rules": "rho_1=Corr(r_t,r_(t-1)). When stable rho_1>0, position with sufficiently large prior return direction.",
+      "best_suited_for": "Markets exhibiting persistent short-lag return continuation.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Rolling Sharpe Rotation",
+      "definition": "A tactical allocation strategy ranking assets by recent risk-adjusted performance.",
+      "formula_or_rules": "Sharpe_i=(mean(r_i)-r_f)/std(r_i) over lookback. Rank assets and allocate to highest positive scores.",
+      "best_suited_for": "Multi-asset universes where recent risk-adjusted leadership persists.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Calmar Rotation",
+      "definition": "A tactical strategy ranking assets by return relative to maximum drawdown.",
+      "formula_or_rules": "Calmar=AnnualizedReturn/abs(MaxDrawdown). Allocate to assets with strongest positive Calmar scores under liquidity/risk filters.",
+      "best_suited_for": "Multi-asset portfolios emphasizing drawdown-adjusted performance.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Trend with Drawdown Filter",
+      "definition": "A trend strategy reducing exposure when realized drawdown exceeds a predefined risk threshold.",
+      "formula_or_rules": "BaseSignal=trend rule; Drawdown=Equity/RunningPeak-1. Scale or disable exposure when Drawdown breaches predetermined limits.",
+      "best_suited_for": "Systematic portfolios requiring explicit loss-state controls.",
+      "category": "risk_overlay"
+    },
+    {
+      "strategy_name": "Volatility Circuit Breaker",
+      "definition": "A risk overlay reducing or disabling positions during abnormally high volatility.",
+      "formula_or_rules": "If ForecastVol or realized-vol percentile > threshold, multiply exposure by defensive scale <=1 or set exposure to zero according to policy.",
+      "best_suited_for": "Strategies vulnerable to disorderly high-volatility regimes.",
+      "category": "risk_overlay"
+    },
+    {
+      "strategy_name": "Drawdown Circuit Breaker",
+      "definition": "A portfolio risk overlay reducing exposure after losses exceed predefined drawdown levels.",
+      "formula_or_rules": "Drawdown=PortfolioValue/RunningPeak-1. If Drawdown<=-D, apply predefined exposure reduction until recovery/re-entry condition.",
+      "best_suited_for": "Systematic portfolios requiring bounded loss escalation.",
+      "category": "risk_overlay"
+    },
+    {
+      "strategy_name": "Correlation Risk Overlay",
+      "definition": "A portfolio risk rule reducing gross exposure when diversification deteriorates and asset correlations rise.",
+      "formula_or_rules": "Estimate average or portfolio-implied correlation; reduce gross exposure when correlation exceeds predefined threshold.",
+      "best_suited_for": "Multi-asset portfolios vulnerable to correlation spikes.",
+      "category": "risk_overlay"
+    },
+    {
+      "strategy_name": "Liquidity Risk Overlay",
+      "definition": "A portfolio rule reducing position size when trading liquidity deteriorates.",
+      "formula_or_rules": "MaxPosition_i=min(base_size, k*ADV_i, risk_budget/(spread_or_impact_metric)); reduce/disable positions when liquidity metrics breach limits.",
+      "best_suited_for": "Strategies trading instruments with variable liquidity.",
+      "category": "risk_overlay"
+    },
+    {
+      "strategy_name": "Trend with Breadth Confirmation",
+      "definition": "A market trend strategy requiring broad constituent participation.",
+      "formula_or_rules": "RiskOn when IndexPrice>LongMA AND Breadth>threshold; reduce exposure when index trend lacks breadth confirmation.",
+      "best_suited_for": "Broad equity indexes where participation helps distinguish healthy from narrow trends.",
+      "category": "market_breadth"
+    },
+    {
+      "strategy_name": "Momentum with Breadth Confirmation",
+      "definition": "A momentum strategy requiring both index momentum and positive market breadth.",
+      "formula_or_rules": "Long when IndexMomentum>0 and BreadthScore>threshold; otherwise neutral/defensive.",
+      "best_suited_for": "Equity market timing where narrow rallies should be filtered.",
+      "category": "market_breadth"
+    },
+    {
+      "strategy_name": "Breakout with Breadth Confirmation",
+      "definition": "An index breakout strategy requiring a sufficient share of constituents to confirm the move.",
+      "formula_or_rules": "Enter index breakout only if constituent breakout/advance breadth exceeds predefined percentage.",
+      "best_suited_for": "Broad market breakouts where participation quality matters.",
+      "category": "market_breadth"
+    },
+    {
+      "strategy_name": "Relative Strength New High",
+      "definition": "A leadership strategy selecting securities simultaneously near price highs and relative-strength highs.",
+      "formula_or_rules": "Require Price/52WeekHigh >= threshold and RelativeStrength versus benchmark at or near N-day high.",
+      "best_suited_for": "Strong leadership equities in favorable market regimes.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Fundamental Momentum",
+      "definition": "A strategy favoring companies showing broad recent improvement in fundamental measures.",
+      "formula_or_rules": "Composite standardized change in metrics such as revenue growth, earnings growth, margins and analyst estimates; rank descending.",
+      "best_suited_for": "Equity portfolios seeking improving business fundamentals rather than price momentum alone.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Earnings Quality Momentum",
+      "definition": "A strategy favoring companies with improving earnings while requiring strong cash-flow support.",
+      "formula_or_rules": "Composite=z(EarningsGrowth)-z(Accruals)+z(CashFlowGrowth); favor high scores.",
+      "best_suited_for": "Growth portfolios seeking to reduce exposure to low-quality accounting earnings.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Free Cash Flow Growth",
+      "definition": "A fundamental growth strategy favoring companies with expanding free cash flow.",
+      "formula_or_rules": "FCFGrowth=FCF_t/abs(FCF_(t-k))-1 when economically meaningful; require positive current FCF and rank persistent growth.",
+      "best_suited_for": "Cash-generative companies with improving fundamentals.",
+      "category": "growth"
+    },
+    {
+      "strategy_name": "Return on Assets Quality",
+      "definition": "A profitability strategy ranking companies by income generated from their asset base.",
+      "formula_or_rules": "ROA=NetIncome/AverageTotalAssets. Favor persistently high positive ROA.",
+      "best_suited_for": "Cross-sectional equity quality portfolios.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Cash Return on Assets",
+      "definition": "A quality strategy emphasizing operating cash generation relative to assets.",
+      "formula_or_rules": "CashROA=OperatingCashFlow/AverageTotalAssets. Rank descending.",
+      "best_suited_for": "Fundamental portfolios where cash profitability is preferred to accrual earnings.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Net Debt to EBITDA Quality",
+      "definition": "A balance-sheet quality strategy favoring companies with manageable leverage.",
+      "formula_or_rules": "NetDebt=Debt-Cash; Leverage=NetDebt/EBITDA. Rank lower leverage as higher quality subject to sector comparability.",
+      "best_suited_for": "Fundamental equity portfolios emphasizing financial resilience.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Interest Coverage Quality",
+      "definition": "A financial-strength strategy favoring companies able to comfortably service debt interest.",
+      "formula_or_rules": "InterestCoverage=EBIT/InterestExpense. Favor high positive coverage ratios.",
+      "best_suited_for": "Equity and credit selection where debt-service capacity matters.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Altman Z-Score Quality",
+      "definition": "A financial-distress screening strategy using the Altman Z-score or appropriate variant.",
+      "formula_or_rules": "Classic public-manufacturer form: Z=1.2X1+1.4X2+3.3X3+0.6X4+1.0X5, with Xi defined from working capital, retained earnings, EBIT, market equity/liabilities and sales/assets.",
+      "best_suited_for": "Screening for financial distress risk where the model specification is applicable.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Low Price to Free Cash Flow",
+      "definition": "A value strategy favoring companies inexpensive relative to free cash flow.",
+      "formula_or_rules": "P/FCF=MarketCapitalization/FreeCashFlow. Rank profitable positive-FCF firms ascending.",
+      "best_suited_for": "Value portfolios emphasizing cash economics.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Enterprise Value to Sales",
+      "definition": "A valuation strategy comparing total enterprise value with revenue.",
+      "formula_or_rules": "EV/Sales=(MarketCap+Debt-Cash)/Revenue. Rank comparable companies ascending, preferably with margin/quality filters.",
+      "best_suited_for": "Cross-company valuation when capital structures differ.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Book-to-Market",
+      "definition": "A classic value factor favoring companies with high book equity relative to market capitalization.",
+      "formula_or_rules": "B/M=BookEquity/MarketCapitalization. Rank descending.",
+      "best_suited_for": "Diversified systematic equity value portfolios.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "EBIT to Enterprise Value",
+      "definition": "A value strategy ranking companies by operating earnings relative to enterprise value.",
+      "formula_or_rules": "EarningsYield=EBIT/EnterpriseValue. Rank descending.",
+      "best_suited_for": "Systematic value portfolios comparing firms across capital structures.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Composite Value",
+      "definition": "A value strategy combining several valuation ratios to reduce dependence on one accounting measure.",
+      "formula_or_rules": "ValueScore=mean(z(E/P),z(B/P),z(FCF/P),z(Sales/EV)) after winsorization and consistent higher-is-cheaper signs.",
+      "best_suited_for": "Broad equity value portfolios.",
+      "category": "value"
+    },
+    {
+      "strategy_name": "Composite Quality",
+      "definition": "A quality strategy combining profitability, balance-sheet strength and earnings-quality metrics.",
+      "formula_or_rules": "QualityScore=sum(w_i*z(metric_i)) with signs standardized so higher indicates better quality.",
+      "best_suited_for": "Diversified equity quality portfolios.",
+      "category": "quality"
+    },
+    {
+      "strategy_name": "Composite Momentum",
+      "definition": "A momentum strategy combining returns across multiple lookback horizons while optionally excluding the most recent period.",
+      "formula_or_rules": "MomentumScore=sum(w_h*z(Return_h)), often excluding latest month for medium-term cross-sectional momentum.",
+      "best_suited_for": "Broad equity or asset universes.",
+      "category": "momentum"
+    },
+    {
+      "strategy_name": "Composite Defensive",
+      "definition": "A defensive factor strategy combining low volatility, low beta and balance-sheet quality.",
+      "formula_or_rules": "DefensiveScore=-w1*z(Volatility)-w2*z(Beta)+w3*z(Quality). Rank descending.",
+      "best_suited_for": "Equity portfolios prioritizing resilience.",
+      "category": "defensive"
+    },
+    {
+      "strategy_name": "Factor Momentum",
+      "definition": "A tactical strategy allocating toward equity factors with stronger recent returns.",
+      "formula_or_rules": "Compute momentum for factor portfolios; overweight factors with strongest positive lookback performance.",
+      "best_suited_for": "Multi-factor portfolios where factor leadership persists.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Factor Rotation",
+      "definition": "A tactical allocation strategy dynamically changing weights among value, momentum, quality, size, defensive or other factors.",
+      "formula_or_rules": "Rank factors by predefined composite regime/performance score and allocate according to ranks subject to diversification limits.",
+      "best_suited_for": "Systematic multi-factor portfolios.",
+      "category": "tactical_allocation"
+    },
+    {
+      "strategy_name": "Small-Cap Size Factor",
+      "definition": "A cross-sectional strategy favoring smaller companies relative to larger companies.",
+      "formula_or_rules": "Size=MarketCapitalization. Rank ascending and favor smaller eligible firms subject to liquidity and quality constraints.",
+      "best_suited_for": "Diversified equity factor portfolios able to tolerate higher small-cap risk and trading costs.",
+      "category": "factor"
+    },
+    {
+      "strategy_name": "Size and Value",
+      "definition": "A multi-factor strategy favoring smaller companies that also trade at inexpensive valuations.",
+      "formula_or_rules": "Composite=-z(MarketCap)+z(ValueScore); rank descending.",
+      "best_suited_for": "Diversified equity portfolios seeking small-value exposure.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Size and Momentum",
+      "definition": "A strategy favoring smaller companies with strong price momentum.",
+      "formula_or_rules": "Composite=-z(MarketCap)+z(MomentumScore), with explicit liquidity constraints.",
+      "best_suited_for": "Liquid small- and mid-cap universes.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Quality at a Reasonable Price",
+      "definition": "A fundamental strategy seeking high-quality companies without paying extreme valuations.",
+      "formula_or_rules": "Composite=w_q*z(Quality)+w_v*z(Value), or screen high Quality then require valuation below predefined threshold.",
+      "best_suited_for": "Long-term fundamental equity portfolios.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Growth at a Reasonable Price Composite",
+      "definition": "A systematic GARP strategy balancing growth, quality and valuation.",
+      "formula_or_rules": "Composite=w_g*z(Growth)+w_q*z(Quality)+w_v*z(Value), with valuation sign standardized.",
+      "best_suited_for": "Growth-oriented equity portfolios seeking valuation discipline.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Trend Quality Composite",
+      "definition": "A stock-selection strategy requiring both strong price trend and strong company fundamentals.",
+      "formula_or_rules": "Composite=w_t*z(TrendStrength)+w_q*z(QualityScore); rank descending.",
+      "best_suited_for": "Long-only equity portfolios seeking technically and fundamentally strong companies.",
+      "category": "multi_factor"
+    },
+    {
+      "strategy_name": "Momentum Quality Value Composite",
+      "definition": "A diversified stock-selection strategy combining momentum, quality and valuation.",
+      "formula_or_rules": "Composite=w_m*z(Momentum)+w_q*z(Quality)+w_v*z(Value); rank and apply exposure constraints.",
+      "best_suited_for": "Broad systematic equity portfolios.",
+      "category": "multi_factor"
+    }
+  ]
+}

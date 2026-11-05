@@ -13,7 +13,7 @@ from backend.app.stacks.strategy_candidate_sandbox.training_candidate_contract i
 
 
 def test_candidate_contract_is_deterministic() -> None:
-    first = build_training_candidate_contract(
+    first = build_training_candidate_contract(strategy_name="modern_contract_test", 
         decision_rule=(
             "moving_average_crossover"
         ),
@@ -23,7 +23,7 @@ def test_candidate_contract_is_deterministic() -> None:
         created_from="qualification",
     )
 
-    second = build_training_candidate_contract(
+    second = build_training_candidate_contract(strategy_name="modern_contract_test", 
         decision_rule=(
             "moving_average_crossover"
         ),
@@ -47,13 +47,13 @@ def test_candidate_contract_is_deterministic() -> None:
 
 
 def test_candidate_change_produces_new_identity() -> None:
-    first = build_training_candidate_contract(
+    first = build_training_candidate_contract(strategy_name="modern_contract_test", 
         short_lookback_rows=5,
         long_lookback_rows=20,
         minimum_signal_strength=0.10,
     )
 
-    second = build_training_candidate_contract(
+    second = build_training_candidate_contract(strategy_name="modern_contract_test", 
         short_lookback_rows=8,
         long_lookback_rows=30,
         minimum_signal_strength=0.10,
@@ -71,7 +71,7 @@ def test_candidate_change_produces_new_identity() -> None:
 
 
 def test_candidate_contract_is_immutable() -> None:
-    candidate = build_training_candidate_contract()
+    candidate = build_training_candidate_contract(strategy_name="modern_contract_test", )
 
     assert isinstance(
         candidate,
@@ -88,7 +88,7 @@ def test_candidate_contract_rejects_invalid_windows() -> None:
     with pytest.raises(
         ValueError
     ):
-        build_training_candidate_contract(
+        build_training_candidate_contract(strategy_name="modern_contract_test", 
             short_lookback_rows=20,
             long_lookback_rows=5,
         )
@@ -96,7 +96,7 @@ def test_candidate_contract_rejects_invalid_windows() -> None:
     with pytest.raises(
         ValueError
     ):
-        build_training_candidate_contract(
+        build_training_candidate_contract(strategy_name="modern_contract_test", 
             short_lookback_rows=1,
             long_lookback_rows=20,
         )
@@ -106,21 +106,21 @@ def test_candidate_contract_rejects_invalid_strength() -> None:
     with pytest.raises(
         ValueError
     ):
-        build_training_candidate_contract(
+        build_training_candidate_contract(strategy_name="modern_contract_test", 
             minimum_signal_strength=-0.1
         )
 
     with pytest.raises(
         ValueError
     ):
-        build_training_candidate_contract(
+        build_training_candidate_contract(strategy_name="modern_contract_test", 
             minimum_signal_strength=1.1
         )
 
 
 def test_validator_detects_candidate_tampering() -> None:
     candidate = (
-        build_training_candidate_contract(
+        build_training_candidate_contract(strategy_name="modern_contract_test", 
             short_lookback_rows=5,
             long_lookback_rows=20,
             minimum_signal_strength=0.25,
@@ -149,7 +149,7 @@ def test_validator_detects_candidate_tampering() -> None:
 
 def test_validator_rejects_extra_identity_fields() -> None:
     candidate = (
-        build_training_candidate_contract()
+        build_training_candidate_contract(strategy_name="modern_contract_test", )
         .to_dict()
     )
 

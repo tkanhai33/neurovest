@@ -160,6 +160,8 @@ def test_controlled_local_registration_and_login() -> None:
         json={
             "email": "qualification@example.com",
             "password": "qualification-password-123",
+            "terms_accepted": True,
+            "terms_version": "neurovest-beta-terms-2026-10-09-v1",
         },
     )
 

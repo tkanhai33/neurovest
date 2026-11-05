@@ -1415,6 +1415,34 @@ NODE_ARCHITECTURE.update(
     }
 )
 
+# Explicit ownership of subsequently introduced graph nodes.
+# Declaration only; no synthetic events or activations.
+NODE_ARCHITECTURE.update(
+{'frontend-allocation-paper-evaluations-proxy': {'layer': 'L6', 'stack': 'frontend_proxy'},
+ 'frontend_admin_audit': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_admin_support_message': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_admin_support_ticket_detail': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_admin_support_tickets': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_chat_training_chip': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_developer_chat_statistics': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_developer_learning_workspace': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_learning_summary': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_news_intelligence': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_portfolio_performance_history': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_snaptrade': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_snaptrade_balances': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_snaptrade_portfolio': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_strategy_library': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_strategy_library_enabled': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_user_support_message': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_user_support_ticket_create': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_user_support_ticket_detail': {'layer': 'L6', 'stack': 'frontend'},
+ 'frontend_user_support_tickets': {'layer': 'L6', 'stack': 'frontend'},
+ 'qualification': {'layer': 'L7', 'stack': 'tests'},
+ 'strategy_activation': {'layer': 'L2', 'stack': 'strategy'}}
+)
+
+
 class CognitiveGraphState:
     def __init__(self) -> None:
         self._lock = RLock()

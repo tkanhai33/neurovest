@@ -1,0 +1,39 @@
+NEUROVEST SYSTEM NODE MAP
+
+Repository
+│
+├── backend/
+│   ├── L0 External Adapters
+│   ├── L1 Security/Auth/Safety
+│   ├── L2 Domain Logic
+│   ├── L3 Service/Facade
+│   ├── L4 Runtime Orchestration
+│   ├── L5 API Presentation
+│   └── L7 Tests
+│
+├── frontend/
+│   └── L6 User Interface
+│
+├── runtime/
+│   └── strategy_candidate_sandbox/
+│       ├── historical replay artifacts
+│       ├── strategy candidate sandbox artifacts
+│       ├── Qwen read-only certification artifacts
+│       ├── rollup certifications
+│       ├── handoff refreshes
+│       └── terminal archive summary
+│
+├── scripts/
+│   ├── phase controllers
+│   ├── audit generators
+│   ├── repair/check controllers
+│   └── handoff generators
+│
+├── audit/
+│   ├── architecture audits
+│   ├── topology audits
+│   ├── safety audits
+│   └── certification evidence
+│
+└── handoff/
+    └── generated master architecture handoff package

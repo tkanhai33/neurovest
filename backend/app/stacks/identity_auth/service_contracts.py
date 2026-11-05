@@ -31,6 +31,8 @@ class AuthenticationDependencyError(
 class RegistrationCommand:
     email: str
     password: str
+    terms_accepted: bool
+    terms_version: str
     display_name: str | None = None
 
 

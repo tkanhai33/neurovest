@@ -44,6 +44,8 @@ async def test_registration_with_display_name():
 
     # Test registration with display name
     command = RegistrationCommand(
+        terms_accepted=True,
+        terms_version='neurovest-beta-terms-2026-10-09-v1',
         email="test@example.com",
         password="securepassword123",
         display_name="John Doe"
@@ -55,7 +57,8 @@ async def test_registration_with_display_name():
     mock_user_repo.create.assert_called_once_with(
         email="test@example.com",
         password_hash="hashed_password",
-        display_name="John Doe"
+        display_name="John Doe",
+        terms_version="neurovest-beta-terms-2026-10-09-v1",
     )
 
     assert result.user_id == "test-user-id"
@@ -93,6 +96,8 @@ async def test_registration_with_trimmed_display_name():
 
     # Test registration with display name that has surrounding whitespace
     command = RegistrationCommand(
+        terms_accepted=True,
+        terms_version='neurovest-beta-terms-2026-10-09-v1',
         email="test@example.com",
         password="securepassword123",
         display_name="  John Doe  "
@@ -104,7 +109,8 @@ async def test_registration_with_trimmed_display_name():
     mock_user_repo.create.assert_called_once_with(
         email="test@example.com",
         password_hash="hashed_password",
-        display_name="John Doe"
+        display_name="John Doe",
+        terms_version="neurovest-beta-terms-2026-10-09-v1",
     )
 
     assert result.user_id == "test-user-id"
@@ -130,6 +136,8 @@ async def test_registration_with_empty_display_name():
 
     # Test registration with empty display name
     command = RegistrationCommand(
+        terms_accepted=True,
+        terms_version='neurovest-beta-terms-2026-10-09-v1',
         email="test@example.com",
         password="securepassword123",
         display_name=""
@@ -163,6 +171,8 @@ async def test_registration_with_long_display_name():
     long_display_name = "a" * 101  # 101 characters
 
     command = RegistrationCommand(
+        terms_accepted=True,
+        terms_version='neurovest-beta-terms-2026-10-09-v1',
         email="test@example.com",
         password="securepassword123",
         display_name=long_display_name
@@ -204,6 +214,8 @@ async def test_registration_without_display_name():
 
     # Test registration without display name (None)
     command = RegistrationCommand(
+        terms_accepted=True,
+        terms_version='neurovest-beta-terms-2026-10-09-v1',
         email="test@example.com",
         password="securepassword123",
         display_name=None
@@ -215,7 +227,8 @@ async def test_registration_without_display_name():
     mock_user_repo.create.assert_called_once_with(
         email="test@example.com",
         password_hash="hashed_password",
-        display_name=None
+        display_name=None,
+        terms_version="neurovest-beta-terms-2026-10-09-v1",
     )
 
     assert result.user_id == "test-user-id"

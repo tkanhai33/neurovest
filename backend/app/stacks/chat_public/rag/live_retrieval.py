@@ -21,6 +21,10 @@ from backend.app.stacks.chat_public.rag import (
     RetrievalResult,
 )
 
+from backend.app.stacks.chat_public.rag.strategy_library_truth import (
+    build_strategy_library_truth_prompt,
+)
+
 
 CANONICAL_INDEX_PATH = Path(
     "runtime/cognitive_engine/rag/neuro_knowledge_index.json"
@@ -28,6 +32,7 @@ CANONICAL_INDEX_PATH = Path(
 
 LIVE_RAG_TOP_K = 5
 LIVE_RAG_CANDIDATE_TOP_K = 12
+LIVE_RAG_MAX_RESULTS_PER_SOURCE = 2
 LIVE_RAG_MINIMUM_SCORE = 0.18
 
 LIVE_RAG_MAX_CHUNK_CHARACTERS = 1_200
@@ -44,13 +49,17 @@ class LiveRetrievalBundle:
     prompt_section: str
     citations: tuple[dict[str, Any], ...]
     error: str | None = None
+    authoritative_grounding: bool = False
 
     @property
     def grounded(
         self,
     ) -> bool:
-        return bool(
-            self.results
+        return (
+            bool(
+                self.results
+            )
+            or self.authoritative_grounding
         )
 
 
@@ -210,13 +219,44 @@ def retrieve_live_evidence(
     requested: bool,
     index: LocalKnowledgeIndex | None = None,
 ) -> LiveRetrievalBundle:
-    if not requested:
+    strategy_truth_section = (
+        build_strategy_library_truth_prompt(
+            query
+        )
+    )
+
+    authoritative_grounding = bool(
+        strategy_truth_section
+    )
+
+    effective_requested = (
+        requested
+        or authoritative_grounding
+    )
+
+    if not effective_requested:
         return LiveRetrievalBundle(
             requested=False,
             results=(),
             prompt_section="",
             citations=(),
             error=None,
+            authoritative_grounding=False,
+        )
+
+    if (
+        authoritative_grounding
+        and not requested
+    ):
+        return LiveRetrievalBundle(
+            requested=True,
+            results=(),
+            prompt_section=(
+                strategy_truth_section
+            ),
+            citations=(),
+            error=None,
+            authoritative_grounding=True,
         )
 
     try:
@@ -240,26 +280,65 @@ def retrieve_live_evidence(
             ),
         )
 
-        filtered = [
-            result
-            for result in candidates
-            if _is_safe_result(
+        filtered = []
+        source_counts: dict[str, int] = {}
+
+        for result in candidates:
+            if not _is_safe_result(
+                result
+            ):
+                continue
+
+            source_count = source_counts.get(
+                result.source_path,
+                0,
+            )
+
+            if (
+                source_count
+                >= LIVE_RAG_MAX_RESULTS_PER_SOURCE
+            ):
+                continue
+
+            filtered.append(
                 result
             )
-        ][
-            :LIVE_RAG_TOP_K
-        ]
+
+            source_counts[
+                result.source_path
+            ] = source_count + 1
+
+            if len(
+                filtered
+            ) >= LIVE_RAG_TOP_K:
+                break
 
         results = tuple(
             filtered
         )
 
+        semantic_prompt_section = (
+            build_retrieval_prompt_section(
+                results
+            )
+        )
+
+        prompt_sections = [
+            section
+            for section
+            in (
+                strategy_truth_section,
+                semantic_prompt_section,
+            )
+            if section
+        ]
+
         return LiveRetrievalBundle(
             requested=True,
             results=results,
             prompt_section=(
-                build_retrieval_prompt_section(
-                    results
+                "\n\n".join(
+                    prompt_sections
                 )
             ),
             citations=tuple(
@@ -269,17 +348,25 @@ def retrieve_live_evidence(
                 for result in results
             ),
             error=None,
+            authoritative_grounding=(
+                authoritative_grounding
+            ),
         )
 
     except Exception as error:
         return LiveRetrievalBundle(
             requested=True,
             results=(),
-            prompt_section="",
+            prompt_section=(
+                strategy_truth_section
+            ),
             citations=(),
             error=(
                 f"{type(error).__name__}: "
                 f"{error}"
+            ),
+            authoritative_grounding=(
+                authoritative_grounding
             ),
         )
 

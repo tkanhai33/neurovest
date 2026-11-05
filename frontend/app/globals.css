@@ -1725,3 +1725,792 @@ select:focus-visible {
   }
 }
 
+/* NEUROVEST UNIFIED WORKSPACE PAGE CONTRACT */
+
+.nv-workspace-page {
+  display: grid;
+  gap: var(--nv-space-5);
+  min-width: 0;
+}
+
+.nv-workspace-page-header,
+.nv-workspace-context,
+.nv-workspace-metrics,
+.nv-workspace-primary {
+  min-width: 0;
+}
+
+.nv-workspace-status-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--nv-border-soft);
+  border-radius: var(--nv-radius-lg);
+  background: var(--nv-bg-elevated);
+  box-shadow: var(--nv-shadow-panel);
+}
+
+.nv-workspace-status-strip > .nv-panel {
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.nv-workspace-status-strip > .nv-panel + .nv-panel {
+  border-top: 1px solid var(--nv-border-soft);
+}
+
+.nv-workspace-status-item {
+  padding: var(--nv-space-5);
+}
+
+.nv-workspace-status-value {
+  margin-top: var(--nv-space-2);
+  color: var(--nv-text-primary);
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  font-weight: 850;
+  letter-spacing: -0.025em;
+}
+
+.nv-workspace-status-description {
+  margin-top: var(--nv-space-2);
+  color: var(--nv-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.nv-workspace-navigation {
+  display: grid;
+  gap: var(--nv-space-5);
+  border: 1px solid var(--nv-border-soft);
+  border-radius: var(--nv-radius-lg);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(12, 22, 40, 0.94),
+      rgba(5, 12, 25, 0.96)
+    );
+  padding: var(--nv-space-5);
+  box-shadow: var(--nv-shadow-panel);
+}
+
+.nv-workspace-section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--nv-space-4);
+}
+
+.nv-workspace-footer {
+  border-top: 1px solid var(--nv-border-soft);
+  padding-top: var(--nv-space-4);
+}
+
+.nv-workspace-policy-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--nv-space-3);
+  color: var(--nv-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.nv-workspace-policy-line > :first-child {
+  color: var(--nv-text-primary);
+  font-weight: 800;
+}
+
+/* ADMIN FINTECH DIRECTORY */
+
+.nv-admin-directory {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--nv-space-3);
+}
+
+.nv-admin-directory-link {
+  display: block;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.nv-admin-directory-card {
+  height: 100%;
+  padding: var(--nv-space-5);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.nv-admin-directory-link:hover .nv-admin-directory-card {
+  transform: translateY(-2px);
+  border-color: rgba(103, 232, 249, 0.25);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.32);
+}
+
+.nv-admin-directory-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--nv-space-3);
+}
+
+.nv-admin-directory-arrow {
+  color: var(--nv-text-subtle);
+  font-size: 1rem;
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.nv-admin-directory-link:hover .nv-admin-directory-arrow {
+  transform: translateX(3px);
+  color: var(--nv-accent);
+}
+
+.nv-admin-directory-title {
+  margin-top: var(--nv-space-5);
+  color: var(--nv-text-primary);
+  font-size: 1.05rem;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+}
+
+.nv-admin-directory-description {
+  margin-top: var(--nv-space-2);
+  color: var(--nv-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.nv-admin-directory-capability {
+  margin-top: var(--nv-space-5);
+  border-top: 1px solid var(--nv-border-soft);
+  padding-top: var(--nv-space-3);
+  color: var(--nv-text-subtle);
+  font-size: 0.625rem;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.nv-admin-control-summary {
+  display: grid;
+  gap: var(--nv-space-5);
+  padding: var(--nv-space-5);
+}
+
+.nv-admin-control-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nv-space-2);
+}
+
+@media (min-width: 768px) {
+  .nv-workspace-status-strip {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .nv-workspace-status-strip > .nv-panel + .nv-panel {
+    border-top: 0;
+    border-left: 1px solid var(--nv-border-soft);
+  }
+
+  .nv-admin-directory {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1180px) {
+  .nv-admin-directory {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .nv-admin-control-summary {
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto;
+    align-items: center;
+  }
+
+  .nv-admin-control-badges {
+    max-width: 20rem;
+    justify-content: flex-end;
+  }
+}
+
+/* NEUROVEST USER FINTECH WORKSPACE */
+
+.nv-user-dashboard {
+  position: relative;
+}
+
+.nv-user-context-stack,
+.nv-user-metric-section,
+.nv-user-primary-workspace,
+.nv-user-paper-activity {
+  display: grid;
+  gap: var(--nv-space-4);
+  min-width: 0;
+}
+
+.nv-user-primary-workspace {
+  gap: var(--nv-space-5);
+}
+
+.nv-user-workspace-links {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--nv-space-2);
+}
+
+.nv-user-workspace-link {
+  display: flex;
+  min-height: 3.75rem;
+  align-items: center;
+  border: 1px solid var(--nv-border-soft);
+  border-radius: var(--nv-radius-md);
+  background: rgba(7, 16, 31, 0.72);
+  padding:
+    var(--nv-space-3)
+    var(--nv-space-4);
+  color: var(--nv-text-muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.nv-user-workspace-link:hover,
+.nv-user-workspace-link:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(103, 232, 249, 0.32);
+  background: rgba(14, 28, 49, 0.9);
+  color: var(--nv-text-primary);
+  outline: none;
+}
+
+#portfolio-summary,
+#portfolio-workspace,
+#paper-activity,
+#account-protection {
+  scroll-margin-top: 7rem;
+}
+
+.nv-user-primary-workspace > *,
+.nv-user-paper-activity > * {
+  min-width: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+@media (min-width: 700px) {
+  .nv-user-workspace-links {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1120px) {
+  .nv-user-workspace-links {
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* NEUROVEST USER INVESTING WORKSPACES */
+
+.nv-user-investing-navigation {
+  display: grid;
+  gap: var(--nv-space-4);
+}
+
+.nv-user-investing-navigation-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--nv-space-4);
+}
+
+.nv-user-investing-tabs {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.nv-user-investing-tab {
+  display: grid;
+  min-width: 0;
+  gap: 0.35rem;
+  border: 1px solid var(--nv-border-soft);
+  border-radius: var(--nv-radius-md);
+  background: rgba(5, 13, 26, 0.72);
+  padding: 0.9rem 1rem;
+  color: var(--nv-text-muted);
+  text-align: left;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.nv-user-investing-tab > span {
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.nv-user-investing-tab > small {
+  display: none;
+  color: var(--nv-text-subtle);
+  font-size: 0.68rem;
+  line-height: 1.5;
+}
+
+.nv-user-investing-tab:hover,
+.nv-user-investing-tab:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(103, 232, 249, 0.3);
+  color: var(--nv-text-primary);
+  outline: none;
+}
+
+.nv-user-investing-tab-active {
+  border-color: rgba(103, 232, 249, 0.5);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(8, 145, 178, 0.18),
+      rgba(14, 25, 44, 0.9)
+    );
+  color: rgb(207, 250, 254);
+  box-shadow:
+    inset 0 0 0 1px rgba(103, 232, 249, 0.08),
+    0 12px 35px rgba(0, 0, 0, 0.2);
+}
+
+.nv-user-investing-workspace,
+.nv-user-role-workspace,
+.nv-user-quick-view {
+  display: grid;
+  min-width: 0;
+  gap: var(--nv-space-5);
+}
+
+.nv-user-workspace-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--nv-space-4);
+}
+
+.nv-user-quick-summary {
+  display: grid;
+  min-width: 0;
+  gap: var(--nv-space-4);
+  border: 1px solid var(--nv-border-soft);
+  border-radius: var(--nv-radius-lg);
+  background:
+    radial-gradient(
+      circle at 15% 0%,
+      rgba(34, 211, 238, 0.13),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(12, 23, 42, 0.97),
+      rgba(4, 11, 23, 0.98)
+    );
+  padding: clamp(1.25rem, 3vw, 2rem);
+  box-shadow: var(--nv-shadow-panel);
+}
+
+.nv-user-quick-value {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.nv-user-portfolio-total {
+  margin-top: 0.65rem;
+  color: var(--nv-text-primary);
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  font-weight: 950;
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+}
+
+.nv-user-quick-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nv-space-2);
+  margin-top: var(--nv-space-4);
+}
+
+.nv-user-quick-briefing {
+  min-width: 0;
+}
+
+.nv-user-quick-metrics {
+  min-width: 0;
+}
+
+.nv-user-quick-columns {
+  display: grid;
+  min-width: 0;
+  gap: var(--nv-space-5);
+}
+
+.nv-user-quick-columns > div {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  gap: var(--nv-space-4);
+}
+
+.nv-user-holdings-snapshot {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--nv-border-soft);
+  border-radius: var(--nv-radius-lg);
+  background: var(--nv-bg-elevated);
+}
+
+.nv-user-holding-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nv-space-4);
+  padding: 1rem 1.15rem;
+}
+
+.nv-user-holding-row + .nv-user-holding-row {
+  border-top: 1px solid var(--nv-border-soft);
+}
+
+.nv-user-holding-row > div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.nv-user-holding-row > div:last-child {
+  text-align: right;
+}
+
+.nv-user-holding-row strong {
+  color: var(--nv-text-primary);
+  font-size: 0.9rem;
+}
+
+.nv-user-holding-row span {
+  color: var(--nv-text-muted);
+  font-size: 0.72rem;
+}
+
+.nv-user-role-workspace > .mt-6,
+.nv-user-role-workspace > section.mt-6 {
+  margin-top: 0;
+}
+
+@media (min-width: 720px) {
+  .nv-user-investing-tabs {
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+  }
+
+  .nv-user-investing-tab > small {
+    display: block;
+  }
+}
+
+@media (min-width: 1120px) {
+  .nv-user-investing-tabs {
+    grid-template-columns:
+      repeat(7, minmax(0, 1fr));
+  }
+
+  .nv-user-quick-summary {
+    grid-template-columns:
+      minmax(0, 0.82fr)
+      minmax(22rem, 1.18fr);
+    align-items: stretch;
+  }
+
+  .nv-user-quick-columns {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+  }
+}
+
+/* NEUROVEST USER STRATEGY CATALOG */
+
+.nv-user-strategies {
+  display: grid;
+  min-width: 0;
+  gap: var(--nv-space-6);
+}
+
+.nv-user-strategy-catalog,
+.nv-user-strategy-history,
+.nv-user-strategy-inspector {
+  display: grid;
+  min-width: 0;
+  gap: var(--nv-space-4);
+}
+
+.nv-user-strategy-list {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr);
+  gap: var(--nv-space-3);
+}
+
+.nv-user-strategy-row {
+  display: grid;
+  gap: var(--nv-space-3);
+  padding: var(--nv-space-4);
+}
+
+.nv-user-strategy-row-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--nv-space-4);
+}
+
+.nv-user-strategy-name {
+  color: var(--nv-text-primary);
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.nv-user-strategy-usage-label,
+.nv-user-strategy-percentage {
+  margin-top: 0.35rem;
+  color: var(--nv-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.nv-user-strategy-count {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 0.1rem;
+  text-align: right;
+}
+
+.nv-user-strategy-count strong {
+  color: rgb(103, 232, 249);
+  font-size: 1.35rem;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.nv-user-strategy-count span {
+  color: var(--nv-text-subtle);
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.nv-csp-progress,
+.nv-user-strategy-progress {
+  display: block;
+  width: 100%;
+  height: 0.45rem;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(51, 65, 85, 0.68);
+}
+
+.nv-csp-progress::-webkit-progress-bar,
+.nv-user-strategy-progress::-webkit-progress-bar {
+  background: rgba(51, 65, 85, 0.68);
+}
+
+.nv-csp-progress::-webkit-progress-value,
+.nv-user-strategy-progress::-webkit-progress-value {
+  border-radius: 999px;
+  background: rgb(34, 211, 238);
+}
+
+.nv-csp-progress::-moz-progress-bar,
+.nv-user-strategy-progress::-moz-progress-bar {
+  border-radius: 999px;
+  background: rgb(34, 211, 238);
+}
+
+.nv-csp-progress-positive::-webkit-progress-value {
+  background: rgb(52, 211, 153);
+}
+
+.nv-csp-progress-positive::-moz-progress-bar {
+  background: rgb(52, 211, 153);
+}
+
+.nv-csp-progress-negative::-webkit-progress-value {
+  background: rgb(248, 113, 113);
+}
+
+.nv-csp-progress-negative::-moz-progress-bar {
+  background: rgb(248, 113, 113);
+}
+
+.nv-csp-progress-fuchsia::-webkit-progress-value {
+  background: rgb(232, 121, 249);
+}
+
+.nv-csp-progress-fuchsia::-moz-progress-bar {
+  background: rgb(232, 121, 249);
+}
+
+.nv-user-strategy-progress::-webkit-progress-value {
+  background:
+    linear-gradient(
+      90deg,
+      rgb(34, 211, 238),
+      rgb(167, 139, 250)
+    );
+}
+
+.nv-user-strategy-progress::-moz-progress-bar {
+  background: rgb(34, 211, 238);
+}
+
+.nv-allocation-colour-0 { background-color: #67e8f9; }
+.nv-allocation-colour-1 { background-color: #38bdf8; }
+.nv-allocation-colour-2 { background-color: #818cf8; }
+.nv-allocation-colour-3 { background-color: #a78bfa; }
+.nv-allocation-colour-4 { background-color: #c084fc; }
+.nv-allocation-colour-5 { background-color: #22d3ee; }
+
+.nv-user-strategy-empty {
+  padding: var(--nv-space-5);
+}
+
+.nv-user-strategy-empty-title {
+  color: var(--nv-text-primary);
+  font-weight: 900;
+}
+
+.nv-user-strategy-empty-description {
+  margin-top: 0.5rem;
+  max-width: 60rem;
+  color: var(--nv-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
+.nv-user-strategy-history-panel {
+  overflow: hidden;
+}
+
+.nv-user-strategy-history-table-wrap {
+  overflow-x: auto;
+}
+
+.nv-user-strategy-history-table {
+  width: 100%;
+  min-width: 42rem;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.nv-user-strategy-history-table th {
+  border-bottom: 1px solid var(--nv-border-soft);
+  padding: 0.85rem 1rem;
+  color: var(--nv-text-subtle);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.nv-user-strategy-history-table td {
+  border-bottom: 1px solid var(--nv-border-soft);
+  padding: 1rem;
+  color: var(--nv-text-muted);
+  font-size: 0.8rem;
+}
+
+.nv-user-strategy-history-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.nv-user-strategy-history-table strong {
+  color: var(--nv-text-primary);
+}
+
+@media (min-width: 760px) {
+  .nv-user-strategy-list {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1180px) {
+  .nv-user-strategy-list {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+}
+
+
+/* NEUROVEST USER DASHBOARD COMPACT HERO V1 */
+.nv-user-dashboard .nv-page-header {
+  padding:
+    clamp(
+      1.35rem,
+      2.7vw,
+      2.45rem
+    );
+}
+
+@media (max-width: 900px) {
+  .nv-user-dashboard .nv-page-header {
+    gap: 1.35rem;
+  }
+}
+
+/* NEUROVEST WORKSPACE GRID MIN-CONTENT CONTAINMENT V6
+   Prevent wide intrinsic children such as ticker tracks and dashboard
+   visualizations from expanding the workspace grid beyond its container. */
+.nv-workspace-page,
+.nv-workspace-primary,
+.nv-user-investing-workspace,
+.nv-user-quick-view {
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.nv-workspace-page > *,
+.nv-workspace-primary > *,
+.nv-user-investing-workspace > *,
+.nv-user-quick-view > * {
+  min-width: 0;
+  max-width: 100%;
+}
+

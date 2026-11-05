@@ -222,3 +222,76 @@ def test_wrapper_exposes_no_trading_methods(
     assert forbidden.isdisjoint(
         exposed
     )
+
+
+
+def test_internal_raw_client_bridge_supports_connection_service(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(
+        "SNAPTRADE_CLIENT_ID",
+        "test-client-id",
+    )
+
+    monkeypatch.setenv(
+        "SNAPTRADE_CONSUMER_KEY",
+        "test-consumer-key",
+    )
+
+    monkeypatch.setenv(
+        "SNAPTRADE_AUTH_MODE",
+        "commercial",
+    )
+
+    monkeypatch.delenv(
+        "SNAPTRADE_ENABLED",
+        raising=False,
+    )
+
+    monkeypatch.delenv(
+        "SNAPTRADE_EXTERNAL_READONLY_ENABLED",
+        raising=False,
+    )
+
+    wrapper = build_snaptrade_sdk_client()
+
+    raw_client = wrapper._client
+
+    assert hasattr(
+        raw_client,
+        "authentication",
+    )
+
+    assert hasattr(
+        raw_client,
+        "connections",
+    )
+
+    assert hasattr(
+        raw_client,
+        "account_information",
+    )
+
+    # The wrapper itself must still expose no direct trading API.
+    assert not hasattr(
+        wrapper,
+        "trading",
+    )
+
+    for forbidden in (
+        "place_order",
+        "submit_order",
+        "execute_order",
+        "cancel_order",
+        "replace_order",
+        "preview_order",
+    ):
+        assert not hasattr(
+            wrapper,
+            forbidden,
+        )
+
+    assert (
+        wrapper.descriptor.trading_exposed
+        is False
+    )

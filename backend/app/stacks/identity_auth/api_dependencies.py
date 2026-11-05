@@ -5,6 +5,16 @@ from collections.abc import (
 )
 from typing import Any
 
+import os
+from fastapi import Request
+
+from backend.app.stacks.chat_public import public_controls as public_controls_module
+from backend.app.stacks.chat_public.public_controls import (
+    AnonymousSlidingWindowLimiter,
+    PublicChatRateLimited,
+)
+
+
 from fastapi import (
     Depends,
     HTTPException,
@@ -55,6 +65,110 @@ from backend.app.stacks.identity_auth.runtime_adapter import (
 )
 
 
+
+
+_AUTH_LIMITER = AnonymousSlidingWindowLimiter(
+    limit=int(
+        os.getenv(
+            "NEUROVEST_AUTH_RATE_LIMIT",
+            "10",
+        )
+    ),
+    window_seconds=float(
+        os.getenv(
+            "NEUROVEST_AUTH_RATE_WINDOW_SECONDS",
+            "60",
+        )
+    ),
+)
+
+
+async def enforce_auth_rate_limit(
+    request: Request,
+) -> None:
+    """
+    Apply the authentication request limit by normalized client IP.
+
+    The exception type is resolved through the public-controls module
+    at runtime so test or development module reloads cannot produce a
+    stale exception-class reference.
+    """
+
+    client = "anonymous"
+
+    if (
+        request.client is not None
+        and request.client.host
+    ):
+        client = (
+            str(
+                request.client.host
+            ).strip()
+            or "anonymous"
+        )
+
+    # Separate public proxy traffic from direct clients.
+    # Untrusted forwarding headers are deliberately ignored.
+    # Aggregate public traffic gets a larger bounded allowance;
+    # direct clients retain the existing per-client limit.
+    if client in {"127.0.0.1", "::1"}:
+        aggregate_limit = int(
+            os.getenv("NEUROVEST_PUBLIC_AUTH_AGGREGATE_LIMIT", "300")
+        )
+        if aggregate_limit < 10 or aggregate_limit > 10000:
+            raise HTTPException(
+                status_code=503,
+                detail="Invalid authentication protection configuration",
+            )
+
+        from backend.app.stacks.chat_public.public_controls import (
+            AnonymousSlidingWindowLimiter,
+        )
+
+        aggregate = globals().get("_PUBLIC_AUTH_AGGREGATE_LIMITER")
+        if aggregate is None:
+            aggregate = AnonymousSlidingWindowLimiter(
+                limit=aggregate_limit,
+                window_seconds=60,
+            )
+            globals()["_PUBLIC_AUTH_AGGREGATE_LIMITER"] = aggregate
+
+        limiter = aggregate
+        limiter_client = "public_proxy_aggregate"
+    else:
+        limiter = _AUTH_LIMITER
+        limiter_client = client
+
+    try:
+        limiter.check(
+            limiter_client
+        )
+
+    except (
+        public_controls_module
+        .PublicChatRateLimited
+    ) as exc:
+        raise HTTPException(
+            status_code=(
+                status.HTTP_429_TOO_MANY_REQUESTS
+            ),
+            detail=(
+                "Too many authentication requests"
+            ),
+            headers={
+                "Retry-After": "60",
+            },
+        ) from exc
+
+
+
+def reset_auth_rate_limiter() -> None:
+    """Clear process-local authentication limiter state for tests."""
+
+    _AUTH_LIMITER.reset()
+
+
+
 bearer_scheme = HTTPBearer(
     auto_error=False
 )
@@ -93,6 +207,8 @@ async def get_login_api_service() -> AsyncIterator[
 
         yield login_service
 
+
+from backend.app.stacks.identity_auth.credential_generation import assert_token_generation
 
 async def require_authenticated_principal(
     credentials: (
@@ -182,7 +298,31 @@ async def require_authenticated_principal(
             },
         )
 
-    return principal
+    # F12-R3H: account-wide access-token invalidation
+    _f12_verified_principal = principal
+
+    _f12_owner = getattr(
+        _f12_verified_principal, "subject", None
+    )
+
+    _f12_issued_at = getattr(
+        _f12_verified_principal, "issued_at", None
+    )
+
+    if not isinstance(_f12_owner, str) or not _f12_owner:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid authentication credentials",
+        )
+
+    async with async_session() as _f12_db:
+        await assert_token_generation(
+            _f12_db,
+            user_id=_f12_owner,
+            claims=_f12_verified_principal.claims,
+        )
+
+    return _f12_verified_principal
 
 
 async def optional_logout_access_principal(

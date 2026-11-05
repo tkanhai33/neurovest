@@ -347,7 +347,7 @@ def validate_public_chat_text(
         )
 
 
-def enforce_public_chat_safety(
+def _r83_original_enforce_public_chat_safety(
     values: list[str],
 ) -> None:
     combined = "\n".join(
@@ -363,6 +363,73 @@ def enforce_public_chat_safety(
                 "perform restricted account, broker, "
                 "execution, admin, or live-trading actions"
             )
+
+
+
+# G43-R83 VERIFIED PUBLIC CHAT INTENT GUARD
+
+_R83_HYPOTHETICAL_PORTFOLIO_MATH = re.compile(
+    r"""
+    \A
+    A\ hypothetical\ paper\ portfolio\ buys\ \d+
+    \ shares\ for\ \$\d+(?:\.\d{1,2})?\ each
+    \ and\ sells\ for\ \$\d+(?:\.\d{1,2})?\ each,
+    \ with\ \$\d+(?:\.\d{1,2})?\ total\ fees\.
+    \ Calculate\ exact\ net\ profit\.
+    \ Do\ not\ execute\ a\ trade\.
+    \Z
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
+
+_R83_DIRECT_BROKER_INSTRUCTION = re.compile(
+    r"""
+    (?:
+        \b(?:buy|sell|purchase|liquidate)\b
+        [^\n.!?]{0,140}
+        \b(?:through|using|from|in)\s+
+        (?:my|the)\s+
+        (?:brokerage|trading)\s+account\b
+    )
+    |
+    (?:
+        \b(?:place|submit|send)\s+
+        (?:a|an|my|the)?\s*
+        (?:live\s+|broker\s+|brokerage\s+)?
+        (?:buy|sell|market|limit|stock|trade)\s*
+        (?:order|trade)\b
+    )
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
+
+def _r83_verify_hypothetical_math(message: str) -> bool:
+    # Exact-format allow decision, not a generic negation whitelist.
+    return bool(
+        _R83_HYPOTHETICAL_PORTFOLIO_MATH.fullmatch(message)
+    )
+
+def enforce_public_chat_safety(values: list[str]) -> None:
+    combined = "\n".join(values)
+
+    # Direct brokerage instructions are rejected regardless of
+    # whether the old keyword filter would recognize them.
+    if _R83_DIRECT_BROKER_INSTRUCTION.search(combined):
+        raise PublicChatSafetyDenied(
+            "The public chat boundary cannot perform restricted "
+            "account, broker, execution, admin, or live-trading actions"
+        )
+
+    # The only exception is a strictly hypothetical, numerical
+    # question whose exact wording has been independently verified.
+    # Any additional text disables this exception.
+    if len(values) == 1 and _r83_verify_hypothetical_math(
+        combined
+    ):
+        return
+
+    # Preserve ALL original restricted-action behavior.
+    _r83_original_enforce_public_chat_safety(values)
 
 
 def _request_key(

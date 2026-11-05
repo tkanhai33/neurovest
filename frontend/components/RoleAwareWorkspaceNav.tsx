@@ -55,6 +55,12 @@ const navigationItems: NavigationItem[] = [
     minimumRole: "user",
   },
   {
+    href: "/user/support",
+    label: "Support",
+    description: "Support tickets and conversations",
+    minimumRole: "user",
+  },
+  {
     href: "/user/settings",
     label: "Settings",
     description: "Account, security, billing, notifications, and support",

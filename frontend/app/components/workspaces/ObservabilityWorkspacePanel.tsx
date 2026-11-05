@@ -210,7 +210,7 @@ export default function ObservabilityWorkspacePanel() {
             ["Backend", backendStatus, "text-cyan-300"],
             ["Requests OK", String(successfulRequests), "text-emerald-300"],
             ["Failed", String(failedRequests), "text-red-300"],
-            ["Ollama Fallback", "watching", "text-fuchsia-300"],
+            ["Ollama Fallback", "Unavailable", "text-slate-400"],
           ].map(([label, value, color]) => (
             <div
               key={label}
@@ -240,7 +240,7 @@ export default function ObservabilityWorkspacePanel() {
 
           <div className="mt-5 grid gap-3">
             {[
-              ["Replay mode", "ACTIVE"],
+              ["Replay mode", "Unavailable"],
               ["Broker execution", "DISABLED"],
               ["Live execution", "DISABLED"],
               ["Portfolio mutation", "DISABLED"],

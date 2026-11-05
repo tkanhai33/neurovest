@@ -1,0 +1,262 @@
+[
+  {
+    "file": "/home/tkanhai/Neurovest/File: backend/app/main.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v17_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v14_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v4_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v21_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v9_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v23_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v22_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v6_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v11_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v3_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v20_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v13_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v5_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v18_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v7_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v12_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v10_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v2_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v8_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v15_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/spine/L5_api/repo_intelligence_v19_cli.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/app/spine/L3_facade/service_facade.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/app/spine/L5_api/neuro_cli_shell.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/quarantine_artifacts/neuro_junk_20260703_164442/backend/app/app/spine/L5_api/neuro_test_module.py",
+    "target_stack": "test"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/main.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/__init__.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/schemas/__init__.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/schemas/dashboard.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/services/__init__.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/analysis/architecture.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/core/__init__.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/core/config.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/__init__.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/routers/__init__.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/wolfden_ai/memory.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/wolfden_ai/__init__.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/wolfden_ai/agent_router.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/wolfden_ai/orchestrator.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/wolfden_ai/routing.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/wolfden_ai/runtime.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/wolfden_ai/base.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/chat_public/__init__.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/chat_public/chat_runtime.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/chat_public/conversation_store.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/chat_public/chat_memory.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/chat_public/chat_service.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/chat_public/base.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/db_model/__init__.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/db_model/base.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/events/broker.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/__init__.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/monte_carlo_mix.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/monte_carlo.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/probability_engine.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/research_runtime.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/base.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/learning_research/backtest_engine.py",
+    "target_stack": "test"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/snaptrade/__init__.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/snaptrade/adapter.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/snaptrade/broker.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/backend/app/stacks/snaptrade/base.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/`backend/app/main.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/`backend/app/config.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  },
+  {
+    "file": "/home/tkanhai/Neurovest/`backend/app/config/settings.py",
+    "target_stack": "NEW_STACK_REQUIRED"
+  }
+]

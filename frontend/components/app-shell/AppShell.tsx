@@ -14,12 +14,14 @@ type AppShellProps = {
   workspace: WorkspaceKind;
   children: ReactNode;
   contextSlot?: ReactNode;
+  showContextBar?: boolean;
 };
 
 export default function AppShell({
   workspace,
   children,
   contextSlot,
+  showContextBar = true,
 }: AppShellProps) {
   return (
     <div
@@ -46,9 +48,11 @@ export default function AppShell({
       </header>
 
       <div className="nv-app-frame">
-        <WorkspaceContextBar
-          workspace={workspace}
-        />
+        {showContextBar && (
+          <WorkspaceContextBar
+            workspace={workspace}
+          />
+        )}
 
         {contextSlot && (
           <div className="nv-context-slot">

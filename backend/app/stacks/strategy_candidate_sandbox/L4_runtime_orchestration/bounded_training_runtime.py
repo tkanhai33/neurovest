@@ -21,6 +21,7 @@ runtime/training_sessions.
 from __future__ import annotations
 
 from backend.app.stacks.strategy_candidate_sandbox.training_candidate_contract import (
+    MANUAL_BOUNDED_TRAINING_STRATEGY_NAME,
     build_training_candidate_contract,
     validate_training_candidate_contract,
 )
@@ -381,6 +382,16 @@ def _update_run(
             run_id
         ]
 
+        # NEUROVEST_V118R2_IMMUTABLE_PROVENANCE
+        immutable_provenance_fields = frozenset(('scope', 'owner_user_id', 'owner_session_id', 'notification_thread_id', 'notification_parent_message_id'))
+        attempted_provenance_changes = (
+            immutable_provenance_fields.intersection(values)
+        )
+        if attempted_provenance_changes:
+            raise ValueError(
+                "Immutable training provenance fields cannot be updated: "
+                + ", ".join(sorted(attempted_provenance_changes))
+            )
         record.update(
             values
         )
@@ -392,6 +403,24 @@ def _update_run(
     _write_evidence(
         snapshot
     )
+
+    if (
+        snapshot.get("scope") == "user"
+        and snapshot.get("notification_thread_id")
+        and snapshot.get("status") in {"completed", "failed"}
+    ):
+        try:
+            from backend.app.stacks.db_runtime.training_findings_delivery import (
+                dispatch_training_findings,
+            )
+            dispatch_training_findings(snapshot)
+        except Exception:
+            # Delivery failures must never change training results.
+            import logging
+            logging.getLogger(__name__).exception(
+                "Training findings delivery failed for %s",
+                run_id,
+            )
 
     return snapshot
 
@@ -413,6 +442,18 @@ def _run_training(
     datasets = (
         discover_canadian_datasets()
     )
+
+    selected_symbols = record.get("selected_symbols")
+
+    if selected_symbols is not None:
+        permitted = set(selected_symbols)
+        datasets = [
+            dataset
+            for dataset in datasets
+            if str(dataset.get("symbol", "")).strip().upper()
+            in permitted
+        ]
+
 
     if not datasets:
         _update_run(
@@ -1283,6 +1324,37 @@ def list_training_sessions_for_owner(
     ][:max(1, min(int(limit), 100))]
 
 
+def list_training_sessions_for_user_profile(
+    *,
+    owner_user_id: str,
+    limit: int = 100,
+) -> list[dict[str, Any]]:
+    """
+    Return USER-scoped historical training sessions for one
+    authenticated profile across login sessions.
+
+    This helper is intentionally different from
+    list_training_sessions_for_owner(), which remains bound to
+    both owner_user_id and owner_session_id for active/session
+    isolation.
+    """
+    return [
+        record
+        for record
+        in list_training_sessions(
+            limit=100,
+        )
+        if (
+            record.get("scope")
+            == "user"
+            and record.get(
+                "owner_user_id"
+            )
+            == str(owner_user_id)
+        )
+    ][:max(1, min(int(limit), 100))]
+
+
 def list_training_health(
     *,
     limit: int = 100,
@@ -1333,6 +1405,9 @@ def start_bounded_training_session(
     row_offset: int = 0,
     round_number: int = 1,
     maximum_rounds: int = 1,
+    selected_symbols: tuple[str, ...] | None = None,
+    notification_thread_id: str | None = None,
+    notification_parent_message_id: str | None = None,
 ) -> dict[str, Any]:
     normalized_universe = str(
         universe
@@ -1400,6 +1475,9 @@ def start_bounded_training_session(
         resolved_candidate = (
             build_training_candidate_contract(
                 created_from="manual",
+                strategy_name=(
+                    MANUAL_BOUNDED_TRAINING_STRATEGY_NAME
+                ),
             ).to_dict()
         )
     else:
@@ -1545,6 +1623,46 @@ def start_bounded_training_session(
                 False,
         },
     }
+
+    if selected_symbols is not None:
+        if resolved_scope != "user":
+            raise ValueError(
+                "Symbol-filtered training requires USER scope"
+            )
+
+        from backend.app.stacks.db_runtime.owner_ai_scope import (
+            normalize_symbols,
+        )
+
+        selected = normalize_symbols(selected_symbols)
+
+        if not selected:
+            raise ValueError("Selected symbols cannot be empty")
+
+        record["selected_symbols"] = list(selected)
+
+
+    # NEUROVEST_TRAINING_FINDINGS_V1
+    if notification_thread_id is not None:
+        if resolved_scope != "user":
+            raise ValueError("Notifications require USER training scope")
+        if not resolved_owner_user_id or not resolved_owner_session_id:
+            raise ValueError("Authenticated training owner required")
+        if not notification_parent_message_id:
+            raise ValueError("Originating chat message required")
+
+        record["notification_thread_id"] = str(
+            notification_thread_id
+        ).strip()
+        record["notification_parent_message_id"] = str(
+            notification_parent_message_id
+        ).strip()
+
+        if not all((
+            record["notification_thread_id"],
+            record["notification_parent_message_id"],
+        )):
+            raise ValueError("Invalid conversation notification target")
 
     with _LOCK:
         _RUNS[
@@ -1769,6 +1887,7 @@ __all__ = [
     "list_training_health",
     "list_training_sessions",
     "list_training_sessions_for_owner",
+    "list_training_sessions_for_user_profile",
     "start_bounded_training_session",
     "training_runtime_status",
 ]

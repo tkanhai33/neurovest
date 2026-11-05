@@ -80,3 +80,43 @@ def test_model_backed_response_keeps_model_provenance() -> None:
 
     assert result["provider"] != "neurovest_local_evidence"
     assert result["model"] is not None
+
+
+def test_authenticated_developer_exact_improvement_question_bypasses_model() -> None:
+    with patch(
+        "backend.app.stacks.chat_public.chat_runtime.ask_ollama"
+    ) as mocked_ollama:
+
+        result = handle_chat_message(
+            "where do you need improvement?",
+            developer_evidence_allowed=True,
+        )
+
+    mocked_ollama.assert_not_called()
+
+    assert result["status"] == "ok"
+
+    assert (
+        result["provider"]
+        == "neurovest_local_evidence"
+    )
+
+    assert result["model"] is None
+
+    assert (
+        result["tool_truth_state"]
+        == "grounded"
+    )
+
+    response = str(
+        result[
+            "response"
+        ][
+            "message"
+        ]
+    ).lower()
+
+    assert (
+        "### capability state"
+        in response
+    )

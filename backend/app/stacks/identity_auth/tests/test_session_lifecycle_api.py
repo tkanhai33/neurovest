@@ -17,6 +17,10 @@ from backend.app.stacks.identity_auth import (
     route_protection,
 )
 
+from backend.app.stacks.db_runtime.database import (
+    engine,
+)
+
 from backend.app.stacks.identity_auth.api_dependencies import (
     get_session_lifecycle_api_service,
     require_authenticated_principal,
@@ -280,10 +284,15 @@ def test_logout_all_uses_access_principal_subject(
         claims={},
     )
 
+    async def authenticate_test_access_principal(
+        credentials,
+    ):
+        return principal
+
     monkeypatch.setattr(
         route_protection,
-        "authenticate_bearer_credentials",
-        lambda credentials: principal,
+        "_authenticate_with_durable_revocation",
+        authenticate_test_access_principal,
     )
 
     async def load_identity_state(
@@ -304,30 +313,41 @@ def test_logout_all_uses_access_principal_subject(
         load_identity_state,
     )
 
-    client = TestClient(
-        build_app(
-            service,
-            principal=principal,
+    app = build_app(
+        service,
+        principal=principal,
+    )
+
+    @app.on_event(
+        "shutdown"
+    )
+    async def dispose_test_database_pool() -> None:
+        await engine.dispose()
+
+    with TestClient(
+        app
+    ) as client:
+        response = client.post(
+            "/auth/logout-all",
+            headers={
+                "Authorization": "Bearer access-token",
+            },
         )
-    )
 
-    response = client.post(
-        "/auth/logout-all",
-        headers={
-            "Authorization": "Bearer access-token",
-        },
-    )
+        assert response.status_code == 200, (
+            f'HTTP={response.status_code} '
+            f'BODY={response.text!r} '
+            f'HEADERS={dict(response.headers)!r}'
+        )
 
-    assert response.status_code == 200
+        assert response.json() == {
+            "status": "logged_out_all",
+            "revoked_sessions": 3,
+        }
 
-    assert response.json() == {
-        "status": "logged_out_all",
-        "revoked_sessions": 3,
-    }
-
-    assert service.logout_all_users == [
-        "user-123",
-    ]
+        assert service.logout_all_users == [
+            "user-123",
+        ]
 
 
 def test_logout_all_rejects_missing_access_token() -> None:

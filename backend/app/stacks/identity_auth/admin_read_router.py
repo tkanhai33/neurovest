@@ -423,13 +423,21 @@ async def transition_execution_control(
     """
 
     try:
-        snapshot = execution_control.transition(
-            request.mode,
-            actor=administrative_actor(
-                principal
-            ),
-            reason=request.reason,
-        )
+        from sqlalchemy import text as sql_text
+        from backend.app.stacks.db_runtime.database import async_session
+
+        async with async_session() as session:
+            async with session.begin():
+                await session.execute(
+                    sql_text("SELECT pg_advisory_xact_lock(742618390125)")
+                )
+                snapshot = execution_control.transition(
+                    request.mode,
+                    actor=administrative_actor(
+                        principal
+                    ),
+                    reason=request.reason,
+                )
 
     except (
         InvalidOperatingModeTransition,
@@ -481,12 +489,22 @@ async def activate_execution_emergency_stop(
     """
 
     try:
-        snapshot = execution_control.emergency_stop(
-            actor=administrative_actor(
-                principal
-            ),
-            reason=request.reason,
+        from sqlalchemy import text as sql_text
+        from backend.app.stacks.db_runtime.database import (
+            async_session,
         )
+
+        async with async_session() as session:
+            async with session.begin():
+                await session.execute(
+                    sql_text("SELECT pg_advisory_xact_lock(742618390125)")
+                )
+                snapshot = execution_control.emergency_stop(
+                    actor=administrative_actor(
+                        principal
+                    ),
+                    reason=request.reason,
+                )
 
     except ExecutionControlError as exc:
         raise HTTPException(

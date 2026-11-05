@@ -1,0 +1,2128 @@
+{
+  "stack_edges": {
+    "chat_public": [
+      "chat_public"
+    ],
+    "execution": [
+      "journal_ledger",
+      "market_data",
+      "portfolio",
+      "risk",
+      "strategy"
+    ],
+    "learning_research": [
+      "db_model",
+      "journal_ledger"
+    ],
+    "market_data": [
+      "db_model",
+      "journal_ledger",
+      "market_data"
+    ],
+    "phase_scripts": [
+      "market_data",
+      "strategy_candidate_sandbox"
+    ],
+    "portfolio": [
+      "execution",
+      "journal_ledger",
+      "market_data"
+    ],
+    "risk": [
+      "journal_ledger",
+      "risk"
+    ],
+    "root_or_misc": [
+      "chat_public",
+      "events",
+      "execution",
+      "journal_ledger",
+      "market_data",
+      "portfolio",
+      "risk",
+      "strategy",
+      "wolfden_ai"
+    ],
+    "strategy": [
+      "market_data",
+      "portfolio",
+      "strategy"
+    ],
+    "strategy_candidate_sandbox": [
+      "strategy_candidate_sandbox"
+    ],
+    "wolfden_ai": [
+      "execution",
+      "journal_ledger",
+      "risk",
+      "strategy"
+    ]
+  },
+  "file_imports": {
+    "generate_wire_graph.py": [
+      "json",
+      "matplotlib.pyplot",
+      "networkx",
+      "urllib.request"
+    ],
+    "neuro_cli.py": [
+      "json",
+      "sys",
+      "urllib.error",
+      "urllib.request"
+    ],
+    "neuro_engineer.py": [
+      "json",
+      "os",
+      "readline",
+      "urllib.request"
+    ],
+    "architecture_backup/dashboard_service.py": [
+      "decimal",
+      "typing"
+    ],
+    "scripts/phase59b_qwen_read_only_final_handoff_certification_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase22_live_graph_tab_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase20f_floating_chat_widget_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase48c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase51a_qwen_read_only_architecture_loop_boundary_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase30g_yfinance_historical_bars_adapter_wire.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase10d_runtime_static_dependency_diff_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase35a_exit_signal_rule_contract_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.exit_signal_rule_contract",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase23b_polling_governor_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "re",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase23a_frontend_request_normalizer_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase29c_historical_replay_validation_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase26f_chat_ui_state_cleanup_metadata_rendering_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase6c_dependency_graph_export.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase25a_dashboard_tab_shell_layout_navigation_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase27d_candidate_sandbox_result_schema_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase10h_architecture_dashboard_command_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase26d_frontend_chat_response_normalizer_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase13f_portfolio_positions_service_chain_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase31a_historical_bars_fetch_validation.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase12g_service_chain_repair.py": [
+      "pathlib"
+    ],
+    "scripts/phase52b_qwen_read_only_final_guardrail_summary_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase27e_candidate_sandbox_result_stub_generator.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase40b_sandbox_runtime_dependency_trace_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase36a_strategy_rule_enablement_gate_contract_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.strategy_rule_enablement_gate_contract",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase54a_qwen_read_only_handoff_export_summary_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase26f_chat_ui_state_cleanup_metadata_rendering.py": [
+      "pathlib"
+    ],
+    "scripts/phase63a_project_bible_generator.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase4g_repo_memory_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase25a_dashboard_tab_shell_layout_navigation.py": [
+      "pathlib"
+    ],
+    "scripts/phase21cd_chat_ux_persistent_cache.py": [
+      "pathlib"
+    ],
+    "scripts/phase11c_frontend_polling_api_cleanup.py": [
+      "pathlib"
+    ],
+    "scripts/phase47b_qwen_read_only_recommendation_filter_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase30a_yfinance_historical_bars_provider_probe_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase11g_live_market_dashboard_expansion.py": [
+      "pathlib"
+    ],
+    "scripts/phase28b_candidate_sandbox_mock_metrics_generator.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase32a_real_metrics_generation.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "backend.app.stacks.strategy_candidate_sandbox.replay_metrics_generator",
+      "datetime",
+      "json",
+      "math",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase41a_safe_read_only_architecture_inspector_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.safe_read_only_architecture_inspector",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase21_fix_chat_service_generator.py": [
+      "pathlib"
+    ],
+    "scripts/phase12_service_layer_alignment.py": [
+      "pathlib"
+    ],
+    "scripts/phase12g_service_chain_dashboard_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase9e_canonical_graph_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase40a_sandbox_runtime_dependency_trace_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase4d_root_shadow_diff_report.py": [
+      "ast",
+      "datetime",
+      "difflib",
+      "hashlib",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase2_yfinance_market_warehouse.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "sys",
+      "yfinance"
+    ],
+    "scripts/phase27a_strategy_proposal_capture_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase25c_split_dashboard_panels_into_tab_workspaces.py": [
+      "pathlib"
+    ],
+    "scripts/phase29b_historical_replay_input_contract_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase48a_qwen_read_only_response_validator_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase31f_replay_metrics_contract.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.replay_metrics_contract",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase57a_qwen_read_only_policy_boundary_matrix_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase9a_canonical_layer_graph_export.py": [
+      "collections",
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase32b_candidate_scorecard_from_replay_metrics.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "backend.app.stacks.strategy_candidate_sandbox.candidate_scorecard_from_replay_metrics",
+      "backend.app.stacks.strategy_candidate_sandbox.replay_metrics_generator",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase26a_chat_intent_regex_ollama_router.py": [
+      "pathlib"
+    ],
+    "scripts/phase30a_yfinance_historical_bars_provider_probe.py": [
+      "datetime",
+      "importlib",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase33h_trade_simulation_pipeline_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/architecture_enforcement_v1.py": [
+      "__future__",
+      "ast",
+      "collections",
+      "json",
+      "os",
+      "pathlib"
+    ],
+    "scripts/phase60b_qwen_read_only_terminal_freeze_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase10c_runtime_flow_overlay_export.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase57c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase35f_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/orphan_resolution_engine_v1.py": [
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase12f_service_chain_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase11d_next_api_proxy_live_price.py": [
+      "pathlib"
+    ],
+    "scripts/phase39b_master_sandbox_gate_wiregraph_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase36b_enablement_gate_validation_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.strategy_rule_enablement_gate_contract",
+      "backend.app.stacks.strategy_candidate_sandbox.strategy_rule_enablement_gate_validator",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase26e_chat_metadata_chips_typing_enter_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase43b_qwen_context_response_contract_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase30e_yfinance_historical_bars_adapter_shape_validation.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase30b_yfinance_provider_selection_snapshot.py": [
+      "datetime",
+      "hashlib",
+      "json",
+      "pathlib",
+      "subprocess"
+    ],
+    "scripts/phase18_real_positions_panel_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase53b_qwen_read_only_handoff_freeze_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase33d_entry_exit_signal_contract_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.entry_exit_signal_contract",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase18_real_positions_panel_component.py": [
+      "pathlib"
+    ],
+    "scripts/phase11_live_market_price_api_bridge_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase27b_strategy_candidate_review_index.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase35c_exit_signal_generator_disabled_stub.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "backend.app.stacks.strategy_candidate_sandbox.exit_signal_generator_disabled_stub",
+      "backend.app.stacks.strategy_candidate_sandbox.exit_signal_rule_contract",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase11_live_market_price_api_bridge.py": [
+      "pathlib"
+    ],
+    "scripts/phase54c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase10e_classify_runtime_static_diff_edges.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase19_dashboard_visual_layout_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase10g_architecture_drift_dashboard_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase4e_quarantine_root_shadows.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "shutil"
+    ],
+    "scripts/phase55b_qwen_read_only_architecture_state_machine_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase35d_exit_signal_pipeline_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase45a_qwen_read_only_architecture_summary_gate_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.qwen_read_only_architecture_summary_gate",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase63b_architecture_atlas_generator.py": [
+      "ast",
+      "collections",
+      "datetime",
+      "json",
+      "pathlib",
+      "re"
+    ],
+    "scripts/phase19b_endpoint_activation_probe_repair.py": [
+      "pathlib"
+    ],
+    "scripts/phase6d_dependency_graph_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase60a_qwen_read_only_terminal_freeze_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase31b_historical_bars_multi_symbol_validation.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase23a_frontend_request_normalizer.py": [
+      "pathlib"
+    ],
+    "scripts/phase28c_candidate_sandbox_mock_scorecard.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase44c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase51c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase34b_entry_signal_rule_validation_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.entry_signal_rule_contract",
+      "backend.app.stacks.strategy_candidate_sandbox.entry_signal_rule_validator",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase46a_qwen_read_only_missing_context_detector_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase24b_persist_observability_backend_health_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase33c_trade_simulation_dry_run_stub.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_dry_run_stub",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase9l_stack_layer_sankey_export.py": [
+      "collections",
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase38d_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase13e_portfolio_service_chain_graph_export.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase59c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase46c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase10_domain_subsystem_visualization.py": [
+      "json",
+      "matplotlib.pyplot",
+      "networkx",
+      "pathlib"
+    ],
+    "scripts/phase35e_strategy_sandbox_wiregraph_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase30f_yfinance_historical_bars_adapter_wire_preview_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase24a_frontend_observability_dashboard.py": [
+      "pathlib"
+    ],
+    "scripts/phase30d_yfinance_historical_bars_adapter_stub_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase9m_canonical_graph_certification_v2.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase53c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase7a_dependency_topology_overlay_export.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase34d_entry_signal_pipeline_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase6b_dependency_validation_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase51b_qwen_read_only_architecture_loop_boundary_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase27e_candidate_sandbox_result_stub_generator_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase10f_architecture_drift_watch_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase1_repo_research_market_bootstrap.py": [
+      "ast",
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase58b_qwen_read_only_final_context_package_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase14e_strategy_service_chain_graph_export.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/orphan_finalizer_v1.py": [
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase33f_entry_exit_decision_engine_stub.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "backend.app.stacks.strategy_candidate_sandbox.entry_exit_decision_engine_stub",
+      "backend.app.stacks.strategy_candidate_sandbox.hold_signal_generator_stub",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase24c_observability_event_timeline_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase28b_candidate_sandbox_mock_metrics_generator_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase56c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase15_risk_gate_service_chain.py": [
+      "pathlib"
+    ],
+    "scripts/phase20_floating_chat_widget_service_chain.py": [
+      "pathlib"
+    ],
+    "scripts/phase33i_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase49a_qwen_read_only_architecture_session_contract_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase11g_live_market_dashboard_expansion_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase30f_yfinance_historical_bars_adapter_wire_preview.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase44b_qwen_read_only_response_sample_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase54b_qwen_read_only_handoff_export_summary_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase36d_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase31e_first_single_candidate_replay_dry_run.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "backend.app.stacks.strategy_candidate_sandbox.historical_replay_bar_iterator",
+      "backend.app.stacks.strategy_candidate_sandbox.historical_replay_executor",
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase13_portfolio_positions_service_chain.py": [
+      "pathlib"
+    ],
+    "scripts/phase5c_repo_memory_certification_v2.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase27b_strategy_candidate_review_index_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase14f_strategy_decision_service_chain_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase45c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase39c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase60c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase9c_generate_layer_colored_wire_graph.py": [
+      "json",
+      "matplotlib.pyplot",
+      "networkx",
+      "pathlib"
+    ],
+    "scripts/phase27c_candidate_sandbox_dry_run_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase29g_historical_replay_provider_readiness_snapshot.py": [
+      "datetime",
+      "hashlib",
+      "json",
+      "pathlib",
+      "subprocess"
+    ],
+    "scripts/phase30g_yfinance_historical_bars_adapter_wire_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase32e_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase37d_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase28a_candidate_sandbox_simulation_harness_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase37a_trade_simulation_enablement_gate_contract_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_enablement_gate_contract",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase39a_master_sandbox_gate_wiregraph_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase29f_historical_replay_provider_adapter_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase14g_strategy_chain_dashboard_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/reconcile_repo_state_v1.py": [
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase15g_add_risk_chain_to_dashboard.py": [
+      "pathlib"
+    ],
+    "scripts/architecture_normalization_engine_v1.py": [
+      "collections",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase52c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase14g_add_strategy_chain_to_dashboard.py": [
+      "pathlib"
+    ],
+    "scripts/phase33e_hold_signal_generator_stub.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "backend.app.stacks.strategy_candidate_sandbox.hold_signal_generator_stub",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase37b_trade_simulation_enablement_gate_validation_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_enablement_gate_contract",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_enablement_gate_validator",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase34c_entry_signal_generator_disabled_stub.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "backend.app.stacks.strategy_candidate_sandbox.entry_signal_generator_disabled_stub",
+      "backend.app.stacks.strategy_candidate_sandbox.entry_signal_rule_contract",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase29e_historical_replay_market_data_provider_contract_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase58c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase11d_next_api_proxy_live_price_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase24b_persist_observability_backend_health.py": [
+      "pathlib"
+    ],
+    "scripts/phase31d_historical_replay_bar_iterator.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "backend.app.stacks.strategy_candidate_sandbox.historical_replay_bar_iterator",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase10c_runtime_flow_overlay_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase33g_hold_decision_to_hold_event_bridge.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "backend.app.stacks.strategy_candidate_sandbox.entry_exit_decision_engine_stub",
+      "backend.app.stacks.strategy_candidate_sandbox.hold_decision_to_hold_event_bridge",
+      "backend.app.stacks.strategy_candidate_sandbox.hold_signal_generator_stub",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase19_dashboard_visual_layout_hardening.py": [
+      "pathlib"
+    ],
+    "scripts/phase33b_trade_event_validation_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.trade_event_validator",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase7g_graph_visualization_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase29d_historical_replay_readiness_snapshot.py": [
+      "datetime",
+      "hashlib",
+      "json",
+      "pathlib",
+      "subprocess"
+    ],
+    "scripts/phase9b_component_overlay_export.py": [
+      "collections",
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase43a_qwen_context_response_contract_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.qwen_context_response_contract",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase8c_neuro_cli_hotspots_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase58a_qwen_read_only_final_context_package_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase13g_portfolio_chain_dashboard_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase13g_add_portfolio_chain_to_dashboard.py": [
+      "pathlib"
+    ],
+    "scripts/phase3m_graph_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase40c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase48b_qwen_read_only_response_validator_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase38b_risk_gate_validation_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.risk_gate_contract",
+      "backend.app.stacks.strategy_candidate_sandbox.risk_gate_validator",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase19c_endpoint_activation_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase17_dashboard_route_map_frontend_card_verification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "re"
+    ],
+    "scripts/phase34e_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase29b_historical_replay_input_contract.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase59a_qwen_read_only_final_handoff_certification_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase30c_historical_bars_contract.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase55c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase56b_qwen_read_only_architecture_policy_map_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase28d_candidate_sandbox_execution_contract_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase32d_pipeline_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase50a_qwen_read_only_session_response_bridge_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase21cd_chat_ux_persistent_cache_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase26b_wire_ollama_into_chat_runtime.py": [
+      "pathlib"
+    ],
+    "scripts/phase29f_historical_replay_provider_adapter_stub_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase25b_tab_layout_polish_chat_panel.py": [
+      "pathlib"
+    ],
+    "scripts/phase10g_architecture_drift_dashboard_summary.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase25c_split_dashboard_panels_into_tab_workspaces_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase11f_frontend_type_lint_repair.py": [
+      "pathlib",
+      "re"
+    ],
+    "scripts/phase10c_domain_runtime_overlay_visualization.py": [
+      "json",
+      "matplotlib.pyplot",
+      "networkx",
+      "pathlib"
+    ],
+    "scripts/phase15e_risk_service_chain_graph_export.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase22b_live_graph_visualization_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase38c_risk_gate_pipeline_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase15g_risk_chain_dashboard_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase26d_frontend_chat_response_normalizer.py": [
+      "pathlib"
+    ],
+    "scripts/phase47a_qwen_read_only_recommendation_filter_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase43c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase27a_strategy_proposal_capture.py": [
+      "pathlib"
+    ],
+    "scripts/phase24c_observability_event_timeline.py": [
+      "pathlib"
+    ],
+    "scripts/phase16_api_route_separation_certification.py": [
+      "backend.app.main",
+      "datetime",
+      "fastapi.routing",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase42b_qwen_read_only_architecture_context_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase28d_candidate_sandbox_execution_contract.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase50b_qwen_read_only_session_response_bridge_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase29a_historical_replay_engine_stub_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase49c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/apply_service_relocation_v1.py": [
+      "json",
+      "os",
+      "pathlib",
+      "shutil"
+    ],
+    "scripts/phase30c_historical_bars_contract_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase55a_qwen_read_only_architecture_state_machine_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase22b_live_graph_visualization.py": [
+      "pathlib"
+    ],
+    "scripts/phase45b_qwen_read_only_architecture_summary_gate_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase17_dashboard_route_map_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase35b_exit_signal_rule_validation_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.exit_signal_rule_contract",
+      "backend.app.stacks.strategy_candidate_sandbox.exit_signal_rule_validator",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase11e_frontend_build_type_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase10e_diff_classification_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase12g_add_service_chain_to_dashboard.py": [
+      "pathlib"
+    ],
+    "scripts/phase26c_chat_safety_prompt_live_execution_guard_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase42c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase27f_candidate_sandbox_readiness_lock_snapshot.py": [
+      "datetime",
+      "hashlib",
+      "json",
+      "pathlib",
+      "subprocess"
+    ],
+    "scripts/phase21ab_chat_cache_history_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase29c_historical_replay_validation_stub_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase47c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase42a_qwen_read_only_architecture_context_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.qwen_read_only_architecture_context",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase28a_candidate_sandbox_simulation_harness_stub_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/topology_state_lock_v1.py": [
+      "collections",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase11b_frontend_live_price_card_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase52a_qwen_read_only_final_guardrail_summary_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase28c_candidate_sandbox_mock_scorecard_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase14_strategy_decision_service_chain.py": [
+      "pathlib"
+    ],
+    "scripts/phase50c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase24d_observability_lock_handoff_snapshot.py": [
+      "datetime",
+      "hashlib",
+      "json",
+      "pathlib",
+      "subprocess"
+    ],
+    "scripts/phase61a_archive_or_new_chat_handoff_summary.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase27d_candidate_sandbox_result_schema.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase46b_qwen_read_only_missing_context_detector_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase49b_qwen_read_only_architecture_session_contract_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase41c_handoff_bundle_refresh.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase29e_historical_replay_market_data_provider_contract.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase31c_historical_replay_executor_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.historical_replay_executor",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase41b_safe_read_only_architecture_inspector_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/service_stack_relocator_v1.py": [
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase26e_chat_metadata_chips_typing_enter.py": [
+      "pathlib",
+      "re"
+    ],
+    "scripts/phase44a_qwen_read_only_response_sample_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase33a_trade_simulation_contract_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase11c_frontend_polling_api_cleanup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase11f_frontend_type_lint_repair_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase10d_runtime_static_dependency_diff.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase15f_risk_gate_service_chain_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase30d_yfinance_historical_bars_adapter_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase10_domain_subsystem_visualization_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase34a_entry_signal_rule_contract_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.entry_signal_rule_contract",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase4c_loose_root_duplicate_quarantine_plan.py": [
+      "datetime",
+      "hashlib",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase56a_qwen_read_only_architecture_policy_map_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase4_repo_memory_indexer_v2.py": [
+      "ast",
+      "collections",
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase38a_risk_gate_contract_stub.py": [
+      "backend.app.stacks.strategy_candidate_sandbox.risk_gate_contract",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase12e_service_chain_graph_export.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase21ab_chat_cache_history.py": [
+      "pathlib"
+    ],
+    "scripts/phase62a_master_architecture_handoff_controller.py": [
+      "__future__",
+      "collections",
+      "datetime",
+      "json",
+      "os",
+      "pathlib"
+    ],
+    "scripts/phase57b_qwen_read_only_policy_boundary_matrix_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase29a_historical_replay_engine_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase30e_yfinance_historical_bars_adapter_shape_validation_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase53a_qwen_read_only_handoff_freeze_stub.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase11b_frontend_live_price_card.py": [
+      "pathlib"
+    ],
+    "scripts/phase36c_enablement_gate_pipeline_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase32c_manual_promotion_gate_stub.py": [
+      "backend.app.stacks.market_data.yfinance_historical_bars_adapter",
+      "backend.app.stacks.strategy_candidate_sandbox.candidate_scorecard_from_replay_metrics",
+      "backend.app.stacks.strategy_candidate_sandbox.manual_promotion_gate",
+      "backend.app.stacks.strategy_candidate_sandbox.replay_metrics_generator",
+      "datetime",
+      "json",
+      "pathlib",
+      "py_compile"
+    ],
+    "scripts/phase24a_frontend_observability_dashboard_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase37c_trade_simulation_enablement_gate_pipeline_rollup_certification.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase22_live_graph_tab.py": [
+      "pathlib"
+    ],
+    "scripts/phase9k_domain_subsystem_graph_export.py": [
+      "collections",
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase20e_chat_service_chain_graph_export.py": [
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "scripts/phase27c_candidate_sandbox_dry_run_stub_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "scripts/phase25b_tab_layout_polish_chat_panel_certification.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "subprocess",
+      "sys"
+    ],
+    "backend/__init__.py": [],
+    "backend/app/main.py": [
+      "asyncio",
+      "backend.app.core.cognitive_graph_state",
+      "backend.app.core.global_firewall_v1",
+      "backend.app.stacks.chat_public.chat_api",
+      "backend.app.stacks.events.broker",
+      "backend.app.stacks.execution.paper_broker",
+      "backend.app.stacks.journal_ledger.ledger",
+      "backend.app.stacks.market_data.market_data_service",
+      "backend.app.stacks.portfolio.portfolio_service",
+      "backend.app.stacks.portfolio.reconciliation",
+      "backend.app.stacks.risk.risk_service",
+      "backend.app.stacks.strategy.engine",
+      "backend.app.stacks.strategy.strategy_service",
+      "contextlib",
+      "fastapi",
+      "fastapi.middleware.cors",
+      "json",
+      "sqlalchemy",
+      "subprocess"
+    ],
+    "backend/app/__init__.py": [],
+    "backend/app/schemas/__init__.py": [],
+    "backend/app/schemas/dashboard.py": [
+      "datetime",
+      "pydantic",
+      "typing"
+    ],
+    "backend/app/test/test_neuro_repo_companion.py": [],
+    "backend/app/test/test_trading_pipeline.py": [
+      "backend.app.stacks.execution.paper_broker",
+      "backend.app.stacks.wolfden_ai.agent_router",
+      "pytest",
+      "unittest.mock"
+    ],
+    "backend/app/api/graph_ws.py": [
+      "asyncio",
+      "backend.app.core.cognitive_graph_state",
+      "fastapi"
+    ],
+    "backend/app/services/__init__.py": [],
+    "backend/app/analysis/architecture.py": [],
+    "backend/app/core/cognitive_nodes.py": [],
+    "backend/app/core/__init__.py": [],
+    "backend/app/core/cognitive_types.py": [],
+    "backend/app/core/config.py": [
+      "os",
+      "pydantic_settings"
+    ],
+    "backend/app/core/cognitive_graph_state.py": [
+      "collections",
+      "datetime",
+      "json",
+      "pathlib"
+    ],
+    "backend/app/core/cognitive_event_bus.py": [
+      "asyncio",
+      "backend.app.core.cognitive_graph_state",
+      "collections"
+    ],
+    "backend/app/core/runtime_firewall_v1.py": [
+      "inspect",
+      "pathlib",
+      "sys"
+    ],
+    "backend/app/core/global_firewall_v1.py": [
+      "importlib.abc",
+      "importlib.util",
+      "pathlib",
+      "sys"
+    ],
+    "backend/app/stacks/__init__.py": [],
+    "backend/app/routers/__init__.py": [],
+    "backend/app/snaptrade/executions/config.py": [],
+    "backend/app/snaptrade/executions/execution_layer.py": [],
+    "backend/app/stacks/strategy/strategy_registry.py": [],
+    "backend/app/stacks/strategy/strategy_service.py": [
+      "backend.app.stacks.strategy.engine"
+    ],
+    "backend/app/stacks/strategy/strategy_runtime.py": [],
+    "backend/app/stacks/strategy/__init__.py": [],
+    "backend/app/stacks/strategy/selector.py": [],
+    "backend/app/stacks/strategy/signal.py": [
+      "numpy"
+    ],
+    "backend/app/stacks/strategy/engine.py": [
+      "backend.app.stacks.market_data.bars",
+      "backend.app.stacks.market_data.price",
+      "backend.app.stacks.portfolio.rebalance",
+      "backend.app.stacks.strategy.signal"
+    ],
+    "backend/app/stacks/strategy/evolution_engine.py": [],
+    "backend/app/stacks/strategy/llm_strategy_engine.py": [
+      "json",
+      "subprocess",
+      "typing"
+    ],
+    "backend/app/stacks/strategy/candidate_registry.py": [],
+    "backend/app/stacks/strategy/base.py": [],
+    "backend/app/stacks/portfolio/portfolio_service.py": [
+      "backend.app.stacks.execution.paper_broker"
+    ],
+    "backend/app/stacks/portfolio/allocator.py": [
+      "backend.app.stacks.market_data.bars"
+    ],
+    "backend/app/stacks/portfolio/__init__.py": [],
+    "backend/app/stacks/portfolio/accounting.py": [
+      "backend.app.stacks.journal_ledger.ledger",
+      "sqlalchemy"
+    ],
+    "backend/app/stacks/portfolio/portfolio_runtime.py": [],
+    "backend/app/stacks/portfolio/reconciliation.py": [
+      "asyncio",
+      "backend.app.stacks.journal_ledger.ledger",
+      "sqlalchemy"
+    ],
+    "backend/app/stacks/portfolio/dashboard_service.py": [
+      "decimal",
+      "typing"
+    ],
+    "backend/app/stacks/portfolio/rebalance.py": [],
+    "backend/app/stacks/portfolio/base.py": [],
+    "backend/app/stacks/auth_identity/__init__.py": [],
+    "backend/app/stacks/auth_identity/base.py": [],
+    "backend/app/stacks/auth_identity/validator.py": [],
+    "backend/app/stacks/auth_identity/gate.py": [],
+    "backend/app/stacks/notification/__init__.py": [],
+    "backend/app/stacks/notification/base.py": [],
+    "backend/app/stacks/execution/__init__.py": [],
+    "backend/app/stacks/execution/sandbox_runtime.py": [],
+    "backend/app/stacks/execution/commission_engine.py": [],
+    "backend/app/stacks/execution/sandbox.py": [],
+    "backend/app/stacks/execution/regime_modes.py": [],
+    "backend/app/stacks/execution/pnl_engine.py": [],
+    "backend/app/stacks/execution/executor.py": [],
+    "backend/app/stacks/execution/trade_ledger.py": [],
+    "backend/app/stacks/execution/regime_simulator.py": [],
+    "backend/app/stacks/execution/paper_broker.py": [
+      "backend.app.stacks.journal_ledger.ledger",
+      "backend.app.stacks.market_data.bars",
+      "backend.app.stacks.market_data.feed",
+      "backend.app.stacks.market_data.price",
+      "backend.app.stacks.portfolio.accounting",
+      "backend.app.stacks.portfolio.allocator",
+      "backend.app.stacks.portfolio.rebalance",
+      "backend.app.stacks.risk.drawdown_guard",
+      "backend.app.stacks.risk.kill_switch",
+      "backend.app.stacks.strategy.signal",
+      "random"
+    ],
+    "backend/app/stacks/execution/broker.py": [],
+    "backend/app/stacks/execution/fill_engine.py": [],
+    "backend/app/stacks/execution/base.py": [],
+    "backend/app/stacks/execution/accounting_engine.py": [],
+    "backend/app/stacks/wolfden_ai/memory.py": [],
+    "backend/app/stacks/wolfden_ai/__init__.py": [],
+    "backend/app/stacks/wolfden_ai/agent_router.py": [
+      "backend.app.stacks.execution.paper_broker",
+      "backend.app.stacks.journal_ledger.ledger",
+      "backend.app.stacks.risk.drawdown_guard",
+      "backend.app.stacks.risk.kill_switch",
+      "backend.app.stacks.strategy.engine",
+      "time"
+    ],
+    "backend/app/stacks/wolfden_ai/orchestrator.py": [],
+    "backend/app/stacks/wolfden_ai/routing.py": [],
+    "backend/app/stacks/wolfden_ai/runtime.py": [],
+    "backend/app/stacks/wolfden_ai/base.py": [],
+    "backend/app/stacks/chat_public/chat_intent_regex.py": [
+      "dataclasses",
+      "re"
+    ],
+    "backend/app/stacks/chat_public/context_loader.py": [
+      "json",
+      "pathlib"
+    ],
+    "backend/app/stacks/chat_public/__init__.py": [],
+    "backend/app/stacks/chat_public/chat_runtime.py": [
+      "backend.app.stacks.chat_public.chat_intent_regex",
+      "backend.app.stacks.chat_public.ollama_chat_client",
+      "backend.app.stacks.chat_public.strategy_proposal_capture"
+    ],
+    "backend/app/stacks/chat_public/chat_system_prompt.py": [],
+    "backend/app/stacks/chat_public/conversation_store.py": [],
+    "backend/app/stacks/chat_public/chat_memory.py": [],
+    "backend/app/stacks/chat_public/ollama_chat_client.py": [
+      "backend.app.stacks.chat_public.chat_system_prompt",
+      "backend.app.stacks.chat_public.time_context",
+      "json",
+      "urllib.request"
+    ],
+    "backend/app/stacks/chat_public/chat_service.py": [],
+    "backend/app/stacks/chat_public/time_context.py": [
+      "datetime",
+      "zoneinfo"
+    ],
+    "backend/app/stacks/chat_public/strategy_proposal_capture.py": [
+      "datetime",
+      "json",
+      "pathlib",
+      "re",
+      "uuid"
+    ],
+    "backend/app/stacks/chat_public/base.py": [],
+    "backend/app/stacks/chat_public/chat_api.py": [
+      "backend.app.stacks.chat_public.chat_runtime",
+      "fastapi"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/replay_metrics_generator.py": [
+      "__future__",
+      "math",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/hold_signal_generator_stub.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.entry_exit_signal_contract",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/qwen_context_response_contract.py": [
+      "__future__",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/replay_metrics_contract.py": [
+      "__future__",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/strategy_rule_enablement_gate_contract.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/safe_read_only_architecture_inspector.py": [
+      "__future__",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/trade_event_validator.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/entry_exit_signal_contract.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/hold_decision_to_hold_event_bridge.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_event_validator",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/entry_signal_rule_contract.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/exit_signal_rule_contract.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/qwen_read_only_architecture_summary_gate.py": [
+      "__future__",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/trade_simulation_enablement_gate_contract.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/exit_signal_rule_validator.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.exit_signal_rule_contract",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/qwen_read_only_architecture_context.py": [
+      "__future__",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/risk_gate_validator.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.risk_gate_contract",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/entry_signal_rule_validator.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.entry_signal_rule_contract",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/trade_simulation_dry_run_stub.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_event_validator",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/historical_replay_bar_iterator.py": [
+      "__future__",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/candidate_scorecard_from_replay_metrics.py": [
+      "__future__",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/entry_signal_generator_disabled_stub.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.entry_signal_rule_validator",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/trade_simulation_contract.py": [
+      "__future__",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/historical_replay_executor.py": [
+      "__future__",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/strategy_rule_enablement_gate_validator.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.strategy_rule_enablement_gate_contract",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/manual_promotion_gate.py": [
+      "__future__",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/exit_signal_generator_disabled_stub.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.exit_signal_rule_validator",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/trade_simulation_enablement_gate_validator.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_enablement_gate_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/risk_gate_contract.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/strategy_candidate_sandbox/entry_exit_decision_engine_stub.py": [
+      "__future__",
+      "backend.app.stacks.strategy_candidate_sandbox.trade_simulation_contract",
+      "typing"
+    ],
+    "backend/app/stacks/db_model/__init__.py": [],
+    "backend/app/stacks/db_model/market_schema.py": [
+      "datetime",
+      "sqlalchemy",
+      "sqlalchemy.orm"
+    ],
+    "backend/app/stacks/db_model/base.py": [],
+    "backend/app/stacks/events/broker.py": [
+      "asyncio",
+      "backend.app.core.cognitive_graph_state"
+    ],
+    "backend/app/stacks/market_data/yfinance_ingestor.py": [
+      "backend.app.stacks.db_model.market_schema",
+      "backend.app.stacks.journal_ledger.ledger",
+      "datetime",
+      "yfinance"
+    ],
+    "backend/app/stacks/market_data/provider_registry.py": [],
+    "backend/app/stacks/market_data/__init__.py": [],
+    "backend/app/stacks/market_data/feed.py": [
+      "asyncio",
+      "concurrent.futures",
+      "yfinance"
+    ],
+    "backend/app/stacks/market_data/market_data_service.py": [
+      "backend.app.stacks.market_data.feed"
+    ],
+    "backend/app/stacks/market_data/bars.py": [
+      "yfinance"
+    ],
+    "backend/app/stacks/market_data/market_session.py": [],
+    "backend/app/stacks/market_data/provider_router.py": [],
+    "backend/app/stacks/market_data/price.py": [],
+    "backend/app/stacks/market_data/yfinance_historical_bars_adapter.py": [
+      "__future__",
+      "math",
+      "typing",
+      "yfinance"
+    ],
+    "backend/app/stacks/market_data/provider_cache.py": [],
+    "backend/app/stacks/market_data/base.py": [],
+    "backend/app/stacks/learning_research/strategy_evaluator.py": [],
+    "backend/app/stacks/learning_research/__init__.py": [],
+    "backend/app/stacks/learning_research/monte_carlo_mix.py": [],
+    "backend/app/stacks/learning_research/monte_carlo.py": [],
+    "backend/app/stacks/learning_research/research_loader.py": [
+      "backend.app.stacks.db_model.market_schema",
+      "backend.app.stacks.journal_ledger.ledger"
+    ],
+    "backend/app/stacks/learning_research/probability_engine.py": [],
+    "backend/app/stacks/learning_research/research_runtime.py": [],
+    "backend/app/stacks/learning_research/base.py": [],
+    "backend/app/stacks/learning_research/backtest_engine.py": [],
+    "backend/app/stacks/risk/loss_streak_guard.py": [],
+    "backend/app/stacks/risk/__init__.py": [],
+    "backend/app/stacks/risk/drawdown_guard.py": [
+      "backend.app.stacks.journal_ledger.ledger",
+      "datetime",
+      "sqlalchemy"
+    ],
+    "backend/app/stacks/risk/risk_runtime_service.py": [],
+    "backend/app/stacks/risk/exposure.py": [],
+    "backend/app/stacks/risk/kill_switch.py": [],
+    "backend/app/stacks/risk/limits.py": [],
+    "backend/app/stacks/risk/base.py": [],
+    "backend/app/stacks/risk/risk_service.py": [
+      "backend.app.stacks.risk.drawdown_guard"
+    ],
+    "backend/app/stacks/journal_ledger/ledger.py": [
+      "datetime",
+      "sqlalchemy",
+      "sqlalchemy.ext.asyncio",
+      "sqlalchemy.orm"
+    ],
+    "backend/app/stacks/journal_ledger/__init__.py": [],
+    "backend/app/stacks/journal_ledger/record.py": [
+      "datetime"
+    ],
+    "backend/app/stacks/journal_ledger/base.py": [],
+    "backend/app/stacks/snaptrade/__init__.py": [],
+    "backend/app/stacks/snaptrade/execution.py": [],
+    "backend/app/stacks/snaptrade/adapter.py": [],
+    "backend/app/stacks/snaptrade/broker.py": [],
+    "backend/app/stacks/snaptrade/base.py": [],
+    "scripts/ci/architecture_ci_guard_v1.py": [
+      "ast",
+      "pathlib",
+      "sys"
+    ]
+  }
+}

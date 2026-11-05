@@ -92,11 +92,32 @@ AGENT_ROUTER = _import_first(
 )
 
 from backend.app.stacks.execution.paper_broker import process_portfolio_output
+from backend.app.stacks.execution import paper_broker as paper_broker_module
 
 monitor_and_process_signals = getattr(
     AGENT_ROUTER,
     "monitor_and_process_signals",
 )
+
+
+
+@pytest.fixture(autouse=True)
+def allow_isolated_legacy_paper_pipeline(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    These legacy tests qualify the downstream paper-trading pipeline.
+
+    The centralized operating-mode authority is independently qualified by
+    FP17. Bypass only that gate here so these tests remain isolated from the
+    process-persistent SAFE startup mode.
+    """
+
+    monkeypatch.setattr(
+        paper_broker_module.execution_control,
+        "assert_paper_execution_allowed",
+        lambda: None,
+    )
 
 
 def _lookup_modules(
@@ -294,6 +315,22 @@ async def test_trading_pipeline_success(
             strategy,
         )
 
+        # Match the actual async quote dependency used by paper_broker.
+        stack.enter_context(
+            patch.object(
+                paper_broker_module,
+                "get_live_market_price",
+                new=AsyncMock(
+                    return_value={
+                        "symbol": "AAPL",
+                        "price": 150.0,
+                        "status": "ok",
+                        "provider": "isolated_test",
+                    }
+                ),
+            )
+        )
+
         await process_portfolio_output(
             [
                 {
@@ -309,7 +346,8 @@ async def test_trading_pipeline_success(
             user_id="test-trading-user-1",
         )
 
-    assert save_log.await_count >= 1
+    execute_trade.assert_called_once_with("AAPL", "buy")
+    assert save_log.await_count == 1
 
     captured = capsys.readouterr()
 
@@ -644,3 +682,211 @@ async def test_agent_router_trips_kill_switch(
         captured.out
         + captured.err
     )
+
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "bad_price",
+    [None, 0, -1, "not-a-price", float("nan"), float("inf"), True],
+)
+async def test_paper_execution_rejects_invalid_quote_without_trade(
+    bad_price,
+) -> None:
+    from backend.app.stacks.execution import paper_broker as broker
+
+    rejected_log = AsyncMock()
+    trade = MagicMock()
+    event = AsyncMock()
+
+    with ExitStack() as stack:
+        stack.enter_context(
+            patch.object(
+                broker.execution_control,
+                "assert_paper_execution_allowed",
+                return_value=None,
+            )
+        )
+        stack.enter_context(
+            patch.object(
+                broker,
+                "calculate_live_portfolio_equity",
+                new=AsyncMock(
+                    return_value={"current_cash_balance": 100000.0}
+                ),
+            )
+        )
+        stack.enter_context(
+            patch.object(
+                broker,
+                "drawdown_healthcheck",
+                new=AsyncMock(return_value={"status": "ok"}),
+            )
+        )
+        stack.enter_context(
+            patch.object(
+                broker,
+                "is_kill_switch_active",
+                return_value=False,
+            )
+        )
+        stack.enter_context(
+            patch.object(
+                broker,
+                "calculate_position_size",
+                return_value={
+                    "status": "ok",
+                    "allocated_capital": 1000.0,
+                    "allocation_percentage": 0.01,
+                },
+            )
+        )
+        stack.enter_context(
+            patch.object(
+                broker,
+                "get_live_market_price",
+                new=AsyncMock(
+                    return_value={
+                        "symbol": "AAPL",
+                        "price": bad_price,
+                        "provider": "isolated_test",
+                    }
+                ),
+            )
+        )
+        stack.enter_context(
+            patch.object(broker, "execute_trade", trade)
+        )
+        stack.enter_context(
+            patch.object(broker, "save_log", new=rejected_log)
+        )
+        stack.enter_context(
+            patch.object(broker, "emit_runtime_step", new=event)
+        )
+
+        await broker.process_portfolio_output(
+            [],
+            {"symbol": "AAPL", "signal": "buy"},
+            user_id="isolated-paper-quote-test",
+            trace_id="isolated-paper-quote",
+        )
+
+    trade.assert_not_called()
+    rejected_log.assert_awaited_once()
+
+    payload = rejected_log.await_args.args[0]
+    assert payload["status"] == (
+        "rejected_market_quote_unavailable"
+    )
+    assert payload["reason"] == "valid_execution_quote_unavailable"
+    assert rejected_log.await_args.kwargs["user_id"] == (
+        "isolated-paper-quote-test"
+    )
+
+    events = [
+        call.kwargs.get("event_type")
+        for call in event.await_args_list
+    ]
+    assert "PAPER_EXECUTION_REJECTED" in events
+    assert "PAPER_EXECUTION_STARTED" not in events
+
+
+
+@pytest.mark.asyncio
+async def test_conflicting_portfolio_entries_do_not_duplicate_execution():
+    """Multiple conflicting entries must produce one simulated execution."""
+    broker = paper_broker_module
+
+    trade = MagicMock(
+        return_value={
+            "symbol": "AAPL",
+            "signal": "buy",
+            "status": "executed",
+        }
+    )
+
+    log = AsyncMock()
+    steps = AsyncMock()
+
+    with ExitStack() as stack:
+        stack.enter_context(patch.object(broker, "execute_trade", trade))
+        stack.enter_context(patch.object(broker, "save_log", log))
+        stack.enter_context(patch.object(broker, "emit_runtime_step", steps))
+
+        stack.enter_context(
+            patch.object(
+                broker,
+                "drawdown_healthcheck",
+                new=AsyncMock(return_value={"status": "ok"}),
+            )
+        )
+
+        stack.enter_context(
+            patch.object(
+                broker,
+                "is_kill_switch_active",
+                new=MagicMock(return_value=False),
+            )
+        )
+
+        stack.enter_context(
+            patch.object(
+                broker,
+                "calculate_live_portfolio_equity",
+                new=AsyncMock(
+                    return_value={"current_cash_balance": 100000.0}
+                ),
+            )
+        )
+
+        stack.enter_context(
+            patch.object(
+                broker,
+                "get_live_market_price",
+                new=AsyncMock(
+                    return_value={
+                        "symbol": "AAPL",
+                        "price": 150.0,
+                        "status": "ok",
+                        "provider": "isolated_test",
+                    }
+                ),
+            )
+        )
+
+        # Isolate truthful historical sizing from external market data.
+        # Production continues to fail closed when sizing is unavailable.
+        stack.enter_context(
+            patch.object(
+                broker,
+                "calculate_position_size",
+                new=MagicMock(
+                    return_value={
+                        "status": "ok",
+                        "allocated_capital": 1000.0,
+                        "allocation_percentage": 0.01,
+                    }
+                ),
+            )
+        )
+
+        await broker.process_portfolio_output(
+            [
+                {"symbol": "AAPL", "signal": "sell"},
+                {"symbol": "AAPL", "signal": "hold"},
+                {"symbol": "AAPL", "signal": "sell"},
+            ],
+            {"symbol": "AAPL", "signal": "buy"},
+            user_id="isolated-conflict-test",
+        )
+
+    trade.assert_called_once_with("AAPL", "buy")
+    log.assert_awaited_once()
+
+    result = log.await_args.args[0]
+    assert result["symbol"] == "AAPL"
+    assert result["signal"] == "buy"
+    assert result["status"] == "executed"
+    assert result["allocated_capital"] > 0
+    assert result["slippage_price"] > 0
+    assert result["commission_paid"] == 1.0
